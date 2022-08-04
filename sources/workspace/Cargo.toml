@@ -1,0 +1,30 @@
+
+[workspace]
+members = [
+	"../errors",
+]
+
+
+[package]
+name = "vrl"
+version = "0.0.0"
+authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
+edition = "2021"
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+
+
+[lib]
+name = "vrl"
+path = "./lib.rs"
+
+
+[features]
+default = []
+
+
+[dependencies]
+vrl-errors = { path = "../errors" }
+

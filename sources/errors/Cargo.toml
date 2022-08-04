@@ -1,0 +1,24 @@
+
+[package]
+name = "vrl-errors"
+version = "0.0.0"
+authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
+edition = "2021"
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+workspace = "../workspace"
+
+
+[lib]
+name = "vrl_errors"
+path = "./lib.rs"
+
+
+[features]
+default = []
+
+
+[dependencies]
+
