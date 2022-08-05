@@ -42,7 +42,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				panic_with_code (_code),
+				panic! ("[{}]  unexpected error encountered!", _code.into ()),
 		}
 	}
 	
@@ -51,7 +51,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				panic_with_code (_code),
+				panic! ("[{}]  unexpected error encountered!", _code.into ()),
 		}
 	}
 }
@@ -65,11 +65,10 @@ pub trait ErrorExtPanic : Sized {
 }
 
 
-impl <E : StdError> ErrorExtPanic for E {
+impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
 	
 	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
-		let _code = _code.into ();
-		panic! ("[{}]  unexpected error encountered!  //  {}", _code, self);
+		panic! ("[{}]  unexpected error encountered!  //  {}", _code.into (), self);
 	}
 }
 
@@ -82,36 +81,28 @@ pub trait ResultExtWrap <V, E> : Sized {
 }
 
 
-impl <V, E : StdError> ResultExtWrap<V, io::Error> for Result<V, E> {
+impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E> for Result<V, SE> {
 	
-	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, io::Error> {
+	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
 			Err (_error) =>
-				Err (io::Error::new (io::ErrorKind::Other, format! ("[{}]  {}", _code.into (), _error))),
+				Err (E::new_with_cause (_code, _error))
 		}
 	}
 }
 
 
-impl <V> ResultExtWrap<V, io::Error> for Option<V> {
+impl <V, E : ErrorNew> ResultExtWrap<V, E> for Option<V> {
 	
-	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, io::Error> {
+	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
-			Err (io::Error::new (io::ErrorKind::Other, format! ("[{}]  unexpected error encountered!", _code.into ())))
+			Err (E::new_with_code (_code))
 		}
 	}
-}
-
-
-
-
-fn panic_with_code (_code : impl Into<ErrorCode>) -> ! {
-	let _code = _code.into ();
-	panic! ("[{}]  unexpected error encountered!", _code);
 }
 
 
