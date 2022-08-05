@@ -57,6 +57,10 @@ pub trait Error
 	fn message_string (&self) -> Option<Cow<str>> {
 		self.internals_ref () .details_ref () .message_string ()
 	}
+	
+	fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
+		self.internals_ref () .details_ref () .cause_ref ()
+	}
 }
 
 
@@ -84,6 +88,10 @@ impl ErrorApplicationCode {
 	pub const fn new (_code : u128) -> Self {
 		Self (_code)
 	}
+	
+	pub const fn code (&self) -> u128 {
+		self.0
+	}
 }
 
 
@@ -92,6 +100,10 @@ impl ErrorModuleCode {
 	pub const fn new (_code : u32) -> Self {
 		Self (_code)
 	}
+	
+	pub const fn code (&self) -> u32 {
+		self.0
+	}
 }
 
 
@@ -99,6 +111,10 @@ impl ErrorCode {
 	
 	pub const fn new (_code : u32) -> Self {
 		Self (_code)
+	}
+	
+	pub const fn code (&self) -> u32 {
+		self.0
 	}
 }
 

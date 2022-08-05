@@ -154,6 +154,21 @@ impl ErrorDetails {
 
 
 
+impl ErrorDetails {
+	
+	pub(crate) fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
+		match self.cause {
+			ErrorCause::None =>
+				None,
+			ErrorCause::Boxed (ref _cause) =>
+				Some (_cause.as_ref ()),
+		}
+	}
+}
+
+
+
+
 impl Display for ErrorDetails {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {

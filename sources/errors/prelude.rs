@@ -19,5 +19,6 @@ pub(crate) use ::std::{
 		convert::Infallible,
 		marker::PhantomData,
 		mem,
+		io,
 	};
 

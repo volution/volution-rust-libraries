@@ -48,6 +48,10 @@ mod api {
 		assert_eq! (_error.application_code (), TestError::APPLICATION_CODE, "[2a9844dc]");
 		assert_eq! (_error.module_code (), TestError::MODULE_CODE, "[71520027]");
 		assert_eq! (_error.error_code (), ERROR_CODE, "[8b40f952]");
+		
+		assert_eq! (_error.application_code () .code (), 0x2354852e4149df0b4d465d5cd6d79e32, "[939ea5c0]");
+		assert_eq! (_error.module_code () .code (), 0x21936ac4, "[6beb629f]");
+		assert_eq! (_error.error_code () .code (), 0xdeb5cc61, "[6162812c]");
 	}
 	
 	
@@ -63,6 +67,16 @@ mod api {
 		{
 			let _error = TestError::new_with_code (0xf9347b89);
 			assert_eq! (_error.message_string (), None, "[37aa7cbd]");
+		}
+	}
+	
+	
+	#[ test ]
+	fn access_causes () -> () {
+		
+		{
+			let _error = TestError::new_with_code (0x00ec81a0);
+			assert! (_error.cause_ref () .is_none (), "[0f1154b5]");
 		}
 	}
 	
