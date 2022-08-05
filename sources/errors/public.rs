@@ -66,6 +66,22 @@ pub trait Error
 
 
 
+pub trait ErrorNew : Error {
+	
+	fn new_with_code (_error_code : impl Into<ErrorCode>) -> Self;
+	
+	fn new_with_message (_error_code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Self;
+	
+	fn new_with_cause <E> (_error_code : impl Into<ErrorCode>, _cause : E) -> Self
+			where E : StdError + Sync + Send + 'static;
+	
+	fn new_with_message_and_cause <E> (_error_code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>, _cause : E) -> Self
+			where E : StdError + Sync + Send + 'static;
+}
+
+
+
+
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
 pub struct ErrorApplicationCode (pub(crate) u128);

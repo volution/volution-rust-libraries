@@ -18,32 +18,32 @@ macro_rules! define_error {
 		
 		impl $_type {
 			
-			#[ allow (dead_code) ]
-			pub fn new_with_code (_error_code : impl ::std::convert::Into<$crate::ErrorCode>) -> Self {
+			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode::new ($_application_code);
+			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode::new ($_module_code);
+		}
+		
+		
+		impl $crate::ErrorNew for $_type {
+			
+			fn new_with_code (_error_code : impl ::std::convert::Into<$crate::ErrorCode>) -> Self {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_code (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into ()))
 			}
 			
-			#[ allow (dead_code) ]
-			pub fn new_with_message (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>) -> Self {
+			fn new_with_message (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>) -> Self {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _message.into ()))
 			}
 			
-			#[ allow (dead_code) ]
-			pub fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
+			fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _cause))
 			}
 			
-			#[ allow (dead_code) ]
-			pub fn new_with_message_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>, _cause : E) -> Self
+			fn new_with_message_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message_and_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _message.into (), _cause))
 			}
-			
-			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode::new ($_application_code);
-			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode::new ($_module_code);
 		}
 		
 		
