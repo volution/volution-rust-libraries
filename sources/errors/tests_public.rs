@@ -155,6 +155,16 @@ mod api {
 			let _error = TestError::new_with_code (0x9c4168a6);
 			let _ = StdIoError::new (StdIoErrorKind::Other, _error);
 		}
+		
+		{
+			let _error = TestError::new_with_code (0x427d2809);
+			let _ : StdIoError = _error.into ();
+		}
+		
+		{
+			let _error = TestError::new_with_code (0x7dc454a8);
+			let _ : StdProcessExitCode = _error.into ();
+		}
 	}
 }
 

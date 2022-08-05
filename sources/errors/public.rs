@@ -64,6 +64,16 @@ pub trait Error
 	fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
 		self.internals_ref () .details_ref () .cause_ref ()
 	}
+	
+	
+	fn into_std_io_error (self) -> StdIoError {
+		StdIoError::new (StdIoErrorKind::Other, self)
+	}
+	
+	
+	fn into_std_process_exit_code (self) -> StdProcessExitCode {
+		StdProcessExitCode::FAILURE
+	}
 }
 
 

@@ -118,6 +118,30 @@ macro_rules! define_error {
 				<Self as $crate::Error>::debug_fmt (self, _formatter)
 			}
 		}
+		
+		
+		impl ::std::convert::Into<::std::io::Error> for $_type {
+			
+			fn into (self) -> ::std::io::Error {
+				<Self as $crate::Error>::into_std_io_error (self)
+			}
+		}
+		
+		
+		impl ::std::convert::Into<::std::process::ExitCode> for $_type {
+			
+			fn into (self) -> ::std::process::ExitCode {
+				<Self as $crate::Error>::into_std_process_exit_code (self)
+			}
+		}
+		
+		
+		impl ::std::process::Termination for $_type {
+			
+			fn report (self) -> ::std::process::ExitCode {
+				<Self as $crate::Error>::into_std_process_exit_code (self)
+			}
+		}
 	};
 }
 
