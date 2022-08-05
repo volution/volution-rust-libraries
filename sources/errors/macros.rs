@@ -42,6 +42,11 @@ macro_rules! define_error {
 			}
 			
 			#[ allow (dead_code) ]
+			pub fn new_with_format (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments) -> Self {
+				<Self as $crate::ErrorNew>::new_with_format (_error_code, _format)
+			}
+			
+			#[ allow (dead_code) ]
 			pub fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -53,6 +58,13 @@ macro_rules! define_error {
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::ErrorNew>::new_with_message_and_cause (_error_code, _message, _cause)
+			}
+			
+			#[ allow (dead_code) ]
+			pub fn new_with_format_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments, _cause : E) -> Self
+					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
+			{
+				<Self as $crate::ErrorNew>::new_with_format_and_cause (_error_code, _format, _cause)
 			}
 		}
 		
@@ -67,6 +79,10 @@ macro_rules! define_error {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _message.into ()))
 			}
 			
+			fn new_with_format (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments) -> Self {
+				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_format (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _format))
+			}
+			
 			fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -77,6 +93,12 @@ macro_rules! define_error {
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message_and_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _message.into (), _cause))
+			}
+			
+			fn new_with_format_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments, _cause : E) -> Self
+					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
+			{
+				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_format_and_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _format, _cause))
 			}
 		}
 		

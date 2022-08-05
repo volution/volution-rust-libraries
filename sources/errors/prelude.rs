@@ -20,6 +20,8 @@ pub use ::std::{
 #[ allow (unused_imports) ]
 pub(crate) use ::std::{
 		
+		ops::Deref,
+		
 		sync::Arc,
 		
 		fmt,

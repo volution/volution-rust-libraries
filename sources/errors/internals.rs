@@ -48,12 +48,15 @@ impl <T> ErrorInternals<T>
 		Self::new (_application_code, _module_code, _error_code, None, None)
 	}
 	
-	
 	#[ doc (hidden) ]
 	pub fn new_with_message (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _message : Cow<'static, str>) -> Self {
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _error_code, Some (_message), None as Option<Infallible>)
 	}
 	
+	#[ doc (hidden) ]
+	pub fn new_with_format (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _format : fmt::Arguments) -> Self {
+		Self::new_with_format_and_cause_0 (_application_code, _module_code, _error_code, _format, None as Option<Infallible>)
+	}
 	
 	#[ doc (hidden) ]
 	pub fn new_with_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _cause : E) -> Self
@@ -62,12 +65,18 @@ impl <T> ErrorInternals<T>
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _error_code, None, Some (_cause))
 	}
 	
-	
 	#[ doc (hidden) ]
 	pub fn new_with_message_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _message : Cow<'static, str>, _cause : E) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _error_code, Some (_message), Some (_cause))
+	}
+	
+	#[ doc (hidden) ]
+	pub fn new_with_format_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : E) -> Self
+			where E : StdError + Send + Sync + 'static
+	{
+		Self::new_with_format_and_cause_0 (_application_code, _module_code, _error_code, _format, Some (_cause))
 	}
 	
 	
@@ -89,6 +98,20 @@ impl <T> ErrorInternals<T>
 				ErrorCause::None,
 		};
 		Self::new (_application_code, _module_code, _error_code, Some (_message), Some (_cause))
+	}
+	
+	
+	pub(crate) fn new_with_format_and_cause_0 <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : Option<E>) -> Self
+			where E : StdError + Send + Sync + 'static
+	{
+		if let Some (_message) = _format.as_str () {
+			let _message = Cow::Borrowed (_message);
+			Self::new_with_message_and_cause_0 (_application_code, _module_code, _error_code, Some (_message), _cause)
+		} else {
+			let _message = _format.to_string ();
+			let _message = Cow::Owned (_message);
+			Self::new_with_message_and_cause_0 (_application_code, _module_code, _error_code, Some (_message), _cause)
+		}
 	}
 	
 	

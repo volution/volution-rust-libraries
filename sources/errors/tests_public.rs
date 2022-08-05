@@ -83,10 +83,16 @@ mod api {
 		let _ = TestError::new_with_message (0xf1b364cc, "with static message");
 		let _ = TestError::new_with_message (0x463c2f33, "with boxed message".to_string ());
 		
+		let _ = TestError::new_with_format (0xc071d039, format_args! ("with static message"));
+		let _ = TestError::new_with_format (0x0132fcaa, format_args! ("with formatted message / {}", 0));
+		
 		let _ = TestError::new_with_cause (0x27272c4e, _cause_new ());
 		
 		let _ = TestError::new_with_message_and_cause (0x97839406, "with static message", _cause_new ());
 		let _ = TestError::new_with_message_and_cause (0x4a017461, "with boxed message".to_string (), _cause_new ());
+		
+		let _ = TestError::new_with_format_and_cause (0xced506d3, format_args! ("with static message"), _cause_new ());
+		let _ = TestError::new_with_format_and_cause (0x6c35a22e, format_args! ("with formatted message / {}", 0), _cause_new ());
 	}
 	
 	
@@ -110,10 +116,42 @@ mod api {
 	#[ test ]
 	fn access_messages () -> () {
 		
+		fn _message_is_borrowed (_message : Option<Cow<str>>) -> bool {
+			match _message {
+				Some (Cow::Borrowed (_)) => true,
+				_ => false,
+			}
+		}
+		
+		fn _message_is_owned (_message : Option<Cow<str>>) -> bool {
+			match _message {
+				Some (Cow::Owned (_)) => true,
+				_ => false,
+			}
+		}
+		
 		{
-			const MESSAGE : &str = "[2a4ab4e7e0f4c404ba673f19cfda2f5a]";
-			let _error = TestError::new_with_message (0xbb344ed4, MESSAGE);
-			assert_eq! (_error.message_string (), Some (Cow::Borrowed (MESSAGE)), "[717b5194]");
+			let _error = TestError::new_with_message (0xbb344ed4, "with static message");
+			assert_eq! (_error.message_string () .as_deref (), Some ("with static message"), "[717b5194]");
+			assert! (_message_is_borrowed (_error.message_string ()), "[747edc8f]");
+		}
+		
+		{
+			let _error = TestError::new_with_format (0x073b7cdf, format_args! ("with static message"));
+			assert_eq! (_error.message_string () .as_deref (), Some ("with static message"), "[14959100]");
+			assert! (_message_is_borrowed (_error.message_string ()), "[b0a4b7a6]");
+		}
+		
+		{
+			let _error = TestError::new_with_message (0x8fc32d40, "with boxed message".to_string ());
+			assert_eq! (_error.message_string () .as_deref (), Some ("with boxed message"), "[4bdd38b0]");
+			assert! (_message_is_borrowed (_error.message_string ()), "[9563fb56]");
+		}
+		
+		{
+			let _error = TestError::new_with_format (0x2b5e7cdb, format_args! ("with formatted message / {}", 0));
+			assert_eq! (_error.message_string () .as_deref (), Some ("with formatted message / 0"), "[8e6e1b56]");
+			assert! (_message_is_borrowed (_error.message_string ()), "[a480d1e1]");
 		}
 		
 		{
