@@ -4,7 +4,7 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	crate::define_error! (TestError, 0x572489cc4fe813077b8ff6b4bb68ce3a, 0xc4f39f8c);
+	::vrl_errors::define_error! (TestError, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957);
 }
 
 
@@ -12,17 +12,15 @@ mod macros {
 
 mod api {
 	
-	crate::define_error! (TestError, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
+	
+	use ::vrl_errors::*;
 	
 	use ::std::{
 			borrow::Cow,
 		};
 	
-	use crate::{
-			Error,
-			ErrorCode,
-			AnyhowError,
-		};
+	
+	define_error! (TestError, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
 	
 	
 	#[ test ]
@@ -41,20 +39,11 @@ mod api {
 	
 	
 	#[ test ]
-	fn convert () -> () {
-		
-		let _error : TestError = TestError::new_with_code (0xe0bdbf01);
-		let _anyhow : AnyhowError = _error.into_anyhow ();
-		let _error : TestError = TestError::from_anyhow (_anyhow) .expect ("[2c33330d]");
-	}
-	
-	
-	#[ test ]
 	fn access_codes () -> () {
 		
-		const ERROR_CODE : ErrorCode = ErrorCode (0xdeb5cc61);
+		const ERROR_CODE : ErrorCode = ErrorCode::new (0xdeb5cc61);
 		
-		let _error = TestError::new_with_code (ERROR_CODE.0);
+		let _error = TestError::new_with_code (ERROR_CODE);
 		
 		assert_eq! (_error.application_code (), TestError::APPLICATION_CODE, "[2a9844dc]");
 		assert_eq! (_error.module_code (), TestError::MODULE_CODE, "[71520027]");
@@ -85,32 +74,11 @@ mod api {
 			let _error = TestError::new_with_code (0x02c8f05d);
 			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:02c8f05d]  (unexpected error)", "[3910bc17]");
 		}
-	
+		
 		{
 			let _error = TestError::new_with_message (0x3c647fec, "with static message");
 			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:3c647fec]  with static message", "[30d16ff6]");
 		}
-	}
-}
-
-
-
-
-mod misc {
-	
-	crate::define_error! (TestError, 0x1e2f2f16363827beff19043074297fc0, 0x337f5813);
-	
-	use ::std::{
-			mem,
-		};
-	
-	
-	#[ test ]
-	fn sizes () -> () {
-		
-		assert_eq! (mem::size_of::<TestError> (), mem::size_of::<&TestError> (), "[f3dcbba5]");
-		assert_eq! (mem::size_of::<Option<TestError>> (), mem::size_of::<Option<&TestError>> (), "[c32b7401]");
-		assert_eq! (mem::size_of::<Result<(), TestError>> (), mem::size_of::<Result<(), &TestError>> (), "[1f61d61d]");
 	}
 }
 

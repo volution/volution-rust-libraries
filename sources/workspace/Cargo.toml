@@ -19,6 +19,9 @@ autobenches = false
 [lib]
 name = "vrl"
 path = "./lib.rs"
+test = false
+bench = false
+doctest = false
 
 
 [features]

@@ -6,7 +6,7 @@ pub(crate) mod macros;
 pub(crate) mod prelude;
 
 #[ cfg (test) ]
-pub(crate) mod tests;
+pub(crate) mod tests_internal;
 
 
 

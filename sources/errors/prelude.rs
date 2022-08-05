@@ -9,6 +9,7 @@ pub use ::std::error::Error as StdError;
 pub(crate) use ::anyhow::Error as AnyhowError;
 
 
+#[ allow (unused_imports) ]
 pub(crate) use ::std::{
 		sync::Arc,
 		fmt,
@@ -17,5 +18,6 @@ pub(crate) use ::std::{
 		borrow::Cow,
 		convert::Infallible,
 		marker::PhantomData,
+		mem,
 	};
 

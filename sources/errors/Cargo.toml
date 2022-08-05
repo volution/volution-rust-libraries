@@ -14,6 +14,9 @@ workspace = "../workspace"
 [lib]
 name = "vrl_errors"
 path = "./lib.rs"
+test = true
+bench = false
+doctest = false
 
 
 [features]
@@ -22,4 +25,9 @@ default = []
 
 [dependencies]
 anyhow = "*"
+
+
+[[test]]
+name = "vrl_errors_tests_public"
+path = "./tests_public.rs"
 

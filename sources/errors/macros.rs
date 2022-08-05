@@ -42,8 +42,8 @@ macro_rules! define_error {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message_and_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, _error_code.into (), _message.into (), _cause))
 			}
 			
-			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode ($_application_code);
-			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode ($_module_code);
+			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode::new ($_application_code);
+			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode::new ($_module_code);
 		}
 		
 		
