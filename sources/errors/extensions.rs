@@ -7,11 +7,11 @@ use crate::prelude::*;
 
 pub trait ResultExtPanic <V> : Sized {
 	
-	fn or_panic (self, _code : impl Into<ErrorCode>) -> V;
+	fn else_panic (self, _code : impl Into<ErrorCode>) -> V;
 	
-	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V;
+	fn else_panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V;
 	
-	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V;
+	fn else_panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V;
 	
 	fn infallible (self, _code : impl Into<ErrorCode>) -> V;
 }
@@ -19,7 +19,7 @@ pub trait ResultExtPanic <V> : Sized {
 
 impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 	
-	fn or_panic (self, _code : impl Into<ErrorCode>) -> V {
+	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Ok (_value) =>
 				_value,
@@ -28,7 +28,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 		}
 	}
 	
-	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V {
+	fn else_panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V {
 		match self {
 			Ok (_value) =>
 				_value,
@@ -37,7 +37,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 		}
 	}
 	
-	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V {
+	fn else_panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V {
 		match self {
 			Ok (_value) =>
 				_value,
@@ -59,7 +59,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 
 impl <V> ResultExtPanic<V> for Option<V> {
 	
-	fn or_panic (self, _code : impl Into<ErrorCode>) -> V {
+	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Some (_value) =>
 				_value,
@@ -68,7 +68,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 		}
 	}
 	
-	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V {
+	fn else_panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V {
 		match self {
 			Some (_value) =>
 				_value,
@@ -77,7 +77,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 		}
 	}
 	
-	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V {
+	fn else_panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V {
 		match self {
 			Some (_value) =>
 				_value,
@@ -129,17 +129,17 @@ impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
 
 pub trait ResultExtWrap <V, E> : Sized {
 	
-	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E>;
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E>;
 	
-	fn or_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E>;
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E>;
 	
-	fn or_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E>;
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E>;
 }
 
 
 impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E> for Result<V, SE> {
 	
-	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
@@ -148,7 +148,7 @@ impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E
 		}
 	}
 	
-	fn or_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E> {
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
@@ -157,7 +157,7 @@ impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E
 		}
 	}
 	
-	fn or_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E> {
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
@@ -170,7 +170,7 @@ impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E
 
 impl <V, E : ErrorNew> ResultExtWrap<V, E> for Option<V> {
 	
-	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
@@ -178,7 +178,7 @@ impl <V, E : ErrorNew> ResultExtWrap<V, E> for Option<V> {
 		}
 	}
 	
-	fn or_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E> {
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
@@ -186,7 +186,7 @@ impl <V, E : ErrorNew> ResultExtWrap<V, E> for Option<V> {
 		}
 	}
 	
-	fn or_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E> {
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
