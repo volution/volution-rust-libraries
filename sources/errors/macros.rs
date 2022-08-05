@@ -181,12 +181,28 @@ macro_rules! failed {
 		$crate::ErrorNewWithMessageDescriptor::wrap ($_code, $_message) .build ()
 	};
 	
+	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ) ) => {
+		$crate::ErrorNewWithFormatDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*)) .build ()
+	};
+	
+	( $_code : literal, $_format : literal, $( $_argument : expr ),+ ) => {
+		$crate::failed! ($_code, $_format => ( $( $_argument ),* ) )
+	};
+	
 	( $_code : literal, cause => $_cause : expr ) => {
 		$crate::ErrorNewWithCauseDescriptor::wrap ($_code, $_cause) .build ()
 	};
 	
 	( $_code : literal, $_message : expr, cause => $_cause : expr ) => {
 		$crate::ErrorNewWithMessageAndCauseDescriptor::wrap ($_code, $_message, $_cause) .build ()
+	};
+	
+	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ), cause => $_cause : expr ) => {
+		$crate::ErrorNewWithFormatAndCauseDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*), $_cause) .build ()
+	};
+	
+	( $_code : literal, $_format : literal, $( $_argument : expr ),+; cause => $_cause : expr ) => {
+		$crate::failed! ($_code, $_format => ( $( $_argument ),* ), cause => $_cause )
 	};
 }
 

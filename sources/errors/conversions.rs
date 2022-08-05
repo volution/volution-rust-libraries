@@ -62,6 +62,33 @@ impl <C, M> ErrorNewWithMessageDescriptor<C, M>
 
 #[ doc (hidden) ]
 #[ must_use ]
+pub struct ErrorNewWithFormatDescriptor <'a, C>
+	where
+		C : Into<ErrorCode>,
+{
+	code : C,
+	format : fmt::Arguments<'a>,
+}
+
+
+impl <'a, C> ErrorNewWithFormatDescriptor<'a, C>
+	where
+		C : Into<ErrorCode>,
+{
+	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>) -> Self {
+		Self { code : _code, format : _format }
+	}
+	
+	pub fn build <E : ErrorNew> (self) -> E {
+		E::new_with_format (self.code, self.format)
+	}
+}
+
+
+
+
+#[ doc (hidden) ]
+#[ must_use ]
 pub struct ErrorNewWithCauseDescriptor <C, W>
 	where
 		C : Into<ErrorCode>,
@@ -115,6 +142,36 @@ impl <C, M, W> ErrorNewWithMessageAndCauseDescriptor<C, M, W>
 	
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_message_and_cause (self.code, self.message, self.cause)
+	}
+}
+
+
+
+
+#[ doc (hidden) ]
+#[ must_use ]
+pub struct ErrorNewWithFormatAndCauseDescriptor <'a, C, W>
+	where
+		C : Into<ErrorCode>,
+		W : StdError + Sync + Send + 'static,
+{
+	code : C,
+	format : fmt::Arguments<'a>,
+	cause : W,
+}
+
+
+impl <'a, C, W> ErrorNewWithFormatAndCauseDescriptor<'a, C, W>
+	where
+		C : Into<ErrorCode>,
+		W : StdError + Sync + Send + 'static,
+{
+	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>, _cause : W) -> Self {
+		Self { code : _code, format : _format, cause : _cause }
+	}
+	
+	pub fn build <E : ErrorNew> (self) -> E {
+		E::new_with_format_and_cause (self.code, self.format, self.cause)
 	}
 }
 
