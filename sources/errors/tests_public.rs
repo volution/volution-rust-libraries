@@ -7,7 +7,7 @@ mod macros {
 	::vrl_errors::define_error! (TestError / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957);
 	
 	
-	const CASE_COUNT : u8 = 10;
+	const CASE_COUNT : u8 = 12;
 	
 	
 	fn returns_error (_variant : u8) -> TestError {
@@ -24,6 +24,8 @@ mod macros {
 			7 => ::vrl_errors::failed! (0xcd9089f8, "with formatted message / {}" => (0), cause => _cause),
 			8 => ::vrl_errors::failed! (0x2bcda87c, "with formatted message / {}", 0),
 			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 0; cause => _cause),
+			10 => ::vrl_errors::failed! (TestError, 0x93435944),
+			11 => ::vrl_errors::failed! (TestError, 0x60a20b4f, "with static message"),
 			CASE_COUNT .. => ::std::unreachable! ("[1ff0cc7a]"),
 		};
 		_error
@@ -44,7 +46,30 @@ mod macros {
 			7 => ::vrl_errors::fail! (0x3bbe4b83, "with formatted message / {}" => (0), cause => _cause),
 			8 => ::vrl_errors::fail! (0x6afa7cca, "with formatted message / {}", 0),
 			9 => ::vrl_errors::fail! (0x0080d98c, "with formatted message / {}", 0; cause => _cause),
+			10 => ::vrl_errors::fail! (TestError, 0xdf3933aa),
+			11 => ::vrl_errors::fail! (TestError, 0x379198b1, "with static message"),
 			CASE_COUNT .. => ::std::unreachable! ("[632936ad]"),
+		}
+	}
+	
+	
+	fn returns_panic (_variant : u8) -> ! {
+		use ::std::string::ToString as _;
+		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
+		match _variant {
+			0 => ::vrl_errors::panic! (0x2b720744),
+			1 => ::vrl_errors::panic! (0x78051ab4, "with static message"),
+			2 => ::vrl_errors::panic! (0x35880691, "with boxed message".to_string ()),
+			3 => ::vrl_errors::panic! (0x6e249a14, cause => _cause),
+			4 => ::vrl_errors::panic! (0x599171ab, "with static message", cause => _cause),
+			5 => ::vrl_errors::panic! (0x6fde2d28, "with boxed message".to_string (), cause => _cause),
+			6 => ::vrl_errors::panic! (0x43a52ed9, "with formatted message / {}" => (0)),
+			7 => ::vrl_errors::panic! (0xcda96781, "with formatted message / {}" => (0), cause => _cause),
+			8 => ::vrl_errors::panic! (0xe4dcdc9d, "with formatted message / {}", 0),
+			9 => ::vrl_errors::panic! (0x881b21ee, "with formatted message / {}", 0; cause => _cause),
+			10 => ::vrl_errors::panic! (TestError, 0xab9159fd),
+			11 => ::vrl_errors::panic! (TestError, 0x4d82b382, "with static message"),
+			CASE_COUNT .. => ::std::unreachable! ("[89ec6efc]"),
 		}
 	}
 	
@@ -55,6 +80,9 @@ mod macros {
 		for _case in 0 .. CASE_COUNT {
 			let _ = returns_error (_case);
 			let _ = returns_result (_case);
+			if false {
+				let _ = returns_panic (_case);
+			}
 		}
 	}
 }

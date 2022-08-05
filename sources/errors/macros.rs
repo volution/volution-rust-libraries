@@ -173,6 +173,10 @@ macro_rules! define_error {
 #[ macro_export ]
 macro_rules! failed {
 	
+	( $_type : ty, $_code : literal $( $_token : tt )* ) => {
+		({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
+	};
+	
 	( $_code : literal ) => {
 		$crate::ErrorNewWithCodeDescriptor::wrap ($_code) .build ()
 	};
@@ -207,11 +211,32 @@ macro_rules! failed {
 }
 
 
+
+
 #[ macro_export ]
 macro_rules! fail {
 	
-	( $( $_token : tt )* ) => {
-		return ::std::result::Result::Err ($crate::failed! ( $( $_token )* ))
+	( $_type : ty, $_code : literal $( $_token : tt )* ) => {
+		return ::std::result::Result::Err ({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
+	};
+	
+	( $_code : literal $( $_token : tt )* ) => {
+		$crate::fail! (_, $_code $( $_token )* )
+	};
+}
+
+
+
+
+#[ macro_export ]
+macro_rules! panic {
+	
+	( $_type : ty, $_code : literal $( $_token : tt )* ) => {
+		$crate::ErrorExtPanic::panic_0 ({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
+	};
+	
+	( $_code : literal $( $_token : tt )* ) => {
+		$crate::panic! ($crate::PanicError, $_code $( $_token )* )
 	};
 }
 

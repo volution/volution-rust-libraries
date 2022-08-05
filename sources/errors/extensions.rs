@@ -11,6 +11,8 @@ use crate::prelude::*;
 
 pub trait ResultExtPanic <V> : Sized {
 	
+	fn else_panic_0 (self) -> V;
+	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V;
 	
 	fn else_panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V;
@@ -22,6 +24,15 @@ pub trait ResultExtPanic <V> : Sized {
 
 
 impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
+	
+	fn else_panic_0 (self) -> V {
+		match self {
+			Ok (_value) =>
+				_value,
+			Err (_error) =>
+				_error.panic_0 (),
+		}
+	}
 	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
@@ -63,12 +74,21 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 
 impl <V> ResultExtPanic<V> for Option<V> {
 	
+	fn else_panic_0 (self) -> V {
+		match self {
+			Some (_value) =>
+				_value,
+			None =>
+				std::panic! ("unexpected error encountered!"),
+		}
+	}
+	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Some (_value) =>
 				_value,
 			None =>
-				panic! ("[{}]  unexpected error encountered!", _code.into ()),
+				std::panic! ("[{}]  unexpected error encountered!", _code.into ()),
 		}
 	}
 	
@@ -77,7 +97,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				panic! ("[{}]  {}", _code.into (), _message.into ()),
+				std::panic! ("[{}]  {}", _code.into (), _message.into ()),
 		}
 	}
 	
@@ -86,7 +106,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				panic! ("[{}]  {}", _code.into (), _format),
+				std::panic! ("[{}]  {}", _code.into (), _format),
 		}
 	}
 	
@@ -95,7 +115,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				panic! ("[{}]  unexpected error encountered!", _code.into ()),
+				std::panic! ("[{}]  unexpected error encountered!", _code.into ()),
 		}
 	}
 }
@@ -104,6 +124,8 @@ impl <V> ResultExtPanic<V> for Option<V> {
 
 
 pub trait ErrorExtPanic : Sized {
+	
+	fn panic_0 (self) -> !;
 	
 	fn panic (self, _code : impl Into<ErrorCode>) -> !;
 	
@@ -115,16 +137,20 @@ pub trait ErrorExtPanic : Sized {
 
 impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
 	
+	fn panic_0 (self) -> ! {
+		std::panic! ("unexpected error encountered!  //  {}", self);
+	}
+	
 	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
-		panic! ("[{}]  unexpected error encountered!  //  {}", _code.into (), self);
+		std::panic! ("[{}]  unexpected error encountered!  //  {}", _code.into (), self);
 	}
 	
 	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> ! {
-		panic! ("[{}]  {}  //  {}", _code.into (), _message.into (), self);
+		std::panic! ("[{}]  {}  //  {}", _code.into (), _message.into (), self);
 	}
 	
 	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> ! {
-		panic! ("[{}]  {}  //  {}", _code.into (), _format, self);
+		std::panic! ("[{}]  {}  //  {}", _code.into (), _format, self);
 	}
 }
 
