@@ -6,7 +6,10 @@ use crate::prelude::*;
 
 
 pub trait Error
-	where Self : Sized + Send + Sync + 'static
+	where
+		Self : Sized,
+		Self : Send + Sync + 'static,
+		Self : StdError,
 {
 	
 	

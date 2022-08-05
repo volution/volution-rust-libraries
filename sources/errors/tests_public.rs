@@ -4,7 +4,57 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	::vrl_errors::define_error! (TestError, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957);
+	::vrl_errors::define_error! (TestError / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957);
+	
+	
+	fn returns_error (_variant : u8) -> TestError {
+		use ::std::string::ToString as _;
+		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
+		let _error = match _variant {
+			1 => ::vrl_errors::failed! (0x8b718df6),
+			2 => ::vrl_errors::failed! (0x265cfa26, "with static message"),
+			3 => ::vrl_errors::failed! (0x4938d5a1, "with boxed message".to_string ()),
+			4 => ::vrl_errors::failed! (0xb0bf39d7, cause => _cause),
+			5 => ::vrl_errors::failed! (0x29198555, "with static message", cause => _cause),
+			6 => ::vrl_errors::failed! (0xab07dece, "with boxed message".to_string (), cause => _cause),
+			_ => ::std::unreachable! ("[1ff0cc7a]"),
+		};
+		_error
+	}
+	
+	
+	fn returns_result (_variant : u8) -> TestResult {
+		use ::std::string::ToString as _;
+		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
+		match _variant {
+			1 => ::vrl_errors::fail! (0x03e28781),
+			2 => ::vrl_errors::fail! (0x794724ea, "with static message"),
+			3 => ::vrl_errors::fail! (0xa7259b73, "with boxed message".to_string ()),
+			4 => ::vrl_errors::fail! (0xe8e57d19, cause => _cause),
+			5 => ::vrl_errors::fail! (0xe4927cfa, "with static message", cause => _cause),
+			6 => ::vrl_errors::fail! (0x12d7f906, "with boxed message".to_string (), cause => _cause),
+			_ => ::std::unreachable! ("[632936ad]"),
+		}
+	}
+	
+	
+	#[ test ]
+	fn failed () -> () {
+		
+		let _ = returns_error (1);
+		let _ = returns_error (2);
+		let _ = returns_error (3);
+		let _ = returns_error (4);
+		let _ = returns_error (5);
+		let _ = returns_error (6);
+		
+		let _ = returns_result (1);
+		let _ = returns_result (2);
+		let _ = returns_result (3);
+		let _ = returns_result (4);
+		let _ = returns_result (5);
+		let _ = returns_result (6);
+	}
 }
 
 
@@ -20,21 +70,23 @@ mod api {
 		};
 	
 	
-	define_error! (TestError, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
+	define_error! (TestError / TestResult, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
 	
 	
 	#[ test ]
 	fn create () -> () {
+		
+		let _cause_new = || StdIoError::new (StdIoErrorKind::Other, "cause message");
 		
 		let _ = TestError::new_with_code (0xf0837303);
 		
 		let _ = TestError::new_with_message (0xf1b364cc, "with static message");
 		let _ = TestError::new_with_message (0x463c2f33, "with boxed message".to_string ());
 		
-		let _ = TestError::new_with_cause (0x27272c4e, ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message"));
+		let _ = TestError::new_with_cause (0x27272c4e, _cause_new ());
 		
-		let _ = TestError::new_with_message_and_cause (0x97839406, "with static message", ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message"));
-		let _ = TestError::new_with_message_and_cause (0x4a017461, "with boxed message".to_string (), ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message"));
+		let _ = TestError::new_with_message_and_cause (0x97839406, "with static message", _cause_new ());
+		let _ = TestError::new_with_message_and_cause (0x4a017461, "with boxed message".to_string (), _cause_new ());
 	}
 	
 	
@@ -92,6 +144,16 @@ mod api {
 		{
 			let _error = TestError::new_with_message (0x3c647fec, "with static message");
 			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:3c647fec]  with static message", "[30d16ff6]");
+		}
+	}
+	
+	
+	#[ test ]
+	fn conversions () -> () {
+		
+		{
+			let _error = TestError::new_with_code (0x9c4168a6);
+			let _ = StdIoError::new (StdIoErrorKind::Other, _error);
 		}
 	}
 }

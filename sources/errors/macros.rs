@@ -9,6 +9,12 @@
 macro_rules! define_error {
 	
 	
+	( $_visibility : vis $_error_type : ident / $_result_type : ident, $_application_code : literal, $_module_code : literal ) => {
+		$crate::define_error! ($_visibility $_error_type, $_application_code, $_module_code);
+		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
+	};
+	
+	
 	( $_visibility : vis $_type : ident, $_application_code : literal, $_module_code : literal ) => {
 		
 		
@@ -20,6 +26,34 @@ macro_rules! define_error {
 			
 			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode::new ($_application_code);
 			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode::new ($_module_code);
+		}
+		
+		
+		impl $_type {
+			
+			#[ allow (dead_code) ]
+			pub fn new_with_code (_error_code : impl ::std::convert::Into<$crate::ErrorCode>) -> Self {
+				<Self as $crate::ErrorNew>::new_with_code (_error_code)
+			}
+			
+			#[ allow (dead_code) ]
+			pub fn new_with_message (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>) -> Self {
+				<Self as $crate::ErrorNew>::new_with_message (_error_code, _message)
+			}
+			
+			#[ allow (dead_code) ]
+			pub fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
+					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
+			{
+				<Self as $crate::ErrorNew>::new_with_cause (_error_code, _cause)
+			}
+			
+			#[ allow (dead_code) ]
+			pub fn new_with_message_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>, _cause : E) -> Self
+					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
+			{
+				<Self as $crate::ErrorNew>::new_with_message_and_cause (_error_code, _message, _cause)
+			}
 		}
 		
 		
@@ -66,6 +100,10 @@ macro_rules! define_error {
 		}
 		
 		
+		impl ::std::error::Error for $_type {
+		}
+		
+		
 		impl ::std::fmt::Display for $_type {
 			
 			fn fmt (&self, _formatter : &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
@@ -80,7 +118,38 @@ macro_rules! define_error {
 				<Self as $crate::Error>::debug_fmt (self, _formatter)
 			}
 		}
-	}
+	};
 }
 
+
+
+
+#[ macro_export ]
+macro_rules! failed {
+	
+	( $_code : literal ) => {
+		$crate::ErrorNewWithCodeDescriptor::wrap ($_code) .build ()
+	};
+	
+	( $_code : literal, $_message : expr ) => {
+		$crate::ErrorNewWithMessageDescriptor::wrap ($_code, $_message) .build ()
+	};
+	
+	( $_code : literal, cause => $_cause : expr ) => {
+		$crate::ErrorNewWithCauseDescriptor::wrap ($_code, $_cause) .build ()
+	};
+	
+	( $_code : literal, $_message : expr, cause => $_cause : expr ) => {
+		$crate::ErrorNewWithMessageAndCauseDescriptor::wrap ($_code, $_message, $_cause) .build ()
+	};
+}
+
+
+#[ macro_export ]
+macro_rules! fail {
+	
+	( $( $_token : tt )* ) => {
+		return ::std::result::Result::Err ($crate::failed! ( $( $_token )* ))
+	};
+}
 

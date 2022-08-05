@@ -1,6 +1,7 @@
 
 
 pub(crate) mod public;
+pub(crate) mod conversions;
 pub(crate) mod extensions;
 pub(crate) mod internals;
 pub(crate) mod macros;
@@ -19,6 +20,7 @@ define_error! (pub(crate) UnknownError, 0, 0);
 
 pub use {
 		public::*,
+		conversions::*,
 		extensions::*,
 		internals::*,
 		macros::*,
