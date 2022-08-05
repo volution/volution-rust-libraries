@@ -10,8 +10,30 @@ macro_rules! define_error {
 	
 	
 	( $_visibility : vis $_error_type : ident / $_result_type : ident, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+		
 		$crate::define_error! ($_visibility $_error_type, $_application_code, $_module_code, $_type_code);
+		
 		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
+	};
+	
+	
+	( $_visibility : vis $_error_type : ident < $_details_type : ty > / $_result_type : ident, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+		
+		$crate::define_error! ($_visibility $_error_type < $_details_type >, $_application_code, $_module_code, $_type_code);
+		
+		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
+	};
+	
+	
+	( $_visibility : vis $_error_type : ident < $_details_type : ty >, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+		
+		$crate::define_error! ($_visibility $_error_type, $_application_code, $_module_code, $_type_code);
+		
+		impl $crate::ErrorWithDetails for $_error_type {
+			type Details = $_details_type;
+		}
+		
+		impl $crate::ErrorNewWithDetails for $_error_type {}
 	};
 	
 	
@@ -178,36 +200,36 @@ macro_rules! failed {
 		({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
 	};
 	
-	( $_code : literal ) => {
-		$crate::ErrorNewWithCodeDescriptor::wrap ($_code) .build ()
+	( $_code : literal $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithCodeDescriptor::wrap ($_code) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_message : expr ) => {
-		$crate::ErrorNewWithMessageDescriptor::wrap ($_code, $_message) .build ()
+	( $_code : literal, $_message : expr $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithMessageDescriptor::wrap ($_code, $_message) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ) ) => {
-		$crate::ErrorNewWithFormatDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*)) .build ()
+	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ) $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithFormatDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*)) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_format : literal, $( $_argument : expr ),+ ) => {
-		$crate::failed! ($_code, $_format => ( $( $_argument ),* ) )
+	( $_code : literal, $_format : literal, $( $_argument : expr ),+ $( , details => $_details : expr )? ) => {
+		$crate::failed! ($_code, $_format => ( $( $_argument ),* ) $( , details => $_details )? )
 	};
 	
-	( $_code : literal, cause => $_cause : expr ) => {
-		$crate::ErrorNewWithCauseDescriptor::wrap ($_code, $_cause) .build ()
+	( $_code : literal, cause => $_cause : expr $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithCauseDescriptor::wrap ($_code, $_cause) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_message : expr, cause => $_cause : expr ) => {
-		$crate::ErrorNewWithMessageAndCauseDescriptor::wrap ($_code, $_message, $_cause) .build ()
+	( $_code : literal, $_message : expr, cause => $_cause : expr $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithMessageAndCauseDescriptor::wrap ($_code, $_message, $_cause) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ), cause => $_cause : expr ) => {
-		$crate::ErrorNewWithFormatAndCauseDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*), $_cause) .build ()
+	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ), cause => $_cause : expr $( , details => $_details : expr )? ) => {
+		$crate::ErrorNewWithFormatAndCauseDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*), $_cause) $( .with_details ($_details) )? .build ()
 	};
 	
-	( $_code : literal, $_format : literal, $( $_argument : expr ),+; cause => $_cause : expr ) => {
-		$crate::failed! ($_code, $_format => ( $( $_argument ),* ), cause => $_cause )
+	( $_code : literal, $_format : literal, $( $_argument : expr ),+; cause => $_cause : expr $( , details => $_details : expr )? ) => {
+		$crate::failed! ($_code, $_format => ( $( $_argument ),* ), cause => $_cause $( , details => $_details )? )
 	};
 }
 

@@ -18,7 +18,9 @@ pub(crate) struct ErrorPayload {
 	pub(crate) error_code : ErrorCode,
 	pub(crate) message : ErrorMessage,
 	pub(crate) cause : ErrorCause,
+	pub(crate) details : ErrorDetails,
 }
+
 
 #[ must_use ]
 #[ derive (Debug) ]
@@ -35,6 +37,10 @@ pub(crate) enum ErrorCause {
 	None,
 	Boxed (Arc<dyn StdError + Send + Sync + 'static>),
 }
+
+
+#[ must_use ]
+pub(crate) struct ErrorDetails (pub(crate) Arc<Option<Box<dyn Any + Send + Sync + 'static>>>);
 
 
 
@@ -120,6 +126,7 @@ impl <T> ErrorInternals<T>
 		
 		let _message = _message.unwrap_or (ErrorMessage::None);
 		let _cause = _cause.unwrap_or (ErrorCause::None);
+		let _details = ErrorDetails (Arc::new (None));
 		
 		let _payload = ErrorPayload {
 				application_code : _application_code,
@@ -128,6 +135,7 @@ impl <T> ErrorInternals<T>
 				error_code : _error_code,
 				message : _message,
 				cause : _cause,
+				details : _details,
 			};
 		
 		let _anyhow = AnyhowError::msg (_payload);
@@ -188,6 +196,33 @@ impl ErrorPayload {
 			ErrorCause::Boxed (ref _cause) =>
 				Some (_cause.as_ref ()),
 		}
+	}
+}
+
+
+
+
+impl ErrorPayload {
+	
+	pub(crate) fn details_ref (&self) -> Option<&(dyn Any + Send + Sync + 'static)> {
+		if let Some (_details) = self.details.0.deref () {
+			Some (_details.deref ())
+		} else {
+			None
+		}
+	}
+	
+	pub(crate) fn details_set (&self, _details : Box<dyn Any + Send + Sync + 'static>) -> bool {
+		let _arc = self.details.0.clone ();
+		if Arc::strong_count (&_arc) > 2 {
+			return false;
+		}
+		let _pointer = Arc::as_ptr (&_arc);
+		unsafe {
+			let _pointer = _pointer as *mut Option<Box<_>>;
+			*_pointer = Some (_details)
+		}
+		return true;
 	}
 }
 

@@ -105,3 +105,51 @@ pub trait ErrorNew : Error {
 }
 
 
+
+
+pub trait ErrorWithDetails : Error {
+	
+	type Details : Any + Send + Sync + 'static;
+	
+	fn details (&self) -> Option<Self::Details> where Self::Details : Copy {
+		self.details_ref () .cloned ()
+	}
+	
+	fn details_cloned (&self) -> Option<Self::Details> where Self::Details : Clone {
+		self.details_ref () .cloned ()
+	}
+	
+	fn details_ref (&self) -> Option<&Self::Details> {
+		let _details = self.internals_ref () .payload_ref () .details_ref ();
+		let _details = if let Some (_details) = _details {
+			_details
+		} else {
+			return None;
+		};
+		let _details = if let Some (_details) = _details.downcast_ref () {
+			_details
+		} else {
+			return None;
+		};
+		Some (_details)
+	}
+	
+	fn details_set (&mut self, _details : Self::Details) -> () {
+		let _details = Box::new (_details);
+		let _set = self.internals_ref () .payload_ref () .details_set (_details);
+		if ! _set {
+			::std::panic! ("[e1cce8ac]");
+		}
+	}
+}
+
+
+pub trait ErrorNewWithDetails : ErrorNew + ErrorWithDetails {
+	
+	fn with_details (mut self, _details : Self::Details) -> Self {
+		self.details_set (_details);
+		self
+	}
+}
+
+

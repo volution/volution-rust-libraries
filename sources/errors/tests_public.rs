@@ -4,7 +4,7 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	::vrl_errors::define_error! (TestError / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957, 0xeb2896c5);
+	::vrl_errors::define_error! (TestError <u32> / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957, 0xeb2896c5);
 	
 	
 	const CASE_COUNT : u8 = 12;
@@ -26,6 +26,7 @@ mod macros {
 			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 0; cause => _cause),
 			10 => ::vrl_errors::failed! (TestError, 0x93435944),
 			11 => ::vrl_errors::failed! (TestError, 0x60a20b4f, "with static message"),
+//			12 => ::vrl_errors::failed! (TestError, 0x2c604cc5, details => 42),
 			CASE_COUNT .. => ::std::unreachable! ("[1ff0cc7a]"),
 		};
 		_error
@@ -255,6 +256,34 @@ mod api {
 		assert! ((_err_new () .else_wrap_with_format (0x1ce0739a, format_args! ("with formatted message")) as TestResult) .is_err (), "[2fe27784]");
 		
 		assert_eq! ((_err_new () .else_wrap (ERROR_CODE) as TestResult) .unwrap_err () .error_code (), ERROR_CODE, "[8cc5dd74]");
+	}
+}
+
+
+
+
+mod details {
+	
+	
+	use ::vrl_errors::*;
+	
+	
+	define_error! (TestError <u32> / TestResult, 0xef95b48a719169cba70bb6bbda5cb18b, 0x8ef9efe0, 0x9fab3ba1);
+	
+	
+	#[ test ]
+	fn details () -> () {
+		
+		{
+			let _error = TestError::new_with_code (0x3ef4b1ee);
+			assert_eq! (_error.details (), None, "[863797d5]");
+		}
+		
+		{
+			let _error = TestError::new_with_code (0x7e018374);
+			let _error = _error.with_details (42);
+			assert_eq! (_error.details (), Some (42), "[47f23796]");
+		}
 	}
 }
 
