@@ -16,7 +16,7 @@ mod api {
 	use crate::prelude::*;
 	
 	
-	define_error! (TestError, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
+	define_error! (TestError, 0x19dc6760ddf9c2a70af62b9e6f5b5b70, 0x9cbe3a31);
 	
 	
 	

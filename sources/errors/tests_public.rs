@@ -107,11 +107,11 @@ mod api {
 		
 		assert_eq! (_error.application_code (), TestError::APPLICATION_CODE, "[2a9844dc]");
 		assert_eq! (_error.module_code (), TestError::MODULE_CODE, "[71520027]");
-		assert_eq! (_error.error_code (), ERROR_CODE, "[8b40f952]");
+		assert_eq! (_error.error_code (), ERROR_CODE, "[8b40f951]");
 		
-		assert_eq! (_error.application_code () .code (), 0x2354852e4149df0b4d465d5cd6d79e32, "[939ea5c0]");
-		assert_eq! (_error.module_code () .code (), 0x21936ac4, "[6beb629f]");
-		assert_eq! (_error.error_code () .code (), 0xdeb5cc61, "[6162812c]");
+		assert_eq! (_error.application_code () .code (), 0x_2354852e4149df0b4d465d5cd6d79e32, "[939ea5c0]");
+		assert_eq! (_error.module_code () .code (), 0x_21936ac4, "[6beb629f]");
+		assert_eq! (_error.error_code () .code (), 0x_deb5cc61, "[6162812c]");
 	}
 	
 	
@@ -205,6 +205,26 @@ mod api {
 			let _error = TestError::new_with_code (0x7dc454a8);
 			let _ : StdProcessExitCode = _error.into ();
 		}
+	}
+	
+	
+	#[ test ]
+	fn extensions () -> () {
+		
+		const ERROR_CODE : ErrorCode = ErrorCode::new (0xaed595e7);
+		
+		let _ok_new = || -> TestResult { Ok (()) };
+		let _err_new = || -> TestResult { TestError::new_with_code (0xb32ee38f) .into_result () };
+		
+		assert! ((_ok_new () .else_wrap (0x37948992) as TestResult) .is_ok (), "[587b5400]");
+		assert! ((_ok_new () .else_wrap_with_message (0xd4f119d5, "with static message") as TestResult) .is_ok (), "[a86a3c54]");
+		assert! ((_ok_new () .else_wrap_with_format (0x1525e6de, format_args! ("with formatted message")) as TestResult) .is_ok (), "[b6137123]");
+		
+		assert! ((_err_new () .else_wrap (0x93683198) as TestResult) .is_err (), "[a3975ab5]");
+		assert! ((_err_new () .else_wrap_with_message (0x78843207, "with static message") as TestResult) .is_err (), "[3bf9e874]");
+		assert! ((_err_new () .else_wrap_with_format (0x1ce0739a, format_args! ("with formatted message")) as TestResult) .is_err (), "[2fe27784]");
+		
+		assert_eq! ((_err_new () .else_wrap (ERROR_CODE) as TestResult) .unwrap_err () .error_code (), ERROR_CODE, "[8cc5dd74]");
 	}
 }
 

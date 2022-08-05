@@ -66,10 +66,13 @@ pub trait Error
 	}
 	
 	
+	fn into_result <V> (self) -> Result<V, Self> {
+		Err (self)
+	}
+	
 	fn into_std_io_error (self) -> StdIoError {
 		StdIoError::new (StdIoErrorKind::Other, self)
 	}
-	
 	
 	fn into_std_process_exit_code (self) -> StdProcessExitCode {
 		StdProcessExitCode::FAILURE
