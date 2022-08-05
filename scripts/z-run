@@ -22,8 +22,10 @@
 :: release / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib --release -- "${@}"
 
 
-:: debug / run / tests :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' test --lib -- "${@}"
-:: debug / run / bench :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' bench --lib -- "${@}"
+:: debug / build / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' build --workspace --tests -- "${@}"
+:: debug / check / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' check --workspace --tests -- "${@}"
+:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' test --workspace -- "${@}"
+:: debug / run / bench / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' bench --workspace -- "${@}"
 
 
 :: docs / crate / internals / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --lib --no-deps --document-private-items "${@}"
