@@ -3,6 +3,12 @@
 version = 3
 
 [[package]]
+name = "anyhow"
+version = "1.0.59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c91f1f46651137be86f3a2b9a8359f9ab421d04d941c62b5982e1ca21113adf9"
+
+[[package]]
 name = "vrl"
 version = "0.0.0"
 dependencies = [
@@ -12,3 +18,6 @@ dependencies = [
 [[package]]
 name = "vrl-errors"
 version = "0.0.0"
+dependencies = [
+ "anyhow",
+]
