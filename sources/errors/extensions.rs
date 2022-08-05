@@ -5,6 +5,10 @@ use crate::prelude::*;
 
 
 
+
+
+
+
 pub trait ResultExtPanic <V> : Sized {
 	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V;
@@ -127,7 +131,11 @@ impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
 
 
 
-pub trait ResultExtWrap <V, E> : Sized {
+
+
+
+
+pub trait ResultExtWrap <V, E : Error> : Sized {
 	
 	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E>;
 	
@@ -137,14 +145,14 @@ pub trait ResultExtWrap <V, E> : Sized {
 }
 
 
-impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E> for Result<V, SE> {
+impl <V, EX : ErrorExtWrap<E>, E : Error> ResultExtWrap<V, E> for Result<V, EX> {
 	
 	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
-			Err (_cause) =>
-				Err (E::new_with_cause (_code, _cause))
+			Err (_error) =>
+				Err (EX::else_wrap (_error, _code))
 		}
 	}
 	
@@ -152,8 +160,8 @@ impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E
 		match self {
 			Ok (_value) =>
 				Ok (_value),
-			Err (_cause) =>
-				Err (E::new_with_message_and_cause (_code, _message, _cause))
+			Err (_error) =>
+				Err (_error.else_wrap_with_message (_code, _message))
 		}
 	}
 	
@@ -161,38 +169,65 @@ impl <V, SE : StdError + Send + Sync + 'static, E : ErrorNew> ResultExtWrap<V, E
 		match self {
 			Ok (_value) =>
 				Ok (_value),
-			Err (_cause) =>
-				Err (E::new_with_format_and_cause (_code, _format, _cause))
+			Err (_error) =>
+				Err (_error.else_wrap_with_format (_code, _format))
 		}
 	}
 }
 
 
-impl <V, E : ErrorNew> ResultExtWrap<V, E> for Option<V> {
+impl <V, EN : ErrorNew> ResultExtWrap<V, EN> for Option<V> {
 	
-	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E> {
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, EN> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
-			Err (E::new_with_code (_code))
+			Err (EN::new_with_code (_code))
 		}
 	}
 	
-	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E> {
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, EN> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
-			Err (E::new_with_message (_code, _message))
+			Err (EN::new_with_message (_code, _message))
 		}
 	}
 	
-	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E> {
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, EN> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
-			Err (E::new_with_format (_code, _format))
+			Err (EN::new_with_format (_code, _format))
 		}
 	}
 }
 
+
+
+
+pub trait ErrorExtWrap <E : Error> : Sized {
+	
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> E;
+	
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> E;
+	
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> E;
+}
+
+
+impl <SE : StdError + Send + Sync + 'static, EN : ErrorNew> ErrorExtWrap<EN> for SE {
+	
+	fn else_wrap (self, _code : impl Into<ErrorCode>) -> EN {
+		EN::new_with_cause (_code, self)
+	}
+	
+	fn else_wrap_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> EN {
+		EN::new_with_message_and_cause (_code, _message, self)
+	}
+	
+	fn else_wrap_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> EN {
+		EN::new_with_format_and_cause (_code, _format, self)
+	}
+}
 
