@@ -7,15 +7,15 @@ use crate::prelude::*;
 
 pub trait ResultExtPanic <V> : Sized {
 	
-	fn or_panic (self, _code : u32) -> V;
+	fn or_panic (self, _code : impl Into<ErrorCode>) -> V;
 	
-	fn infallible (self, _code : u32) -> V;
+	fn infallible (self, _code : impl Into<ErrorCode>) -> V;
 }
 
 
 impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 	
-	fn or_panic (self, _code : u32) -> V {
+	fn or_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Ok (_value) =>
 				_value,
@@ -24,7 +24,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 		}
 	}
 	
-	fn infallible (self, _code : u32) -> V {
+	fn infallible (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Ok (_value) =>
 				_value,
@@ -37,7 +37,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 
 impl <V> ResultExtPanic<V> for Option<V> {
 	
-	fn or_panic (self, _code : u32) -> V {
+	fn or_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Some (_value) =>
 				_value,
@@ -46,7 +46,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 		}
 	}
 	
-	fn infallible (self, _code : u32) -> V {
+	fn infallible (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
 			Some (_value) =>
 				_value,
@@ -61,14 +61,15 @@ impl <V> ResultExtPanic<V> for Option<V> {
 
 pub trait ErrorExtPanic : Sized {
 	
-	fn panic (self, _code : u32) -> !;
+	fn panic (self, _code : impl Into<ErrorCode>) -> !;
 }
 
 
 impl <E : StdError> ErrorExtPanic for E {
 	
-	fn panic (self, _code : u32) -> ! {
-		panic! ("[{:08x}]  unexpected error encountered!  //  {}", _code, self);
+	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
+		let _code = _code.into ();
+		panic! ("[{}]  unexpected error encountered!  //  {}", _code, self);
 	}
 }
 
@@ -77,13 +78,13 @@ impl <E : StdError> ErrorExtPanic for E {
 
 pub trait ResultExtWrap <V, E> : Sized {
 	
-	fn or_wrap (self, _code : u32) -> Result<V, E>;
+	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, E>;
 }
 
 
 impl <V, E : StdError> ResultExtWrap<V, io::Error> for Result<V, E> {
 	
-	fn or_wrap (self, _code : u32) -> Result<V, io::Error> {
+	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, io::Error> {
 		match self {
 			Ok (_value) =>
 				Ok (_value),
@@ -96,7 +97,7 @@ impl <V, E : StdError> ResultExtWrap<V, io::Error> for Result<V, E> {
 
 impl <V> ResultExtWrap<V, io::Error> for Option<V> {
 	
-	fn or_wrap (self, _code : u32) -> Result<V, io::Error> {
+	fn or_wrap (self, _code : impl Into<ErrorCode>) -> Result<V, io::Error> {
 		if let Some (_value) = self {
 			Ok (_value)
 		} else {
@@ -110,13 +111,13 @@ impl <V> ResultExtWrap<V, io::Error> for Option<V> {
 
 pub trait ResultExtWrapFrom <V, E> : Sized {
 	
-	fn or_wrap_from (_code : u32, _result : Result<V, E>) -> Self;
+	fn or_wrap_from (_code : impl Into<ErrorCode>, _result : Result<V, E>) -> Self;
 }
 
 
 impl <V, E : StdError, EX : ErrorExtWrapFrom<E>> ResultExtWrapFrom<V, E> for Result<V, EX> {
 	
-	fn or_wrap_from (_code : u32, _result : Result<V, E>) -> Result<V, EX> {
+	fn or_wrap_from (_code : impl Into<ErrorCode>, _result : Result<V, E>) -> Result<V, EX> {
 		match _result {
 			Ok (_value) =>
 				Ok (_value),
@@ -131,14 +132,15 @@ impl <V, E : StdError, EX : ErrorExtWrapFrom<E>> ResultExtWrapFrom<V, E> for Res
 
 pub trait ErrorExtWrapFrom <E> : Sized {
 	
-	fn wrap_from (_code : u32, _error : E) -> Self;
+	fn wrap_from (_code : impl Into<ErrorCode>, _error : E) -> Self;
 }
 
 
 impl <E : StdError> ErrorExtWrapFrom<E> for io::Error {
 	
-	fn wrap_from (_code : u32, _error : E) -> Self {
-		io::Error::new (io::ErrorKind::Other, format! ("[{:08x}]  {}", _code, _error))
+	fn wrap_from (_code : impl Into<ErrorCode>, _error : E) -> Self {
+		let _code = _code.into ();
+		io::Error::new (io::ErrorKind::Other, format! ("[{}]  {}", _code, _error))
 	}
 }
 
@@ -147,13 +149,13 @@ impl <E : StdError> ErrorExtWrapFrom<E> for io::Error {
 
 pub trait ErrorExtWrap <E> : Sized {
 	
-	fn wrap (self, _code : u32) -> E;
+	fn wrap (self, _code : impl Into<ErrorCode>) -> E;
 }
 
 
 impl <EI, EO : ErrorExtWrapFrom<EI>> ErrorExtWrap<EO> for EI {
 	
-	fn wrap (self, _code : u32) -> EO {
+	fn wrap (self, _code : impl Into<ErrorCode>) -> EO {
 		EO::wrap_from (_code, self)
 	}
 }
@@ -161,13 +163,15 @@ impl <EI, EO : ErrorExtWrapFrom<EI>> ErrorExtWrap<EO> for EI {
 
 
 
-fn error_with_code (_code : u32) -> io::Error {
-	io::Error::new (io::ErrorKind::Other, format! ("[{:08x}]  unexpected error encountered!", _code))
+fn error_with_code (_code : impl Into<ErrorCode>) -> io::Error {
+	let _code = _code.into ();
+	io::Error::new (io::ErrorKind::Other, format! ("[{}]  unexpected error encountered!", _code))
 }
 
 
-fn panic_with_code (_code : u32) -> ! {
-	panic! ("[{:08x}]  unexpected error encountered!", _code)
+fn panic_with_code (_code : impl Into<ErrorCode>) -> ! {
+	let _code = _code.into ();
+	panic! ("[{}]  unexpected error encountered!", _code);
 }
 
 
