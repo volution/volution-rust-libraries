@@ -53,6 +53,10 @@ pub trait Error
 		self.internals_ref () .details_ref () .module_code
 	}
 	
+	fn type_code (&self) -> ErrorTypeCode {
+		self.internals_ref () .details_ref () .type_code
+	}
+	
 	fn error_code (&self) -> ErrorCode {
 		self.internals_ref () .details_ref () .error_code
 	}
@@ -115,6 +119,11 @@ pub struct ErrorModuleCode (pub(crate) u32);
 
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
+pub struct ErrorTypeCode (pub(crate) u32);
+
+
+#[ derive (Copy, Clone) ]
+#[ derive (PartialEq, Eq) ]
 pub struct ErrorCode (pub(crate) u32);
 
 
@@ -133,6 +142,18 @@ impl ErrorApplicationCode {
 
 
 impl ErrorModuleCode {
+	
+	pub const fn new (_code : u32) -> Self {
+		Self (_code)
+	}
+	
+	pub const fn code (&self) -> u32 {
+		self.0
+	}
+}
+
+
+impl ErrorTypeCode {
 	
 	pub const fn new (_code : u32) -> Self {
 		Self (_code)
@@ -174,6 +195,14 @@ impl From<u32> for ErrorModuleCode {
 }
 
 
+impl From<u32> for ErrorTypeCode {
+	
+	fn from (_code : u32) -> Self {
+		Self::new (_code)
+	}
+}
+
+
 impl From<u32> for ErrorCode {
 	
 	fn from (_code : u32) -> Self {
@@ -200,8 +229,6 @@ impl Debug for ErrorApplicationCode {
 }
 
 
-
-
 impl Display for ErrorModuleCode {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
@@ -214,6 +241,22 @@ impl Debug for ErrorModuleCode {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		write! (_formatter, "ErrorModuleCode({:08x})", self.0)
+	}
+}
+
+
+impl Display for ErrorTypeCode {
+	
+	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
+		write! (_formatter, "{:08x}", self.0)
+	}
+}
+
+
+impl Debug for ErrorTypeCode {
+	
+	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
+		write! (_formatter, "ErrorTypeCode({:08x})", self.0)
 	}
 }
 

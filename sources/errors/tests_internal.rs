@@ -4,7 +4,7 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	crate::define_error! (TestError, 0x572489cc4fe813077b8ff6b4bb68ce3a, 0xc4f39f8c);
+	crate::define_error! (TestError, 0x572489cc4fe813077b8ff6b4bb68ce3a, 0xc4f39f8c, 0x5bca8488);
 }
 
 
@@ -16,7 +16,7 @@ mod api {
 	use crate::prelude::*;
 	
 	
-	define_error! (TestError, 0x19dc6760ddf9c2a70af62b9e6f5b5b70, 0x9cbe3a31);
+	define_error! (TestError, 0x19dc6760ddf9c2a70af62b9e6f5b5b70, 0x9cbe3a31, 0x3c518847);
 	
 	
 	
@@ -38,7 +38,7 @@ mod misc {
 	use crate::prelude::*;
 	
 	
-	define_error! (TestError, 0x1e2f2f16363827beff19043074297fc0, 0x337f5813);
+	define_error! (TestError, 0x1e2f2f16363827beff19043074297fc0, 0x337f5813, 0x07b584de);
 	
 	
 	#[ test ]

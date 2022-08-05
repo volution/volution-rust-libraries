@@ -13,9 +13,9 @@ pub(crate) mod tests_internal;
 
 
 
-define_error! (pub UnexpectedError, 0, 0);
+define_error! (pub UnexpectedError, 0x_110a195d8bca29ca8f300ae605633681, 0x_577ad068, 0xdd902b5d);
 
-define_error! (pub PanicError, 0, 0);
+define_error! (pub PanicError, 0x_110a195d8bca29ca8f300ae605633681, 0x_577ad068, 0x762a6a31);
 
 
 

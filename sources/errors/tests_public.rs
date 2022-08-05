@@ -4,7 +4,7 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	::vrl_errors::define_error! (TestError / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957);
+	::vrl_errors::define_error! (TestError / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957, 0xeb2896c5);
 	
 	
 	const CASE_COUNT : u8 = 12;
@@ -100,7 +100,7 @@ mod api {
 		};
 	
 	
-	define_error! (TestError / TestResult, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4);
+	define_error! (TestError / TestResult, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4, 0x38faa61a);
 	
 	
 	#[ test ]
@@ -135,10 +135,12 @@ mod api {
 		
 		assert_eq! (_error.application_code (), TestError::APPLICATION_CODE, "[2a9844dc]");
 		assert_eq! (_error.module_code (), TestError::MODULE_CODE, "[71520027]");
+		assert_eq! (_error.type_code (), TestError::TYPE_CODE, "[da087098]");
 		assert_eq! (_error.error_code (), ERROR_CODE, "[8b40f951]");
 		
 		assert_eq! (_error.application_code () .code (), 0x_2354852e4149df0b4d465d5cd6d79e32, "[939ea5c0]");
 		assert_eq! (_error.module_code () .code (), 0x_21936ac4, "[6beb629f]");
+		assert_eq! (_error.type_code () .code (), 0x_38faa61a, "[926d3188]");
 		assert_eq! (_error.error_code () .code (), 0x_deb5cc61, "[6162812c]");
 	}
 	
@@ -206,12 +208,12 @@ mod api {
 		
 		{
 			let _error = TestError::new_with_code (0x02c8f05d);
-			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:02c8f05d]  (unexpected error)", "[3910bc17]");
+			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:38faa61a:02c8f05d]  (unexpected error)", "[3910bc17]");
 		}
 		
 		{
 			let _error = TestError::new_with_message (0x3c647fec, "with static message");
-			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:3c647fec]  with static message", "[30d16ff6]");
+			assert_eq! (format! ("{}", _error), "[2354852e4149df0b4d465d5cd6d79e32:21936ac4:38faa61a:3c647fec]  with static message", "[30d16ff6]");
 		}
 	}
 	
