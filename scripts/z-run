@@ -9,6 +9,7 @@
 ::// docs / ...
 ::// cargo / ...
 ::// workspace / ...
+::// sources / ...
 ::// *
 
 
@@ -103,5 +104,42 @@
 		_outputs_store="$( exec -- readlink -e -- "${_outputs_store}" )"
 		ln -s -f -T -- "${_outputs_store}" ./.outputs
 	fi
+!!
+
+
+
+
+<< sources / grep / codes / duplicate
+	test "${#}" -eq 0
+	_patterns=(
+			'\{[0-9a-f]{8}\}'  '\[[0-9a-f]{8}\]'  '0x[0-9a-f]{8}(?=[^0-9a-f]|$)'
+			'\{[0-9a-f]{16}\}' '\[[0-9a-f]{16}\]' '0x[0-9a-f]{16}(?=[^0-9a-f]|$)'
+			'\{[0-9a-f]{32}\}' '\[[0-9a-f]{32}\]' '0x[0-9a-f]{32}(?=[^0-9a-f]|$)'
+		)
+	for _pattern in "${_patterns[@]}" ; do
+		grep -h -o -i -P -e "${_pattern}" -r -- ./sources/ || true
+	done \
+	| sort \
+	| uniq -d \
+	| while read -r -- _token ; do
+		grep -F -e "${_token}" --color -H -n -r -- ./sources/
+	done
+!!
+
+
+<< sources / grep / codes / invalid
+	test "${#}" -eq 0
+	_patterns=(
+			'\{[0-9a-f]{1,7}\}'   '\[[0-9a-f]{1,7}\]'   '0x[0-9a-f]{1,7}(?=[^0-9a-f]|$)'
+			'\{[0-9a-f]{9,15}\}'  '\[[0-9a-f]{9,15}\]'  '0x[0-9a-f]{9,15}(?=[^0-9a-f]|$)'
+			'\{[0-9a-f]{17,31}\}' '\[[0-9a-f]{17,31}\]' '0x[0-9a-f]{17,31}(?=[^0-9a-f]|$)'
+		)
+	for _pattern in "${_patterns[@]}" ; do
+		grep -h -o -i -P -e "${_pattern}" -r -- ./sources/ || true
+	done \
+	| sort \
+	| while read -r -- _token ; do
+		grep -F -e "${_token}" --color -H -n -r -- ./sources/
+	done
 !!
 
