@@ -36,37 +36,37 @@ pub trait Error
 	
 	#[ doc (hidden) ]
 	fn display_fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
-		Display::fmt (self.internals_ref () .details_ref (), _formatter)
+		Display::fmt (self.internals_ref () .payload_ref (), _formatter)
 	}
 	
 	#[ doc (hidden) ]
 	fn debug_fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
-		Debug::fmt (self.internals_ref () .details_ref (), _formatter)
+		Debug::fmt (self.internals_ref () .payload_ref (), _formatter)
 	}
 	
 	
 	fn application_code (&self) -> ErrorApplicationCode {
-		self.internals_ref () .details_ref () .application_code
+		self.internals_ref () .payload_ref () .application_code
 	}
 	
 	fn module_code (&self) -> ErrorModuleCode {
-		self.internals_ref () .details_ref () .module_code
+		self.internals_ref () .payload_ref () .module_code
 	}
 	
 	fn type_code (&self) -> ErrorTypeCode {
-		self.internals_ref () .details_ref () .type_code
+		self.internals_ref () .payload_ref () .type_code
 	}
 	
 	fn error_code (&self) -> ErrorCode {
-		self.internals_ref () .details_ref () .error_code
+		self.internals_ref () .payload_ref () .error_code
 	}
 	
 	fn message_string (&self) -> Option<Cow<str>> {
-		self.internals_ref () .details_ref () .message_string ()
+		self.internals_ref () .payload_ref () .message_string ()
 	}
 	
 	fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
-		self.internals_ref () .details_ref () .cause_ref ()
+		self.internals_ref () .payload_ref () .cause_ref ()
 	}
 	
 	

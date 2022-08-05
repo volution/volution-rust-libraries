@@ -11,7 +11,7 @@ pub struct ErrorInternals<T : Error> (AnyhowError, PhantomData<&'static T>);
 
 
 #[ must_use ]
-pub(crate) struct ErrorDetails {
+pub(crate) struct ErrorPayload {
 	pub(crate) application_code : ErrorApplicationCode,
 	pub(crate) module_code : ErrorModuleCode,
 	pub(crate) type_code : ErrorTypeCode,
@@ -121,7 +121,7 @@ impl <T> ErrorInternals<T>
 		let _message = _message.unwrap_or (ErrorMessage::None);
 		let _cause = _cause.unwrap_or (ErrorCause::None);
 		
-		let _details = ErrorDetails {
+		let _payload = ErrorPayload {
 				application_code : _application_code,
 				module_code : _module_code,
 				type_code : _type_code,
@@ -130,7 +130,7 @@ impl <T> ErrorInternals<T>
 				cause : _cause,
 			};
 		
-		let _anyhow = AnyhowError::msg (_details);
+		let _anyhow = AnyhowError::msg (_payload);
 		
 		ErrorInternals (_anyhow, PhantomData)
 	}
@@ -142,7 +142,7 @@ impl <T> ErrorInternals<T>
 	
 	
 	pub(crate) fn from_anyhow (_anyhow : AnyhowError) -> Result<Self, AnyhowError> {
-		if _anyhow.is::<ErrorDetails> () {
+		if _anyhow.is::<ErrorPayload> () {
 			Ok (Self (_anyhow, PhantomData))
 		} else {
 			Err (_anyhow)
@@ -150,9 +150,9 @@ impl <T> ErrorInternals<T>
 	}
 	
 	
-	pub(crate) fn details_ref (&self) -> &ErrorDetails {
-		if let Some (_details) = self.0.downcast_ref () {
-			_details
+	pub(crate) fn payload_ref (&self) -> &ErrorPayload {
+		if let Some (_payload) = self.0.downcast_ref () {
+			_payload
 		} else {
 			unreachable! ("[0c9f357b]");
 		}
@@ -162,7 +162,7 @@ impl <T> ErrorInternals<T>
 
 
 
-impl ErrorDetails {
+impl ErrorPayload {
 	
 	pub(crate) fn message_string (&self) -> Option<Cow<str>> {
 		match self.message {
@@ -179,7 +179,7 @@ impl ErrorDetails {
 
 
 
-impl ErrorDetails {
+impl ErrorPayload {
 	
 	pub(crate) fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
 		match self.cause {
@@ -194,7 +194,7 @@ impl ErrorDetails {
 
 
 
-impl Display for ErrorDetails {
+impl Display for ErrorPayload {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		
@@ -207,7 +207,7 @@ impl Display for ErrorDetails {
 }
 
 
-impl Debug for ErrorDetails {
+impl Debug for ErrorPayload {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		Display::fmt (self, _formatter)
