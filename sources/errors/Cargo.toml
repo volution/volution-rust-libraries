@@ -24,10 +24,18 @@ default = []
 
 
 [dependencies]
+
+
+[dev-dependencies]
 anyhow = "*"
 
 
 [[test]]
 name = "vrl_errors_tests_public"
 path = "./tests_public.rs"
+
+
+[[bench]]
+name = "vrl_errors_benches_public"
+path = "./benches_public.rs"
 
