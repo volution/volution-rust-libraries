@@ -1,4 +1,5 @@
 
+
 [package]
 name = "vrl-errors"
 version = "0.0.0"
@@ -38,4 +39,5 @@ path = "./tests_public.rs"
 [[bench]]
 name = "vrl_errors_benches_public"
 path = "./benches_public.rs"
+
 

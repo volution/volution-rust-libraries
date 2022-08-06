@@ -22,6 +22,8 @@
 :: release / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib --release -- "${@}"
 
 
+
+
 :: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
 :: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
 
