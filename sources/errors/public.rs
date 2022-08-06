@@ -24,17 +24,6 @@ pub trait Error
 	
 	
 	#[ doc (hidden) ]
-	fn into_anyhow (self) -> AnyhowError {
-		self.into_internals () .into_anyhow ()
-	}
-	
-	#[ doc (hidden) ]
-	fn from_anyhow (_anyhow : AnyhowError) -> Result<Self, AnyhowError> {
-		Ok (Self::from_internals (ErrorInternals::<Self>::from_anyhow (_anyhow) ?))
-	}
-	
-	
-	#[ doc (hidden) ]
 	fn display_fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		Display::fmt (self.internals_ref () .payload_ref (), _formatter)
 	}

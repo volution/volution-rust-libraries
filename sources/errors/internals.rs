@@ -7,18 +7,18 @@ use crate::prelude::*;
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorInternals<T : Error> (AnyhowError, PhantomData<&'static T>);
+pub struct ErrorInternals <T : Error> (pub(crate) Arc<ErrorPayload<T>>);
 
 
 #[ must_use ]
-pub(crate) struct ErrorPayload {
+pub(crate) struct ErrorPayload <T : Error> {
 	pub(crate) application_code : ErrorApplicationCode,
 	pub(crate) module_code : ErrorModuleCode,
 	pub(crate) type_code : ErrorTypeCode,
 	pub(crate) error_code : ErrorCode,
 	pub(crate) message : ErrorMessage,
 	pub(crate) cause : ErrorCause,
-	pub(crate) details : ErrorDetails,
+	pub(crate) details : ErrorDetails<T>,
 }
 
 
@@ -40,13 +40,12 @@ pub(crate) enum ErrorCause {
 
 
 #[ must_use ]
-pub(crate) struct ErrorDetails (pub(crate) Arc<Option<Box<dyn Any + Send + Sync + 'static>>>);
+pub(crate) struct ErrorDetails <T : Error> (pub(crate) Arc<Option<Box<dyn Any + Send + Sync + 'static>>>, PhantomData<&'static T>);
 
 
 
 
-impl <T> ErrorInternals<T>
-	where T : Error
+impl <T : Error> ErrorInternals<T>
 {
 	
 	
@@ -126,7 +125,7 @@ impl <T> ErrorInternals<T>
 		
 		let _message = _message.unwrap_or (ErrorMessage::None);
 		let _cause = _cause.unwrap_or (ErrorCause::None);
-		let _details = ErrorDetails (Arc::new (None));
+		let _details = ErrorDetails (Arc::new (None), PhantomData);
 		
 		let _payload = ErrorPayload {
 				application_code : _application_code,
@@ -138,39 +137,21 @@ impl <T> ErrorInternals<T>
 				details : _details,
 			};
 		
-		let _anyhow = AnyhowError::msg (_payload);
+		let _arc = Arc::new (_payload);
 		
-		ErrorInternals (_anyhow, PhantomData)
+		ErrorInternals (_arc)
 	}
 	
 	
-	pub(crate) fn into_anyhow (self) -> AnyhowError {
-		self.0
-	}
-	
-	
-	pub(crate) fn from_anyhow (_anyhow : AnyhowError) -> Result<Self, AnyhowError> {
-		if _anyhow.is::<ErrorPayload> () {
-			Ok (Self (_anyhow, PhantomData))
-		} else {
-			Err (_anyhow)
-		}
-	}
-	
-	
-	pub(crate) fn payload_ref (&self) -> &ErrorPayload {
-		if let Some (_payload) = self.0.downcast_ref () {
-			_payload
-		} else {
-			unreachable! ("[0c9f357b]");
-		}
+	pub(crate) fn payload_ref (&self) -> &ErrorPayload<T> {
+		&self.0
 	}
 }
 
 
 
 
-impl ErrorPayload {
+impl <T : Error> ErrorPayload<T> {
 	
 	pub(crate) fn message_string (&self) -> Option<Cow<str>> {
 		match self.message {
@@ -187,7 +168,7 @@ impl ErrorPayload {
 
 
 
-impl ErrorPayload {
+impl <T : Error> ErrorPayload<T> {
 	
 	pub(crate) fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
 		match self.cause {
@@ -202,7 +183,7 @@ impl ErrorPayload {
 
 
 
-impl ErrorPayload {
+impl <T : Error> ErrorPayload<T> {
 	
 	pub(crate) fn details_ref (&self) -> Option<&(dyn Any + Send + Sync + 'static)> {
 		if let Some (_details) = self.details.0.deref () {
@@ -229,7 +210,7 @@ impl ErrorPayload {
 
 
 
-impl Display for ErrorPayload {
+impl <T : Error> Display for ErrorPayload<T> {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		
@@ -242,7 +223,7 @@ impl Display for ErrorPayload {
 }
 
 
-impl Debug for ErrorPayload {
+impl <T : Error> Debug for ErrorPayload<T> {
 	
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		Display::fmt (self, _formatter)

@@ -10,29 +10,7 @@ mod macros {
 
 
 
-mod api {
-	
-	
-	use crate::prelude::*;
-	
-	
-	define_error! (TestError, 0x19dc6760ddf9c2a70af62b9e6f5b5b70, 0x9cbe3a31, 0x3c518847);
-	
-	
-	
-	#[ test ]
-	fn convert () -> () {
-		
-		let _error : TestError = TestError::new_with_code (0xe0bdbf01);
-		let _anyhow : AnyhowError = _error.into_anyhow ();
-		let _error : TestError = TestError::from_anyhow (_anyhow) .expect ("[2c33330d]");
-	}
-}
-
-
-
-
-mod misc {
+mod compiling {
 	
 	
 	use crate::prelude::*;
@@ -44,9 +22,17 @@ mod misc {
 	#[ test ]
 	fn sizes () -> () {
 		
+		assert_eq! (mem::size_of::<TestError> (), 8, "[e6effb85]");
+		assert_eq! (mem::size_of::<Option<TestError>> (), 8, "[3d42c47e]");
+		assert_eq! (mem::size_of::<Result<(), TestError>> (), 8, "[cf8c03cd]");
+		
 		assert_eq! (mem::size_of::<TestError> (), mem::size_of::<&TestError> (), "[f3dcbba5]");
 		assert_eq! (mem::size_of::<Option<TestError>> (), mem::size_of::<Option<&TestError>> (), "[c32b7401]");
 		assert_eq! (mem::size_of::<Result<(), TestError>> (), mem::size_of::<Result<(), &TestError>> (), "[1f61d61d]");
+		
+		assert_eq! (mem::size_of::<Box<()>> (), 8, "[a3fb944f]");
+		assert_eq! (mem::size_of::<Rc<()>> (), 8, "[cf2b29d5]");
+		assert_eq! (mem::size_of::<Arc<()>> (), 8, "[7f55e89d]");
 	}
 }
 
