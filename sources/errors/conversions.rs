@@ -19,10 +19,12 @@ impl <C> ErrorNewWithCodeDescriptor<C>
 	where
 		C : Into<ErrorCode>,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C) -> Self {
 		Self { code : _code }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_code (self.code)
 	}
@@ -48,10 +50,12 @@ impl <C, M> ErrorNewWithMessageDescriptor<C, M>
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C, _message : M) -> Self {
 		Self { code : _code, message : _message }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_message (self.code, self.message)
 	}
@@ -75,10 +79,12 @@ impl <'a, C> ErrorNewWithFormatDescriptor<'a, C>
 	where
 		C : Into<ErrorCode>,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>) -> Self {
 		Self { code : _code, format : _format }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_format (self.code, self.format)
 	}
@@ -104,10 +110,12 @@ impl <C, W> ErrorNewWithCauseDescriptor<C, W>
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C, _cause : W) -> Self {
 		Self { code : _code, cause : _cause }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_cause (self.code, self.cause)
 	}
@@ -136,10 +144,12 @@ impl <C, M, W> ErrorNewWithMessageAndCauseDescriptor<C, M, W>
 		M : Into<Cow<'static, str>>,
 		W : StdError + Sync + Send + 'static,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C, _message : M, _cause : W) -> Self {
 		Self { code : _code, message : _message, cause : _cause }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_message_and_cause (self.code, self.message, self.cause)
 	}
@@ -166,10 +176,12 @@ impl <'a, C, W> ErrorNewWithFormatAndCauseDescriptor<'a, C, W>
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
+	#[ must_use ]
 	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>, _cause : W) -> Self {
 		Self { code : _code, format : _format, cause : _cause }
 	}
 	
+	#[ must_use ]
 	pub fn build <E : ErrorNew> (self) -> E {
 		E::new_with_format_and_cause (self.code, self.format, self.cause)
 	}

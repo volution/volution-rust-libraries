@@ -22,8 +22,8 @@ pub(crate) struct ErrorPayload <T : Error> {
 }
 
 
-#[ must_use ]
 #[ derive (Debug) ]
+#[ must_use ]
 pub(crate) enum ErrorMessage {
 	None,
 	Static (&'static str),
@@ -31,8 +31,8 @@ pub(crate) enum ErrorMessage {
 }
 
 
-#[ must_use ]
 #[ derive (Debug) ]
+#[ must_use ]
 pub(crate) enum ErrorCause {
 	None,
 	Boxed (Box<dyn StdError + Send + Sync + 'static>),
@@ -53,21 +53,25 @@ impl <T : Error> ErrorInternals<T>
 	
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_code (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode) -> Self {
 		Self::new (_application_code, _module_code, _type_code, _error_code, None, None)
 	}
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_message (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Cow<'static, str>) -> Self {
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _type_code, _error_code, Some (_message), None as Option<Infallible>)
 	}
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_format (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _format : fmt::Arguments) -> Self {
 		Self::new_with_format_and_cause_0 (_application_code, _module_code, _type_code, _error_code, _format, None as Option<Infallible>)
 	}
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _cause : E) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
@@ -75,6 +79,7 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_message_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Cow<'static, str>, _cause : E) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
@@ -82,6 +87,7 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	#[ doc (hidden) ]
+	#[ must_use ]
 	pub fn new_with_format_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : E) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
@@ -89,6 +95,7 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	
+	#[ must_use ]
 	pub(crate) fn new_with_message_and_cause_0 <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Option<Cow<'static, str>>, _cause : Option<E>) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
@@ -110,6 +117,7 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	
+	#[ must_use ]
 	pub(crate) fn new_with_format_and_cause_0 <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : Option<E>) -> Self
 			where E : StdError + Send + Sync + 'static
 	{
@@ -124,6 +132,7 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	
+	#[ must_use ]
 	pub(crate) fn new (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Option<ErrorMessage>, _cause : Option<ErrorCause>) -> Self {
 		
 		let _message = _message.unwrap_or (ErrorMessage::None);
@@ -146,10 +155,12 @@ impl <T : Error> ErrorInternals<T>
 	}
 	
 	
+	#[ must_use ]
 	pub(crate) fn payload_ref (&self) -> &ErrorPayload<T> {
 		&self.0
 	}
 	
+	#[ must_use ]
 	pub(crate) fn payload_mut (&mut self) -> Option<&mut ErrorPayload<T>> {
 		Arc::get_mut (&mut self.0)
 	}
@@ -160,6 +171,7 @@ impl <T : Error> ErrorInternals<T>
 
 impl <T : Error> ErrorPayload<T> {
 	
+	#[ must_use ]
 	pub(crate) fn message_string (&self) -> Option<Cow<str>> {
 		match self.message {
 			ErrorMessage::None =>
@@ -177,6 +189,7 @@ impl <T : Error> ErrorPayload<T> {
 
 impl <T : Error> ErrorPayload<T> {
 	
+	#[ must_use ]
 	pub(crate) fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
 		match self.cause {
 			ErrorCause::None =>
@@ -192,6 +205,7 @@ impl <T : Error> ErrorPayload<T> {
 
 impl <T : Error> ErrorPayload<T> {
 	
+	#[ must_use ]
 	pub(crate) fn details_ref (&self) -> Option<&(dyn Any + Send + Sync + 'static)> {
 		match self.details {
 			ErrorDetails::None =>

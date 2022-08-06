@@ -7,21 +7,25 @@ use crate::prelude::*;
 
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
+#[ must_use ]
 pub struct ErrorApplicationCode (pub(crate) u128);
 
 
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
+#[ must_use ]
 pub struct ErrorModuleCode (pub(crate) u32);
 
 
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
+#[ must_use ]
 pub struct ErrorTypeCode (pub(crate) u32);
 
 
 #[ derive (Copy, Clone) ]
 #[ derive (PartialEq, Eq) ]
+#[ must_use ]
 pub struct ErrorCode (pub(crate) u32);
 
 
@@ -33,6 +37,7 @@ impl ErrorApplicationCode {
 		Self (_code)
 	}
 	
+	#[ must_use ]
 	pub const fn code (&self) -> u128 {
 		self.0
 	}
@@ -45,6 +50,7 @@ impl ErrorModuleCode {
 		Self (_code)
 	}
 	
+	#[ must_use ]
 	pub const fn code (&self) -> u32 {
 		self.0
 	}
@@ -57,6 +63,7 @@ impl ErrorTypeCode {
 		Self (_code)
 	}
 	
+	#[ must_use ]
 	pub const fn code (&self) -> u32 {
 		self.0
 	}
@@ -69,6 +76,7 @@ impl ErrorCode {
 		Self (_code)
 	}
 	
+	#[ must_use ]
 	pub const fn code (&self) -> u32 {
 		self.0
 	}

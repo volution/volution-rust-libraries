@@ -55,21 +55,25 @@ macro_rules! define_error {
 		impl $_type {
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_code (_error_code : impl ::std::convert::Into<$crate::ErrorCode>) -> Self {
 				<Self as $crate::ErrorNew>::new_with_code (_error_code)
 			}
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_message (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>) -> Self {
 				<Self as $crate::ErrorNew>::new_with_message (_error_code, _message)
 			}
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_format (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments) -> Self {
 				<Self as $crate::ErrorNew>::new_with_format (_error_code, _format)
 			}
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -77,6 +81,7 @@ macro_rules! define_error {
 			}
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_message_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -84,6 +89,7 @@ macro_rules! define_error {
 			}
 			
 			#[ allow (dead_code) ]
+			#[ must_use ]
 			pub fn new_with_format_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -94,30 +100,36 @@ macro_rules! define_error {
 		
 		impl $crate::ErrorNew for $_type {
 			
+			#[ must_use ]
 			fn new_with_code (_error_code : impl ::std::convert::Into<$crate::ErrorCode>) -> Self {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_code (Self::APPLICATION_CODE, Self::MODULE_CODE, Self::TYPE_CODE, _error_code.into ()))
 			}
 			
+			#[ must_use ]
 			fn new_with_message (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>) -> Self {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message (Self::APPLICATION_CODE, Self::MODULE_CODE, Self::TYPE_CODE, _error_code.into (), _message.into ()))
 			}
 			
+			#[ must_use ]
 			fn new_with_format (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments) -> Self {
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_format (Self::APPLICATION_CODE, Self::MODULE_CODE, Self::TYPE_CODE, _error_code.into (), _format))
 			}
 			
+			#[ must_use ]
 			fn new_with_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, Self::TYPE_CODE, _error_code.into (), _cause))
 			}
 			
+			#[ must_use ]
 			fn new_with_message_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _message : impl ::std::convert::Into<::std::borrow::Cow<'static, str>>, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
 				<Self as $crate::Error>::from_internals ($crate::ErrorInternals::new_with_message_and_cause (Self::APPLICATION_CODE, Self::MODULE_CODE, Self::TYPE_CODE, _error_code.into (), _message.into (), _cause))
 			}
 			
+			#[ must_use ]
 			fn new_with_format_and_cause <E> (_error_code : impl ::std::convert::Into<$crate::ErrorCode>, _format : ::std::fmt::Arguments, _cause : E) -> Self
 					where E : ::std::error::Error + ::std::marker::Sync + ::std::marker::Send + 'static
 			{
@@ -129,29 +141,32 @@ macro_rules! define_error {
 		impl $crate::Error for $_type {
 			
 			#[ doc (hidden) ]
+			#[ must_use ]
 			fn from_internals (_internals : $crate::ErrorInternals<Self>) -> Self {
 				Self (_internals)
 			}
 			
 			#[ doc (hidden) ]
+			#[ must_use ]
 			fn into_internals (self) -> $crate::ErrorInternals<Self> {
 				self.0
 			}
 			
 			#[ doc (hidden) ]
+			#[ must_use ]
 			fn internals_ref (&self) -> &$crate::ErrorInternals<Self> {
 				&self.0
 			}
 			
 			#[ doc (hidden) ]
+			#[ must_use ]
 			fn internals_mut (&mut self) -> &mut $crate::ErrorInternals<Self> {
 				&mut self.0
 			}
 		}
 		
 		
-		impl ::std::error::Error for $_type {
-		}
+		impl ::std::error::Error for $_type {}
 		
 		
 		impl ::std::fmt::Display for $_type {
