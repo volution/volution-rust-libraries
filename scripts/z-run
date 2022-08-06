@@ -18,20 +18,24 @@
 :: debug / build / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' build --lib -- "${@}"
 :: release / build / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' build --lib --release -- "${@}"
 
-
 :: debug / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib -- "${@}"
 :: release / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib --release -- "${@}"
 
 
-:: debug / build / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' build --workspace --tests -- "${@}"
-:: debug / check / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' check --workspace --tests -- "${@}"
-:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' test --workspace -- "${@}"
-:: debug / run / bench / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' bench --workspace -- "${@}"
+:: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
+:: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
+
+:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
+:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
 
 
-:: docs / crate / internals / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --lib --no-deps --document-private-items "${@}"
-:: docs / crate / exports / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --lib --no-deps "${@}"
-:: docs / dependencies / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --lib "${@}"
+
+
+:: docs / crate / internals / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace --no-deps --document-private-items "${@}"
+:: docs / crate / exports / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace --no-deps "${@}"
+
+:: docs / dependencies / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace "${@}"
+
 :: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.outputs/target/doc/vrl/index.html" )"
 
 
