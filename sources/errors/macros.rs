@@ -9,25 +9,25 @@
 macro_rules! define_error {
 	
 	
-	( $_visibility : vis $_error_type : ident / $_result_type : ident, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+	( $_visibility : vis $_error_type : ident, result : $_result_type : ident $( , application : $_application_code : literal )? $( , module : $_module_code : literal )? $( , type : $_type_code : literal )? ) => {
 		
-		$crate::define_error! ($_visibility $_error_type, $_application_code, $_module_code, $_type_code);
-		
-		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
-	};
-	
-	
-	( $_visibility : vis $_error_type : ident < $_details_type : ty > / $_result_type : ident, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
-		
-		$crate::define_error! ($_visibility $_error_type < $_details_type >, $_application_code, $_module_code, $_type_code);
+		$crate::define_error! ($_visibility $_error_type $( , application : $_application_code )? $( , module : $_module_code )? $( , type : $_type_code )? );
 		
 		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
 	};
 	
 	
-	( $_visibility : vis $_error_type : ident < $_details_type : ty >, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+	( $_visibility : vis $_error_type : ident < $_details_type : ty >, result : $_result_type : ident $( , application : $_application_code : literal )? $( , module : $_module_code : literal )? $( , type : $_type_code : literal )? ) => {
 		
-		$crate::define_error! ($_visibility $_error_type, $_application_code, $_module_code, $_type_code);
+		$crate::define_error! ($_visibility $_error_type < $_details_type > $( , application : $_application_code )? $( , module : $_module_code )? $( , type : $_type_code )? );
+		
+		$_visibility type $_result_type <V = ()> = ::std::result::Result<V, $_error_type>;
+	};
+	
+	
+	( $_visibility : vis $_error_type : ident < $_details_type : ty > $( , application : $_application_code : literal )? $( , module : $_module_code : literal )? $( , type : $_type_code : literal )? ) => {
+		
+		$crate::define_error! ($_visibility $_error_type $( , application : $_application_code )? $( , module : $_module_code )? $( , type : $_type_code )? );
 		
 		impl $crate::ErrorWithDetails for $_error_type {
 			type Details = $_details_type;
@@ -37,7 +37,7 @@ macro_rules! define_error {
 	};
 	
 	
-	( $_visibility : vis $_type : ident, $_application_code : literal, $_module_code : literal, $_type_code : literal ) => {
+	( $_visibility : vis $_type : ident $( , application : $_application_code : literal )? $( , module : $_module_code : literal )? $( , type : $_type_code : literal )? ) => {
 		
 		
 		#[ must_use ]
@@ -46,9 +46,12 @@ macro_rules! define_error {
 		
 		impl $_type {
 			
-			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = $crate::ErrorApplicationCode::new ($_application_code);
-			pub const MODULE_CODE : $crate::ErrorModuleCode = $crate::ErrorModuleCode::new ($_module_code);
-			pub const TYPE_CODE : $crate::ErrorTypeCode = $crate::ErrorTypeCode::new ($_type_code);
+			#![ allow (unused_must_use) ]
+			#![ allow (path_statements) ]
+			
+			pub const APPLICATION_CODE : $crate::ErrorApplicationCode = { $crate::ErrorApplicationCode::UNKNOWN $( ; $crate::ErrorApplicationCode::new ($_application_code) )? };
+			pub const MODULE_CODE : $crate::ErrorModuleCode = { $crate::ErrorModuleCode::UNKNOWN $( ; $crate::ErrorModuleCode::new ($_module_code) )? };
+			pub const TYPE_CODE : $crate::ErrorTypeCode = { $crate::ErrorTypeCode::UNKNOWN $( ; $crate::ErrorTypeCode::new ($_type_code) )? };
 		}
 		
 		

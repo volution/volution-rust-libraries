@@ -23,8 +23,8 @@ mod api {
 	use ::test::black_box;
 	
 	
-	define_error! (TestError, 0x421e4d8809d3952c7f3c2d8fdb64a39f, 0x6216787b, 0x3102b826);
-	define_error! (TestErrorWithDetails <u32>, 0x5450002a3a4f2c2e76d16ed16e9062d6, 0xa10381f3, 0x8e3829e8);
+	define_error! (TestError);
+	define_error! (TestErrorWithDetails <u32>);
 	
 	
 	#[ bench ]

@@ -4,7 +4,17 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	::vrl_errors::define_error! (TestError <u32> / TestResult, 0x15ca1c3fa6260e93b2e5e9756e4e93a9, 0xcca4e957, 0xeb2896c5);
+	
+	::vrl_errors::define_error! (TestError <u32>, result : TestResult);
+	
+	
+	::vrl_errors::define_error! (TestErrorA, application : 0x2c6ee161c63e15fbc26edac8b7a273e8);
+	::vrl_errors::define_error! (TestErrorM, module : 0x9f14ad9c);
+	::vrl_errors::define_error! (TestErrorT, type : 0xb3886640);
+	::vrl_errors::define_error! (TestErrorAM, application : 0xb6e4909a7d922108b97b88481f4b942f, module : 0x0e69a268);
+	::vrl_errors::define_error! (TestErrorAT, application : 0xb6e4909a7d922108b97b88481f4b942f, type : 0x39580f01);
+	::vrl_errors::define_error! (TestErrorMT, module : 0x67cb3c83, type : 0xbb66a6ed);
+	::vrl_errors::define_error! (TestErrorAMT, application : 0xf451bfe4bca8b20031d73ce9f3ae79f2, module : 0x93317dbe, type : 0xf0524093);
 	
 	
 	const CASE_COUNT : u8 = 12;
@@ -20,10 +30,10 @@ mod macros {
 			3 => ::vrl_errors::failed! (0xb0bf39d7, cause => _cause),
 			4 => ::vrl_errors::failed! (0x29198555, "with static message", cause => _cause),
 			5 => ::vrl_errors::failed! (0xab07dece, "with boxed message".to_string (), cause => _cause),
-			6 => ::vrl_errors::failed! (0x850a0c3e, "with formatted message / {}" => (0)),
-			7 => ::vrl_errors::failed! (0xcd9089f8, "with formatted message / {}" => (0), cause => _cause),
-			8 => ::vrl_errors::failed! (0x2bcda87c, "with formatted message / {}", 0),
-			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 0; cause => _cause),
+			6 => ::vrl_errors::failed! (0x850a0c3e, "with formatted message / {}" => (42)),
+			7 => ::vrl_errors::failed! (0xcd9089f8, "with formatted message / {}" => (42), cause => _cause),
+			8 => ::vrl_errors::failed! (0x2bcda87c, "with formatted message / {}", 42),
+			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::failed! (TestError, 0x93435944),
 			11 => ::vrl_errors::failed! (TestError, 0x60a20b4f, "with static message"),
 //			12 => ::vrl_errors::failed! (TestError, 0x2c604cc5, details => 42),
@@ -43,10 +53,10 @@ mod macros {
 			3 => ::vrl_errors::fail! (0xe8e57d19, cause => _cause),
 			4 => ::vrl_errors::fail! (0xe4927cfa, "with static message", cause => _cause),
 			5 => ::vrl_errors::fail! (0x12d7f906, "with boxed message".to_string (), cause => _cause),
-			6 => ::vrl_errors::fail! (0x6bf7e00a, "with formatted message / {}" => (0)),
-			7 => ::vrl_errors::fail! (0x3bbe4b83, "with formatted message / {}" => (0), cause => _cause),
-			8 => ::vrl_errors::fail! (0x6afa7cca, "with formatted message / {}", 0),
-			9 => ::vrl_errors::fail! (0x0080d98c, "with formatted message / {}", 0; cause => _cause),
+			6 => ::vrl_errors::fail! (0x6bf7e00a, "with formatted message / {}" => (42)),
+			7 => ::vrl_errors::fail! (0x3bbe4b83, "with formatted message / {}" => (42), cause => _cause),
+			8 => ::vrl_errors::fail! (0x6afa7cca, "with formatted message / {}", 42),
+			9 => ::vrl_errors::fail! (0x0080d98c, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::fail! (TestError, 0xdf3933aa),
 			11 => ::vrl_errors::fail! (TestError, 0x379198b1, "with static message"),
 			CASE_COUNT .. => ::std::unreachable! ("[632936ad]"),
@@ -64,10 +74,10 @@ mod macros {
 			3 => ::vrl_errors::panic! (0x6e249a14, cause => _cause),
 			4 => ::vrl_errors::panic! (0x599171ab, "with static message", cause => _cause),
 			5 => ::vrl_errors::panic! (0x6fde2d28, "with boxed message".to_string (), cause => _cause),
-			6 => ::vrl_errors::panic! (0x43a52ed9, "with formatted message / {}" => (0)),
-			7 => ::vrl_errors::panic! (0xcda96781, "with formatted message / {}" => (0), cause => _cause),
-			8 => ::vrl_errors::panic! (0xe4dcdc9d, "with formatted message / {}", 0),
-			9 => ::vrl_errors::panic! (0x881b21ee, "with formatted message / {}", 0; cause => _cause),
+			6 => ::vrl_errors::panic! (0x43a52ed9, "with formatted message / {}" => (42)),
+			7 => ::vrl_errors::panic! (0xcda96781, "with formatted message / {}" => (42), cause => _cause),
+			8 => ::vrl_errors::panic! (0xe4dcdc9d, "with formatted message / {}", 42),
+			9 => ::vrl_errors::panic! (0x881b21ee, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::panic! (TestError, 0xab9159fd),
 			11 => ::vrl_errors::panic! (TestError, 0x4d82b382, "with static message"),
 			CASE_COUNT .. => ::std::unreachable! ("[89ec6efc]"),
@@ -101,7 +111,7 @@ mod api {
 		};
 	
 	
-	define_error! (TestError / TestResult, 0x2354852e4149df0b4d465d5cd6d79e32, 0x21936ac4, 0x38faa61a);
+	define_error! (TestError, result : TestResult, application : 0x2354852e4149df0b4d465d5cd6d79e32, module : 0x21936ac4, type : 0x38faa61a);
 	
 	
 	#[ test ]
@@ -115,7 +125,7 @@ mod api {
 		let _ = TestError::new_with_message (0x463c2f33, "with boxed message".to_string ());
 		
 		let _ = TestError::new_with_format (0xc071d039, format_args! ("with static message"));
-		let _ = TestError::new_with_format (0x0132fcaa, format_args! ("with formatted message / {}", 0));
+		let _ = TestError::new_with_format (0x0132fcaa, format_args! ("with formatted message / {}", 42));
 		
 		let _ = TestError::new_with_cause (0x27272c4e, _cause_new ());
 		
@@ -123,7 +133,7 @@ mod api {
 		let _ = TestError::new_with_message_and_cause (0x4a017461, "with boxed message".to_string (), _cause_new ());
 		
 		let _ = TestError::new_with_format_and_cause (0xced506d3, format_args! ("with static message"), _cause_new ());
-		let _ = TestError::new_with_format_and_cause (0x6c35a22e, format_args! ("with formatted message / {}", 0), _cause_new ());
+		let _ = TestError::new_with_format_and_cause (0x6c35a22e, format_args! ("with formatted message / {}", 42), _cause_new ());
 	}
 	
 	
@@ -182,8 +192,8 @@ mod api {
 		}
 		
 		{
-			let _error = TestError::new_with_format (0x2b5e7cdb, format_args! ("with formatted message / {}", 0));
-			assert_eq! (_error.message_string () .as_deref (), Some ("with formatted message / 0"), "[8e6e1b56]");
+			let _error = TestError::new_with_format (0x2b5e7cdb, format_args! ("with formatted message / {}", 42));
+			assert_eq! (_error.message_string () .as_deref (), Some ("with formatted message / 42"), "[8e6e1b56]");
 			assert! (_message_is_borrowed (_error.message_string ()), "[a480d1e1]");
 		}
 		
@@ -268,7 +278,7 @@ mod details {
 	use ::vrl_errors::*;
 	
 	
-	define_error! (TestError <u32> / TestResult, 0xef95b48a719169cba70bb6bbda5cb18b, 0x8ef9efe0, 0x9fab3ba1);
+	define_error! (TestError <u32>, result : TestResult);
 	
 	
 	#[ test ]

@@ -4,7 +4,7 @@ mod macros {
 	
 	#![ no_implicit_prelude ]
 	
-	crate::define_error! (TestError, 0x572489cc4fe813077b8ff6b4bb68ce3a, 0xc4f39f8c, 0x5bca8488);
+	crate::define_error! (TestErrorA, application : 0x572489cc4fe813077b8ff6b4bb68ce3a, module : 0xc4f39f8c, type : 0x5bca8488);
 }
 
 
@@ -16,7 +16,7 @@ mod compiling {
 	use crate::prelude::*;
 	
 	
-	define_error! (TestError, 0x1e2f2f16363827beff19043074297fc0, 0x337f5813, 0x07b584de);
+	define_error! (TestError);
 	
 	
 	#[ test ]
