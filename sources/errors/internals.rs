@@ -55,7 +55,7 @@ impl <T : Error> ErrorInternals<T>
 	#[ doc (hidden) ]
 	#[ must_use ]
 	pub fn new_with_code (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode) -> Self {
-		Self::new (_application_code, _module_code, _type_code, _error_code, None, None)
+		Self::new (_application_code, _module_code, _type_code, _error_code, ErrorMessage::None, ErrorCause::None)
 	}
 	
 	#[ doc (hidden) ]
@@ -113,7 +113,7 @@ impl <T : Error> ErrorInternals<T>
 			None =>
 				ErrorCause::None,
 		};
-		Self::new (_application_code, _module_code, _type_code, _error_code, Some (_message), Some (_cause))
+		Self::new (_application_code, _module_code, _type_code, _error_code, _message, _cause)
 	}
 	
 	
@@ -133,11 +133,16 @@ impl <T : Error> ErrorInternals<T>
 	
 	
 	#[ must_use ]
-	pub(crate) fn new (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Option<ErrorMessage>, _cause : Option<ErrorCause>) -> Self {
-		
-		let _message = _message.unwrap_or (ErrorMessage::None);
-		let _cause = _cause.unwrap_or (ErrorCause::None);
+	pub(crate) fn new (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : ErrorMessage, _cause : ErrorCause) -> Self {
 		let _details = ErrorDetails::None;
+		let _payload = Self::payload_new (_application_code, _module_code, _type_code, _error_code, _message, _cause, _details);
+		let _arc = Arc::new (_payload);
+		ErrorInternals (_arc)
+	}
+	
+	
+	#[ must_use ]
+	pub(crate) fn payload_new (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : ErrorMessage, _cause : ErrorCause, _details : ErrorDetails<T>) -> ErrorPayload<T> {
 		
 		let _payload = ErrorPayload {
 				application_code : _application_code,
@@ -149,9 +154,7 @@ impl <T : Error> ErrorInternals<T>
 				details : _details,
 			};
 		
-		let _arc = Arc::new (_payload);
-		
-		ErrorInternals (_arc)
+		_payload
 	}
 	
 	
