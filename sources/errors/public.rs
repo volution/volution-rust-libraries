@@ -22,6 +22,9 @@ pub trait Error
 	#[ doc (hidden) ]
 	fn internals_ref (&self) -> &ErrorInternals<Self>;
 	
+	#[ doc (hidden) ]
+	fn internals_mut (&mut self) -> &mut ErrorInternals<Self>;
+	
 	
 	#[ doc (hidden) ]
 	fn display_fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
@@ -118,15 +121,17 @@ pub trait ErrorWithDetails : Error {
 		let _details = if let Some (_details) = _details.downcast_ref () {
 			_details
 		} else {
-			return None;
+			::std::panic! ("[2af84993]");
 		};
 		Some (_details)
 	}
 	
+	#[ doc (hidden) ]
 	fn details_set (&mut self, _details : Self::Details) -> () {
 		let _details = Box::new (_details);
-		let _set = self.internals_ref () .payload_ref () .details_set (_details);
-		if ! _set {
+		if let Some (_payload) = self.internals_mut () .payload_mut () {
+			_payload.details_set (_details);
+		} else {
 			::std::panic! ("[e1cce8ac]");
 		}
 	}

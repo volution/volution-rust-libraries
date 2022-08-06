@@ -27,7 +27,7 @@ pub(crate) struct ErrorPayload <T : Error> {
 pub(crate) enum ErrorMessage {
 	None,
 	Static (&'static str),
-	Boxed (Arc<str>),
+	Boxed (Box<str>),
 }
 
 
@@ -35,12 +35,15 @@ pub(crate) enum ErrorMessage {
 #[ derive (Debug) ]
 pub(crate) enum ErrorCause {
 	None,
-	Boxed (Arc<dyn StdError + Send + Sync + 'static>),
+	Boxed (Box<dyn StdError + Send + Sync + 'static>),
 }
 
 
 #[ must_use ]
-pub(crate) struct ErrorDetails <T : Error> (pub(crate) Arc<Option<Box<dyn Any + Send + Sync + 'static>>>, PhantomData<&'static T>);
+pub(crate) enum ErrorDetails <T : Error> {
+	None,
+	Boxed (Box<dyn Any + Send + Sync + 'static>, PhantomData<&'static T>),
+}
 
 
 
@@ -93,13 +96,13 @@ impl <T : Error> ErrorInternals<T>
 			Some (Cow::Borrowed (_message)) =>
 				ErrorMessage::Static (_message),
 			Some (Cow::Owned (_message)) =>
-				ErrorMessage::Boxed (Arc::from (_message)),
+				ErrorMessage::Boxed (Box::from (_message)),
 			None =>
 				ErrorMessage::None,
 		};
 		let _cause = match _cause {
 			Some (_cause) =>
-				ErrorCause::Boxed (Arc::new (_cause)),
+				ErrorCause::Boxed (Box::new (_cause)),
 			None =>
 				ErrorCause::None,
 		};
@@ -125,7 +128,7 @@ impl <T : Error> ErrorInternals<T>
 		
 		let _message = _message.unwrap_or (ErrorMessage::None);
 		let _cause = _cause.unwrap_or (ErrorCause::None);
-		let _details = ErrorDetails (Arc::new (None), PhantomData);
+		let _details = ErrorDetails::None;
 		
 		let _payload = ErrorPayload {
 				application_code : _application_code,
@@ -145,6 +148,10 @@ impl <T : Error> ErrorInternals<T>
 	
 	pub(crate) fn payload_ref (&self) -> &ErrorPayload<T> {
 		&self.0
+	}
+	
+	pub(crate) fn payload_mut (&mut self) -> Option<&mut ErrorPayload<T>> {
+		Arc::get_mut (&mut self.0)
 	}
 }
 
@@ -186,24 +193,16 @@ impl <T : Error> ErrorPayload<T> {
 impl <T : Error> ErrorPayload<T> {
 	
 	pub(crate) fn details_ref (&self) -> Option<&(dyn Any + Send + Sync + 'static)> {
-		if let Some (_details) = self.details.0.deref () {
-			Some (_details.deref ())
-		} else {
-			None
+		match self.details {
+			ErrorDetails::None =>
+				None,
+			ErrorDetails::Boxed (ref _details, _) =>
+				Some (_details.as_ref ()),
 		}
 	}
 	
-	pub(crate) fn details_set (&self, _details : Box<dyn Any + Send + Sync + 'static>) -> bool {
-		let _arc = self.details.0.clone ();
-		if Arc::strong_count (&_arc) > 2 {
-			return false;
-		}
-		let _pointer = Arc::as_ptr (&_arc);
-		unsafe {
-			let _pointer = _pointer as *mut Option<Box<_>>;
-			*_pointer = Some (_details)
-		}
-		return true;
+	pub(crate) fn details_set (&mut self, _details : Box<dyn Any + Send + Sync + 'static>) -> () {
+		self.details = ErrorDetails::Boxed (_details, PhantomData);
 	}
 }
 

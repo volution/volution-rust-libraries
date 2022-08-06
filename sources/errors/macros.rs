@@ -142,6 +142,11 @@ macro_rules! define_error {
 			fn internals_ref (&self) -> &$crate::ErrorInternals<Self> {
 				&self.0
 			}
+			
+			#[ doc (hidden) ]
+			fn internals_mut (&mut self) -> &mut $crate::ErrorInternals<Self> {
+				&mut self.0
+			}
 		}
 		
 		
