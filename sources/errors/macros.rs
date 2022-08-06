@@ -224,15 +224,15 @@ macro_rules! failed {
 	};
 	
 	( $_code : literal $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithCodeDescriptor::wrap ($_code) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithCodeDescriptor::prepare_with_code ($_code) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_message : expr $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithMessageDescriptor::wrap ($_code, $_message) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithMessageDescriptor::prepare_with_message ($_code, $_message) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ) $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithFormatDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*)) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithFormatDescriptor::prepare_with_format ($_code, ::std::format_args! ($_format, $( $_argument ),*)) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_format : literal, $( $_argument : expr ),+ $( , details => $_details : expr )? ) => {
@@ -240,15 +240,15 @@ macro_rules! failed {
 	};
 	
 	( $_code : literal, cause => $_cause : expr $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithCauseDescriptor::wrap ($_code, $_cause) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithCauseDescriptor::prepare_with_cause ($_code, $_cause) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_message : expr, cause => $_cause : expr $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithMessageAndCauseDescriptor::wrap ($_code, $_message, $_cause) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithMessageAndCauseDescriptor::prepare_with_message_and_cause ($_code, $_message, $_cause) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_format : literal => ( $( $_argument : expr ),* ), cause => $_cause : expr $( , details => $_details : expr )? ) => {
-		$crate::ErrorNewWithFormatAndCauseDescriptor::wrap ($_code, ::std::format_args! ($_format, $( $_argument ),*), $_cause) $( .with_details ($_details) )? .build ()
+		$crate::ErrorNewDescriptor::prepare_build ($crate::ErrorNewWithFormatAndCauseDescriptor::prepare_with_format_and_cause ($_code, ::std::format_args! ($_format, $( $_argument ),*), $_cause) $( .prepare_with_details ($_details) )? )
 	};
 	
 	( $_code : literal, $_format : literal, $( $_argument : expr ),+; cause => $_cause : expr $( , details => $_details : expr )? ) => {

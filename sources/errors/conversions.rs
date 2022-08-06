@@ -7,26 +7,57 @@ use crate::prelude::*;
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithCodeDescriptor <C>
+pub trait ErrorNewDescriptor <EN>
 	where
-		C : Into<ErrorCode>,
+		Self : Sized,
+		EN : ErrorNew,
 {
-	code : C,
+	#[ must_use ]
+	fn prepare_build (self) -> EN;
 }
 
 
-impl <C> ErrorNewWithCodeDescriptor<C>
+
+
+#[ doc (hidden) ]
+#[ must_use ]
+pub struct ErrorNewWithCodeDescriptor <EN, C>
 	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+{
+	code : C,
+	phantom : PhantomData<&'static EN>,
+}
+
+
+impl <EN, C> ErrorNewWithCodeDescriptor<EN, C>
+	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C) -> Self {
-		Self { code : _code }
+	pub const fn prepare_with_code (_code : C) -> Self {
+		Self {
+				code : _code,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_code (self.code)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <EN, C> ErrorNewDescriptor<EN> for ErrorNewWithCodeDescriptor<EN, C>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_code (self.code)
 	}
 }
 
@@ -35,29 +66,48 @@ impl <C> ErrorNewWithCodeDescriptor<C>
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithMessageDescriptor <C, M>
+pub struct ErrorNewWithMessageDescriptor <EN, C, M>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
 {
 	code : C,
 	message : M,
+	phantom : PhantomData<&'static EN>,
 }
 
 
-impl <C, M> ErrorNewWithMessageDescriptor<C, M>
+impl <EN, C, M> ErrorNewWithMessageDescriptor<EN, C, M>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C, _message : M) -> Self {
-		Self { code : _code, message : _message }
+	pub const fn prepare_with_message (_code : C, _message : M) -> Self {
+		Self {
+				code : _code,
+				message : _message,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_message (self.code, self.message)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <EN, C, M> ErrorNewDescriptor<EN> for ErrorNewWithMessageDescriptor<EN, C, M>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+		M : Into<Cow<'static, str>>,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_message (self.code, self.message)
 	}
 }
 
@@ -66,27 +116,45 @@ impl <C, M> ErrorNewWithMessageDescriptor<C, M>
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithFormatDescriptor <'a, C>
+pub struct ErrorNewWithFormatDescriptor <'a, EN, C>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 {
 	code : C,
 	format : fmt::Arguments<'a>,
+	phantom : PhantomData<&'static EN>,
 }
 
 
-impl <'a, C> ErrorNewWithFormatDescriptor<'a, C>
+impl <'a, EN, C> ErrorNewWithFormatDescriptor<'a, EN, C>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>) -> Self {
-		Self { code : _code, format : _format }
+	pub const fn prepare_with_format (_code : C, _format : fmt::Arguments<'a>) -> Self {
+		Self {
+				code : _code,
+				format : _format,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_format (self.code, self.format)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <'a, EN, C> ErrorNewDescriptor<EN> for ErrorNewWithFormatDescriptor<'a, EN, C>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_format (self.code, self.format)
 	}
 }
 
@@ -95,29 +163,48 @@ impl <'a, C> ErrorNewWithFormatDescriptor<'a, C>
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithCauseDescriptor <C, W>
+pub struct ErrorNewWithCauseDescriptor <EN, C, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
 	code : C,
 	cause : W,
+	phantom : PhantomData<&'static EN>,
 }
 
 
-impl <C, W> ErrorNewWithCauseDescriptor<C, W>
+impl <EN, C, W> ErrorNewWithCauseDescriptor<EN, C, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C, _cause : W) -> Self {
-		Self { code : _code, cause : _cause }
+	pub const fn prepare_with_cause (_code : C, _cause : W) -> Self {
+		Self {
+				code : _code,
+				cause : _cause,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_cause (self.code, self.cause)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <EN, C, W> ErrorNewDescriptor<EN> for ErrorNewWithCauseDescriptor<EN, C, W>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+		W : StdError + Sync + Send + 'static,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_cause (self.code, self.cause)
 	}
 }
 
@@ -126,8 +213,9 @@ impl <C, W> ErrorNewWithCauseDescriptor<C, W>
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithMessageAndCauseDescriptor <C, M, W>
+pub struct ErrorNewWithMessageAndCauseDescriptor <EN, C, M, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
 		W : StdError + Sync + Send + 'static,
@@ -135,23 +223,43 @@ pub struct ErrorNewWithMessageAndCauseDescriptor <C, M, W>
 	code : C,
 	message : M,
 	cause : W,
+	phantom : PhantomData<&'static EN>,
 }
 
 
-impl <C, M, W> ErrorNewWithMessageAndCauseDescriptor<C, M, W>
+impl <EN, C, M, W> ErrorNewWithMessageAndCauseDescriptor<EN, C, M, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
 		W : StdError + Sync + Send + 'static,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C, _message : M, _cause : W) -> Self {
-		Self { code : _code, message : _message, cause : _cause }
+	pub const fn prepare_with_message_and_cause (_code : C, _message : M, _cause : W) -> Self {
+		Self {
+				code : _code,
+				message : _message,
+				cause : _cause,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_message_and_cause (self.code, self.message, self.cause)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <EN, C, M, W> ErrorNewDescriptor<EN> for ErrorNewWithMessageAndCauseDescriptor<EN, C, M, W>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+		M : Into<Cow<'static, str>>,
+		W : StdError + Sync + Send + 'static,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_message_and_cause (self.code, self.message, self.cause)
 	}
 }
 
@@ -160,30 +268,92 @@ impl <C, M, W> ErrorNewWithMessageAndCauseDescriptor<C, M, W>
 
 #[ doc (hidden) ]
 #[ must_use ]
-pub struct ErrorNewWithFormatAndCauseDescriptor <'a, C, W>
+pub struct ErrorNewWithFormatAndCauseDescriptor <'a, EN, C, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
 	code : C,
 	format : fmt::Arguments<'a>,
 	cause : W,
+	phantom : PhantomData<&'static EN>,
 }
 
 
-impl <'a, C, W> ErrorNewWithFormatAndCauseDescriptor<'a, C, W>
+impl <'a, EN, C, W> ErrorNewWithFormatAndCauseDescriptor<'a, EN, C, W>
 	where
+		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		W : StdError + Sync + Send + 'static,
 {
 	#[ must_use ]
-	pub const fn wrap (_code : C, _format : fmt::Arguments<'a>, _cause : W) -> Self {
-		Self { code : _code, format : _format, cause : _cause }
+	pub const fn prepare_with_format_and_cause (_code : C, _format : fmt::Arguments<'a>, _cause : W) -> Self {
+		Self {
+				code : _code,
+				format : _format,
+				cause : _cause,
+				phantom : PhantomData,
+			}
 	}
 	
 	#[ must_use ]
-	pub fn build <E : ErrorNew> (self) -> E {
-		E::new_with_format_and_cause (self.code, self.format, self.cause)
+	pub const fn prepare_with_details (self, _details : EN::Details) -> ErrorNewWithDetailsDescriptor<Self, EN> where EN : ErrorNewWithDetails {
+		ErrorNewWithDetailsDescriptor::prepare_with_details (self, _details)
+	}
+}
+
+
+impl <'a, EN, C, W> ErrorNewDescriptor<EN> for ErrorNewWithFormatAndCauseDescriptor<'a, EN, C, W>
+	where
+		EN : ErrorNew,
+		C : Into<ErrorCode>,
+		W : StdError + Sync + Send + 'static,
+{
+	fn prepare_build (self) -> EN {
+		EN::new_with_format_and_cause (self.code, self.format, self.cause)
+	}
+}
+
+
+
+
+#[ doc (hidden) ]
+#[ must_use ]
+pub struct ErrorNewWithDetailsDescriptor <END, EN>
+	where
+		END : ErrorNewDescriptor<EN>,
+		EN : ErrorNewWithDetails,
+{
+	descriptor : END,
+	details : EN::Details,
+}
+
+
+impl <END, EN> ErrorNewWithDetailsDescriptor<END, EN>
+	where
+		END : ErrorNewDescriptor<EN>,
+		EN : ErrorNewWithDetails,
+{
+	#[ must_use ]
+	pub const fn prepare_with_details (_descriptor : END, _details : EN::Details) -> Self {
+		Self {
+				descriptor : _descriptor,
+				details : _details,
+			}
+	}
+}
+
+
+impl <END, EN> ErrorNewDescriptor<EN> for ErrorNewWithDetailsDescriptor<END, EN>
+	where
+		END : ErrorNewDescriptor<EN>,
+		EN : ErrorNewWithDetails,
+{
+	fn prepare_build (self) -> EN {
+		let _error = self.descriptor.prepare_build ();
+		let _error = _error.with_details (self.details);
+		_error
 	}
 }
 

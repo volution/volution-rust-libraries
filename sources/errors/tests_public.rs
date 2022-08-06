@@ -17,7 +17,7 @@ mod macros {
 	::vrl_errors::define_error! (TestErrorAMT, application : 0xf451bfe4bca8b20031d73ce9f3ae79f2, module : 0x93317dbe, type : 0xf0524093);
 	
 	
-	const CASE_COUNT : u8 = 12;
+	const CASE_COUNT : u8 = 15;
 	
 	
 	fn returns_error (_variant : u8) -> TestError {
@@ -36,7 +36,9 @@ mod macros {
 			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::failed! (TestError, 0x93435944),
 			11 => ::vrl_errors::failed! (TestError, 0x60a20b4f, "with static message"),
-//			12 => ::vrl_errors::failed! (TestError, 0x2c604cc5, details => 42),
+			12 => ::vrl_errors::failed! (0x2c604cc5, details => 42),
+			13 => ::vrl_errors::failed! (0xed24d6ce, "with static message", details => 42),
+			14 => ::vrl_errors::failed! (0xed24d6ce, cause => _cause, details => 42),
 			CASE_COUNT .. => ::std::unreachable! ("[1ff0cc7a]"),
 		};
 		_error
@@ -59,6 +61,9 @@ mod macros {
 			9 => ::vrl_errors::fail! (0x0080d98c, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::fail! (TestError, 0xdf3933aa),
 			11 => ::vrl_errors::fail! (TestError, 0x379198b1, "with static message"),
+			12 => ::vrl_errors::fail! (0x1ef5607e, details => 42),
+			13 => ::vrl_errors::fail! (0xad76b3d6, "with static message", details => 42),
+			14 => ::vrl_errors::fail! (0xe8e57d19, cause => _cause, details => 42),
 			CASE_COUNT .. => ::std::unreachable! ("[632936ad]"),
 		}
 	}
@@ -80,6 +85,9 @@ mod macros {
 			9 => ::vrl_errors::panic! (0x881b21ee, "with formatted message / {}", 42; cause => _cause),
 			10 => ::vrl_errors::panic! (TestError, 0xab9159fd),
 			11 => ::vrl_errors::panic! (TestError, 0x4d82b382, "with static message"),
+			12 => ::vrl_errors::panic! (TestError, 0xab9159fd, details => 42),
+			13 => ::vrl_errors::panic! (TestError, 0xb41b3ad3, "with static message", details => 42),
+			14 => ::vrl_errors::panic! (TestError, 0x6e249a14, cause => _cause, details => 42),
 			CASE_COUNT .. => ::std::unreachable! ("[89ec6efc]"),
 		}
 	}
