@@ -277,12 +277,57 @@ macro_rules! fail {
 #[ macro_export ]
 macro_rules! panic {
 	
+	( normal, $( $_token : tt )+ ) => {
+		$crate::panic_trigger ($crate::panic_error! ( $( $_token )+ ), $crate::PanicType::Normal)
+	};
+	
+	( enforcement, $( $_token : tt )+ ) => {
+		$crate::panic_trigger ($crate::panic_error! ( $( $_token )+ ), $crate::PanicType::Enforcement)
+	};
+	
+	( unimplemented, $( $_token : tt )+ ) => {
+		$crate::panic_trigger ($crate::panic_error! ( $( $_token )+ ), $crate::PanicType::Unimplemented)
+	};
+	
+	( unreachable, $( $_token : tt )+ ) => {
+		$crate::panic_trigger ($crate::panic_error! ( $( $_token )+ ), $crate::PanicType::Unreachable)
+	};
+	
+	( abort, $( $_token : tt )+ ) => {
+		$crate::panic_trigger ($crate::panic_error! ( $( $_token )+ ), $crate::PanicType::Abort)
+	};
+	
+	( error : $_error : expr ) => {
+		$crate::panic! (normal, error : $_error)
+	};
+	
 	( $_type : ty, $_code : literal $( $_token : tt )* ) => {
-		$crate::ErrorExtPanic::panic_0 ({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
+		$crate::panic! (normal, $_type, $_code $( $_token )* )
 	};
 	
 	( $_code : literal $( $_token : tt )* ) => {
-		$crate::panic! ($crate::PanicError, $_code $( $_token )* )
+		$crate::panic! (normal, $crate::PanicError, $_code $( $_token )* )
 	};
 }
+
+
+
+
+#[ doc (hidden) ]
+#[ macro_export ]
+macro_rules! panic_error {
+	
+	( error : $_error : expr ) => {
+		$_error
+	};
+	
+	( $_type : ty, $_code : literal $( $_token : tt )* ) => {
+		({ let _error : $_type = $crate::failed! ( $_code $( $_token )* ); _error })
+	};
+	
+	( $_code : literal $( $_token : tt )* ) => {
+		$crate::panic_error! ($crate::PanicError, $_code $( $_token )* )
+	};
+}
+
 

@@ -39,7 +39,7 @@ mod api {
 	
 	#[ bench ]
 	fn create_error_new_with_boxed_message (_bencher : &mut Bencher) -> () {
-		run_bench (_bencher, || TestError::new_with_message (0x8aeed0a9, "with boxed message".to_string ()));
+		run_bench (_bencher, || TestError::new_with_message (0x2c34054b, "with boxed message".to_string ()));
 	}
 	
 	#[ bench ]

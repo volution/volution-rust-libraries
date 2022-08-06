@@ -12,18 +12,16 @@ mod macros {
 	::vrl_errors::define_error! (TestErrorM, module : 0x9f14ad9c);
 	::vrl_errors::define_error! (TestErrorT, type : 0xb3886640);
 	::vrl_errors::define_error! (TestErrorAM, application : 0xb6e4909a7d922108b97b88481f4b942f, module : 0x0e69a268);
-	::vrl_errors::define_error! (TestErrorAT, application : 0xb6e4909a7d922108b97b88481f4b942f, type : 0x39580f01);
+	::vrl_errors::define_error! (TestErrorAT, application : 0x163aa33f95a568081f2ce32f03e39637, type : 0x39580f01);
 	::vrl_errors::define_error! (TestErrorMT, module : 0x67cb3c83, type : 0xbb66a6ed);
 	::vrl_errors::define_error! (TestErrorAMT, application : 0xf451bfe4bca8b20031d73ce9f3ae79f2, module : 0x93317dbe, type : 0xf0524093);
 	
 	
-	const CASE_COUNT : u8 = 15;
-	
-	
-	fn returns_error (_variant : u8) -> TestError {
+	fn returns_error (_variant : u8) -> ::std::option::Option<TestError> {
 		use ::std::string::ToString as _;
 		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
 		let _error = match _variant {
+			
 			0 => ::vrl_errors::failed! (0x8b718df6),
 			1 => ::vrl_errors::failed! (0x265cfa26, "with static message"),
 			2 => ::vrl_errors::failed! (0x4938d5a1, "with boxed message".to_string ()),
@@ -34,21 +32,24 @@ mod macros {
 			7 => ::vrl_errors::failed! (0xcd9089f8, "with formatted message / {}" => (42), cause => _cause),
 			8 => ::vrl_errors::failed! (0x2bcda87c, "with formatted message / {}", 42),
 			9 => ::vrl_errors::failed! (0xe31dd1db, "with formatted message / {}", 42; cause => _cause),
+			
 			10 => ::vrl_errors::failed! (TestError, 0x93435944),
 			11 => ::vrl_errors::failed! (TestError, 0x60a20b4f, "with static message"),
 			12 => ::vrl_errors::failed! (0x2c604cc5, details => 42),
 			13 => ::vrl_errors::failed! (0xed24d6ce, "with static message", details => 42),
-			14 => ::vrl_errors::failed! (0xed24d6ce, cause => _cause, details => 42),
-			CASE_COUNT .. => ::std::unreachable! ("[1ff0cc7a]"),
+			14 => ::vrl_errors::failed! (0xe7899823, cause => _cause, details => 42),
+			
+			_ => return ::std::option::Option::None,
 		};
-		_error
+		::std::option::Option::Some (_error)
 	}
 	
 	
 	fn returns_result (_variant : u8) -> TestResult {
 		use ::std::string::ToString as _;
 		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
-		match _variant {
+		let _result = match _variant {
+			
 			0 => ::vrl_errors::fail! (0x03e28781),
 			1 => ::vrl_errors::fail! (0x794724ea, "with static message"),
 			2 => ::vrl_errors::fail! (0xa7259b73, "with boxed message".to_string ()),
@@ -59,20 +60,23 @@ mod macros {
 			7 => ::vrl_errors::fail! (0x3bbe4b83, "with formatted message / {}" => (42), cause => _cause),
 			8 => ::vrl_errors::fail! (0x6afa7cca, "with formatted message / {}", 42),
 			9 => ::vrl_errors::fail! (0x0080d98c, "with formatted message / {}", 42; cause => _cause),
+			
 			10 => ::vrl_errors::fail! (TestError, 0xdf3933aa),
 			11 => ::vrl_errors::fail! (TestError, 0x379198b1, "with static message"),
 			12 => ::vrl_errors::fail! (0x1ef5607e, details => 42),
 			13 => ::vrl_errors::fail! (0xad76b3d6, "with static message", details => 42),
-			14 => ::vrl_errors::fail! (0xe8e57d19, cause => _cause, details => 42),
-			CASE_COUNT .. => ::std::unreachable! ("[632936ad]"),
-		}
+			14 => ::vrl_errors::fail! (0x7136a494, cause => _cause, details => 42),
+			
+			_ => return ::std::result::Result::Ok (()),
+		};
 	}
 	
 	
-	fn returns_panic (_variant : u8) -> ! {
+	fn returns_panic_1 (_variant : u8) -> () {
 		use ::std::string::ToString as _;
 		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
 		match _variant {
+			
 			0 => ::vrl_errors::panic! (0x2b720744),
 			1 => ::vrl_errors::panic! (0x78051ab4, "with static message"),
 			2 => ::vrl_errors::panic! (0x35880691, "with boxed message".to_string ()),
@@ -83,24 +87,69 @@ mod macros {
 			7 => ::vrl_errors::panic! (0xcda96781, "with formatted message / {}" => (42), cause => _cause),
 			8 => ::vrl_errors::panic! (0xe4dcdc9d, "with formatted message / {}", 42),
 			9 => ::vrl_errors::panic! (0x881b21ee, "with formatted message / {}", 42; cause => _cause),
+			
 			10 => ::vrl_errors::panic! (TestError, 0xab9159fd),
 			11 => ::vrl_errors::panic! (TestError, 0x4d82b382, "with static message"),
-			12 => ::vrl_errors::panic! (TestError, 0xab9159fd, details => 42),
+			12 => ::vrl_errors::panic! (TestError, 0xa070fb52, details => 42),
 			13 => ::vrl_errors::panic! (TestError, 0xb41b3ad3, "with static message", details => 42),
-			14 => ::vrl_errors::panic! (TestError, 0x6e249a14, cause => _cause, details => 42),
-			CASE_COUNT .. => ::std::unreachable! ("[89ec6efc]"),
+			14 => ::vrl_errors::panic! (TestError, 0x41c285e3, cause => _cause, details => 42),
+			
+			_ => (),
+		}
+	}
+	
+	
+	fn returns_panic_2 (_variant : u8) -> () {
+		use ::std::string::ToString as _;
+		let _cause = ::std::io::Error::new (::std::io::ErrorKind::Other, "cause message");
+		match _variant {
+			
+			0 => ::vrl_errors::panic! (normal, 0xc8fc1772),
+			1 => ::vrl_errors::panic! (normal, 0xfc970cb5, "with static message"),
+			2 => ::vrl_errors::panic! (normal, 0xe7a5c0dd, "with boxed message".to_string ()),
+			3 => ::vrl_errors::panic! (normal, 0x5ca009b3, cause => _cause),
+			4 => ::vrl_errors::panic! (normal, 0x28342045, "with static message", cause => _cause),
+			5 => ::vrl_errors::panic! (normal, 0x86883f3c, "with boxed message".to_string (), cause => _cause),
+			6 => ::vrl_errors::panic! (normal, 0x608519b4, "with formatted message / {}" => (42)),
+			7 => ::vrl_errors::panic! (normal, 0xacfd1c5e, "with formatted message / {}" => (42), cause => _cause),
+			8 => ::vrl_errors::panic! (normal, 0x93517226, "with formatted message / {}", 42),
+			9 => ::vrl_errors::panic! (normal, 0x9eda9568, "with formatted message / {}", 42; cause => _cause),
+			
+			10 => ::vrl_errors::panic! (normal, TestError, 0xb77a66ed),
+			11 => ::vrl_errors::panic! (normal, TestError, 0xbc618948, "with static message"),
+			12 => ::vrl_errors::panic! (normal, TestError, 0xe7baa1eb, details => 42),
+			13 => ::vrl_errors::panic! (normal, TestError, 0x3364c0ad, "with static message", details => 42),
+			14 => ::vrl_errors::panic! (normal, TestError, 0x340cc8e5, cause => _cause, details => 42),
+			
+			100 => ::vrl_errors::panic! (normal, 0x57f3a400),
+			101 => ::vrl_errors::panic! (enforcement, 0x61ce6c81),
+			102 => ::vrl_errors::panic! (unimplemented, 0xb001a608),
+			103 => ::vrl_errors::panic! (unreachable, 0x96699733),
+			104 => ::vrl_errors::panic! (abort, 0x5faad42d),
+			
+			110 => ::vrl_errors::panic! (error : TestError::new_with_code (0x0c12a194)),
+			111 => ::vrl_errors::panic! (normal, error : TestError::new_with_code (0xb72c7f03)),
+			
+			_ => (),
 		}
 	}
 	
 	
 	#[ test ]
 	fn failed () -> () {
-		
-		for _case in 0 .. CASE_COUNT {
+		for _case in 0 .. u8::MAX {
 			let _ = returns_error (_case);
 			let _ = returns_result (_case);
+		}
+	}
+	
+	
+	#[ test ]
+	fn panics () -> () {
+		for _case in 0 .. u8::MAX {
 			if false {
-				let _ = returns_panic (_case);
+				let _ = returns_panic_1 (_case);
+				let _ = returns_panic_2 (_case);
 			}
 		}
 	}

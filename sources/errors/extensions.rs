@@ -66,7 +66,7 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 			Ok (_value) =>
 				_value,
 			Err (_error) =>
-				_error.panic (_code),
+				_error.infallible (_code),
 		}
 	}
 }
@@ -79,7 +79,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				std::panic! ("unexpected error encountered!"),
+				crate::panic! (enforcement, error : PanicError::new_with_code (ErrorCode::UNKNOWN)),
 		}
 	}
 	
@@ -88,7 +88,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				std::panic! ("[{}]  unexpected error encountered!", _code.into ()),
+				crate::panic! (enforcement, error : PanicError::new_with_code (_code)),
 		}
 	}
 	
@@ -97,7 +97,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				std::panic! ("[{}]  {}", _code.into (), _message.into ()),
+				crate::panic! (enforcement, error : PanicError::new_with_message (_code, _message)),
 		}
 	}
 	
@@ -106,7 +106,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				std::panic! ("[{}]  {}", _code.into (), _format),
+				crate::panic! (enforcement, error : PanicError::new_with_format (_code, _format)),
 		}
 	}
 	
@@ -115,7 +115,7 @@ impl <V> ResultExtPanic<V> for Option<V> {
 			Some (_value) =>
 				_value,
 			None =>
-				std::panic! ("[{}]  unexpected error encountered!", _code.into ()),
+				crate::panic! (unreachable, error : PanicError::new_with_code (_code)),
 		}
 	}
 }
@@ -132,25 +132,31 @@ pub trait ErrorExtPanic : Sized {
 	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> !;
 	
 	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> !;
+	
+	fn infallible (self, _code : impl Into<ErrorCode>) -> !;
 }
 
 
 impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
 	
 	fn panic_0 (self) -> ! {
-		std::panic! ("unexpected error encountered!  //  {}", self);
+		crate::panic! (enforcement, error : PanicError::new_with_cause (ErrorCode::UNKNOWN, self));
 	}
 	
 	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
-		std::panic! ("[{}]  unexpected error encountered!  //  {}", _code.into (), self);
+		crate::panic! (enforcement, error : PanicError::new_with_cause (_code, self));
 	}
 	
 	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> ! {
-		std::panic! ("[{}]  {}  //  {}", _code.into (), _message.into (), self);
+		crate::panic! (enforcement, error : PanicError::new_with_message_and_cause (_code, _message, self));
 	}
 	
 	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> ! {
-		std::panic! ("[{}]  {}  //  {}", _code.into (), _format, self);
+		crate::panic! (enforcement, error : PanicError::new_with_format_and_cause (_code, _format, self));
+	}
+	
+	fn infallible (self, _code : impl Into<ErrorCode>) -> ! {
+		crate::panic! (unreachable, error : PanicError::new_with_cause (_code, self));
 	}
 }
 

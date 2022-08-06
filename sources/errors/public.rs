@@ -146,7 +146,7 @@ pub trait ErrorWithDetails : Error {
 		let _details = if let Some (_details) = _details.downcast_ref () {
 			_details
 		} else {
-			::std::panic! ("[2af84993]");
+			crate::panic! (unreachable, 0x7d1b922f);
 		};
 		Some (_details)
 	}
@@ -157,7 +157,7 @@ pub trait ErrorWithDetails : Error {
 		if let Some (_payload) = self.internals_mut () .payload_mut () {
 			_payload.details_set (_details);
 		} else {
-			::std::panic! ("[e1cce8ac]");
+			crate::panic! (enforcement, 0x987ce43a);
 		}
 	}
 }
