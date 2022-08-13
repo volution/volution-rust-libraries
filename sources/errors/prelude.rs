@@ -3,6 +3,8 @@
 pub(crate) use crate::*;
 
 
+
+
 pub use ::std::{
 		
 		error::Error as StdError,
@@ -12,6 +14,10 @@ pub use ::std::{
 		
 		process::ExitCode as StdProcessExitCode,
 	};
+
+pub type StdIoResult <V = ()> = Result<V, StdIoError>;
+
+
 
 
 #[ allow (unused_imports) ]
@@ -41,4 +47,5 @@ pub(crate) use ::std::{
 		io,
 		process,
 	};
+
 
