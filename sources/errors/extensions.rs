@@ -253,3 +253,98 @@ impl <SE : StdError + Send + Sync + 'static, EN : ErrorNew> ErrorExtWrap<EN> for
 	}
 }
 
+
+
+
+
+
+
+
+pub trait ResultExtReplace <V, E : Error> : Sized {
+	
+	fn else_replace (self, _code : impl Into<ErrorCode>) -> Result<V, E>;
+	
+	fn else_replace_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, E>;
+	
+	fn else_replace_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, E>;
+}
+
+
+impl <V, EN : ErrorNew, E> ResultExtReplace<V, EN> for Result<V, E> {
+	
+	fn else_replace (self, _code : impl Into<ErrorCode>) -> Result<V, EN> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (EN::new_with_code (_code))
+		}
+	}
+	
+	fn else_replace_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, EN> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (EN::new_with_message (_code, _message))
+		}
+	}
+	
+	fn else_replace_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, EN> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (EN::new_with_format (_code, _format))
+		}
+	}
+}
+
+
+
+
+pub trait ResultExtUnexpected <V> : Sized {
+	
+	fn else_unexpected (self, _code : impl Into<ErrorCode>) -> Result<V, UnexpectedError>;
+	
+	fn else_unexpected_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, UnexpectedError>;
+	
+	fn else_unexpected_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, UnexpectedError>;
+	
+	fn infallible_unexpected (self, _code : impl Into<ErrorCode>) -> V {
+		self.else_unexpected (_code) .infallible_0 ()
+	}
+}
+
+
+impl <V, E> ResultExtUnexpected<V> for Result<V, E> {
+	
+	fn else_unexpected (self, _code : impl Into<ErrorCode>) -> Result<V, UnexpectedError> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (UnexpectedError::new_with_code (_code))
+		}
+	}
+	
+	fn else_unexpected_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> Result<V, UnexpectedError> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (UnexpectedError::new_with_message (_code, _message))
+		}
+	}
+	
+	fn else_unexpected_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, UnexpectedError> {
+		match self {
+			Ok (_value) =>
+				Ok (_value),
+			Err (_error) =>
+				Err (UnexpectedError::new_with_format (_code, _format))
+		}
+	}
+}
+
+
