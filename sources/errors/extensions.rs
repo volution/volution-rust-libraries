@@ -11,8 +11,6 @@ use crate::prelude::*;
 
 pub trait ResultExtPanic <V> : Sized {
 	
-	fn else_panic_0 (self) -> V;
-	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V;
 	
 	fn else_panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> V;
@@ -20,19 +18,18 @@ pub trait ResultExtPanic <V> : Sized {
 	fn else_panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> V;
 	
 	fn infallible (self, _code : impl Into<ErrorCode>) -> V;
+	
+	fn else_panic_0 (self) -> V {
+		self.else_panic (ErrorCode::UNKNOWN)
+	}
+	
+	fn infallible_0 (self) -> V {
+		self.infallible (ErrorCode::UNKNOWN)
+	}
 }
 
 
 impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
-	
-	fn else_panic_0 (self) -> V {
-		match self {
-			Ok (_value) =>
-				_value,
-			Err (_error) =>
-				_error.panic_0 (),
-		}
-	}
 	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
@@ -73,15 +70,6 @@ impl <V, EX : ErrorExtPanic> ResultExtPanic<V> for Result<V, EX> {
 
 
 impl <V> ResultExtPanic<V> for Option<V> {
-	
-	fn else_panic_0 (self) -> V {
-		match self {
-			Some (_value) =>
-				_value,
-			None =>
-				crate::panic! (enforcement, error : PanicError::new_with_code (ErrorCode::UNKNOWN)),
-		}
-	}
 	
 	fn else_panic (self, _code : impl Into<ErrorCode>) -> V {
 		match self {
@@ -125,8 +113,6 @@ impl <V> ResultExtPanic<V> for Option<V> {
 
 pub trait ErrorExtPanic : Sized {
 	
-	fn panic_0 (self) -> !;
-	
 	fn panic (self, _code : impl Into<ErrorCode>) -> !;
 	
 	fn panic_with_message (self, _code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>) -> !;
@@ -134,14 +120,18 @@ pub trait ErrorExtPanic : Sized {
 	fn panic_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> !;
 	
 	fn infallible (self, _code : impl Into<ErrorCode>) -> !;
+	
+	fn panic_0 (self) -> ! {
+		self.panic (ErrorCode::UNKNOWN);
+	}
+	
+	fn infallible_0 (self) -> ! {
+		self.infallible (ErrorCode::UNKNOWN);
+	}
 }
 
 
 impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
-	
-	fn panic_0 (self) -> ! {
-		crate::panic! (enforcement, error : PanicError::new_with_cause (ErrorCode::UNKNOWN, self));
-	}
 	
 	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
 		crate::panic! (enforcement, error : PanicError::new_with_cause (_code, self));
