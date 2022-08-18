@@ -2,7 +2,7 @@
 
 [package]
 name = "vrl-errors"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
 edition = "2021"
 autobins = false
