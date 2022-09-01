@@ -89,6 +89,12 @@ pub trait Error
 	fn into_std_process_exit_code (self) -> StdProcessExitCode {
 		StdProcessExitCode::FAILURE
 	}
+	
+	
+	#[ must_use ]
+	fn cloned (&self) -> Self {
+		Self::from_internals (self.internals_ref () .cloned ())
+	}
 }
 
 

@@ -399,6 +399,14 @@ macro_rules! define_error_conversions {
 				<Self as $crate::Error>::into_std_process_exit_code (self)
 			}
 		}
+		
+		
+		impl ::std::clone::Clone for $_error_type {
+			
+			fn clone (&self) -> Self {
+				<Self as $crate::Error>::cloned (self)
+			}
+		}
 	};
 }
 

@@ -167,6 +167,12 @@ impl <T : Error> ErrorInternals<T>
 	pub(crate) fn payload_mut (&mut self) -> Option<&mut ErrorPayload<T>> {
 		Arc::get_mut (&mut self.0)
 	}
+	
+	
+	#[ must_use ]
+	pub(crate) fn cloned (&self) -> Self {
+		ErrorInternals (Arc::clone (&self.0))
+	}
 }
 
 
