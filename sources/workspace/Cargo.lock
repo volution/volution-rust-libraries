@@ -26,6 +26,7 @@ name = "vrl-errors"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "vrl-preludes",
 ]
 
 [[package]]

@@ -25,6 +25,7 @@ default = []
 
 
 [dependencies]
+vrl-preludes = { path = "../preludes" }
 
 
 [dev-dependencies]
