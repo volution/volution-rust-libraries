@@ -12,8 +12,14 @@ checksum = "98161a4e3e2184da77bb14f02184cdd111e83bbbcc9979dfee3c44b9a85f5602"
 name = "vrl"
 version = "0.1.0"
 dependencies = [
+ "vrl-bytes",
  "vrl-errors",
+ "vrl-preludes",
 ]
+
+[[package]]
+name = "vrl-bytes"
+version = "0.1.0"
 
 [[package]]
 name = "vrl-errors"
@@ -21,3 +27,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
 ]
+
+[[package]]
+name = "vrl-preludes"
+version = "0.1.0"
