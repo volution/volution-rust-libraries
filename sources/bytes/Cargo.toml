@@ -24,3 +24,13 @@ doctest = false
 default = []
 
 
+
+
+[dependencies]
+
+vrl-preludes = { path = "../preludes" }
+vrl-errors = { path = "../errors" }
+
+byteorder = "*"
+
+

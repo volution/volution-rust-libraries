@@ -9,6 +9,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98161a4e3e2184da77bb14f02184cdd111e83bbbcc9979dfee3c44b9a85f5602"
 
 [[package]]
+name = "byteorder"
+version = "1.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
+
+[[package]]
 name = "vrl"
 version = "0.1.0"
 dependencies = [
@@ -20,6 +26,11 @@ dependencies = [
 [[package]]
 name = "vrl-bytes"
 version = "0.1.0"
+dependencies = [
+ "byteorder",
+ "vrl-errors",
+ "vrl-preludes",
+]
 
 [[package]]
 name = "vrl-errors"
