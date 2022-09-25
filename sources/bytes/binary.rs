@@ -19,13 +19,55 @@ define_error! (pub BinaryError, result : BinaryResult, type : 0xbe8dcd5e);
 
 
 
-pub type Binary32 = BinaryFixed<{ 32 / 8 }>;
-pub type Binary64 = BinaryFixed<{ 64 / 8 }>;
-pub type Binary128 = BinaryFixed<{ 128 / 8 }>;
-pub type Binary192 = BinaryFixed<{ 192 / 8 }>;
-pub type Binary256 = BinaryFixed<{ 256 / 8 }>;
-pub type Binary384 = BinaryFixed<{ 384 / 8 }>;
-pub type Binary512 = BinaryFixed<{ 512 / 8 }>;
+pub type Binary8b = BinaryFixed<{ 8 / 8 }>;
+pub type Binary16b = BinaryFixed<{ 16 / 8 }>;
+pub type Binary24b = BinaryFixed<{ 24 / 8 }>;
+pub type Binary32b = BinaryFixed<{ 32 / 8 }>;
+pub type Binary40b = BinaryFixed<{ 40 / 8 }>;
+pub type Binary48b = BinaryFixed<{ 48 / 8 }>;
+pub type Binary56b = BinaryFixed<{ 56 / 8 }>;
+pub type Binary64b = BinaryFixed<{ 64 / 8 }>;
+pub type Binary72b = BinaryFixed<{ 72 / 8 }>;
+pub type Binary80b = BinaryFixed<{ 80 / 8 }>;
+pub type Binary88b = BinaryFixed<{ 88 / 8 }>;
+pub type Binary96b = BinaryFixed<{ 96 / 8 }>;
+pub type Binary104b = BinaryFixed<{ 104 / 8 }>;
+pub type Binary112b = BinaryFixed<{ 112 / 8 }>;
+pub type Binary120b = BinaryFixed<{ 120 / 8 }>;
+pub type Binary128b = BinaryFixed<{ 128 / 8 }>;
+pub type Binary136b = BinaryFixed<{ 136 / 8 }>;
+pub type Binary144b = BinaryFixed<{ 144 / 8 }>;
+pub type Binary152b = BinaryFixed<{ 152 / 8 }>;
+pub type Binary160b = BinaryFixed<{ 160 / 8 }>;
+pub type Binary168b = BinaryFixed<{ 168 / 8 }>;
+pub type Binary176b = BinaryFixed<{ 176 / 8 }>;
+pub type Binary184b = BinaryFixed<{ 184 / 8 }>;
+pub type Binary192b = BinaryFixed<{ 192 / 8 }>;
+pub type Binary200b = BinaryFixed<{ 200 / 8 }>;
+pub type Binary208b = BinaryFixed<{ 208 / 8 }>;
+pub type Binary216b = BinaryFixed<{ 216 / 8 }>;
+pub type Binary224b = BinaryFixed<{ 224 / 8 }>;
+pub type Binary232b = BinaryFixed<{ 232 / 8 }>;
+pub type Binary248b = BinaryFixed<{ 248 / 8 }>;
+pub type Binary256b = BinaryFixed<{ 256 / 8 }>;
+pub type Binary272b = BinaryFixed<{ 272 / 8 }>;
+pub type Binary288b = BinaryFixed<{ 288 / 8 }>;
+pub type Binary304b = BinaryFixed<{ 304 / 8 }>;
+pub type Binary320b = BinaryFixed<{ 320 / 8 }>;
+pub type Binary336b = BinaryFixed<{ 336 / 8 }>;
+pub type Binary352b = BinaryFixed<{ 352 / 8 }>;
+pub type Binary368b = BinaryFixed<{ 368 / 8 }>;
+pub type Binary384b = BinaryFixed<{ 384 / 8 }>;
+pub type Binary400b = BinaryFixed<{ 400 / 8 }>;
+pub type Binary416b = BinaryFixed<{ 416 / 8 }>;
+pub type Binary432b = BinaryFixed<{ 432 / 8 }>;
+pub type Binary448b = BinaryFixed<{ 448 / 8 }>;
+pub type Binary464b = BinaryFixed<{ 464 / 8 }>;
+pub type Binary480b = BinaryFixed<{ 480 / 8 }>;
+pub type Binary496b = BinaryFixed<{ 496 / 8 }>;
+pub type Binary512b = BinaryFixed<{ 512 / 8 }>;
+
+
 
 
 // FIXME:  Use secure comparison!
