@@ -14,6 +14,9 @@ pub(crate) mod panic;
 pub(crate) mod macros;
 pub(crate) mod prelude;
 
+#[ cfg (feature = "anyhow") ]
+pub(crate) mod anyhow;
+
 #[ cfg (test) ]
 pub(crate) mod tests_internal;
 
@@ -38,4 +41,7 @@ pub use crate::{
 		prelude::*,
 	};
 
+
+#[ cfg (feature = "anyhow") ]
+pub use crate::anyhow::*;
 

@@ -26,10 +26,11 @@ default = []
 
 [dependencies]
 vrl-preludes = { path = "../preludes" }
+anyhow = { version = "*", default-features = false, features = ["std"], optional = true }
 
 
 [dev-dependencies]
-anyhow = "*"
+anyhow = { version = "*", default-features = false, features = ["std"], optional = false }
 
 
 [[test]]
