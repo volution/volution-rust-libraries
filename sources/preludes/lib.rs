@@ -75,6 +75,17 @@ pub mod std_collections_only {
 }
 
 
+pub mod std_strings_only {
+	
+	
+	pub use ::std::str;
+	pub use ::std::str::{
+			
+			FromStr,
+		};
+}
+
+
 pub mod std_extras_only {
 	
 	
@@ -367,6 +378,7 @@ pub mod std_plus_extras {
 	pub use crate::std_only::*;
 	pub use crate::std_io_only::*;
 	pub use crate::std_collections_only::*;
+	pub use crate::std_strings_only::*;
 	pub use crate::std_extras_only::*;
 	pub use crate::std_macros_only::*;
 }
