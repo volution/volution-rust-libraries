@@ -301,6 +301,9 @@ pub mod std_extras_only {
 		};
 	
 	
+	pub use ::std::fs;
+	
+	
 	pub use ::std::time;
 	pub use ::std::time::{
 			
