@@ -38,7 +38,7 @@
 
 :: docs / dependencies / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace "${@}"
 
-:: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.outputs/target/doc/vrl/index.html" )"
+:: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.target/doc/vrl/index.html" )"
 
 
 
@@ -66,10 +66,10 @@
 
 << cargo / tool
 	test "${#}" -ge 1
-	_outputs="$( exec -- readlink -e -- ./.outputs )"
+	_target="$( exec -- readlink -e -- ./.target )"
 	_sources="$( exec -- readlink -e -- ./sources )"
 	
-	export -- CARGO_TARGET_DIR="${_outputs}/target"
+	export -- CARGO_TARGET_DIR="${_target}"
 	
 	cd -- "${_sources}/workspace"
 	
@@ -87,9 +87,9 @@
 	test "${#}" -eq 0
 	_outputs="$( exec -- readlink -e -- ./.outputs )"
 	
-	_target="${_outputs}/target"
-	_release="${_outputs}/release"
-	_debug="${_outputs}/debug"
+	_target="${_outputs}/${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
+	_release="${_target}/release"
+	_debug="${_target}/debug"
 	
 	for _folder in "${_target}" "${_release}" "${_debug}" ; do
 		if test ! -e "${_folder}" ; then
@@ -97,15 +97,14 @@
 		fi
 	done
 	
-	ln -s -T -f -- ../release "${_target}/release"
-	ln -s -T -f -- ../debug "${_target}/debug"
+	ln -s -f -- "${_target}" ./.target
 !!
 
 
 << workspace / initialize / outputs
 	test "${#}" -eq 0
 	if test ! -d ./.outputs ; then
-		_outputs_store="${TMPDIR:-/tmp}/volution-rust-libraries--${UID}--${RANDOM}-${RANDOM}-${RANDOM}-${RANDOM}"
+		_outputs_store="${TMPDIR:-/tmp}/rust--scratch--${UID}"
 		mkdir -- "${_outputs_store}"
 		_outputs_store="$( exec -- readlink -e -- "${_outputs_store}" )"
 		ln -s -f -T -- "${_outputs_store}" ./.outputs
