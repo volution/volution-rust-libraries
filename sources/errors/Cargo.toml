@@ -21,7 +21,9 @@ doctest = false
 
 
 [features]
-default = []
+default = [
+#	"anyhow",
+]
 
 
 [dependencies]
