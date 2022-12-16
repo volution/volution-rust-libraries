@@ -325,6 +325,25 @@ pub mod std_extras_only {
 			
 			UNIX_EPOCH,
 		};
+	
+	
+	pub use ::std::num;
+	pub use ::std::num::{
+			
+			NonZeroI8,
+			NonZeroI16,
+			NonZeroI32,
+			NonZeroI64,
+			NonZeroI128,
+			NonZeroIsize,
+			
+			NonZeroU8,
+			NonZeroU16,
+			NonZeroU32,
+			NonZeroU64,
+			NonZeroU128,
+			NonZeroUsize,
+		};
 }
 
 
