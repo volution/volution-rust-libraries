@@ -1,16 +1,7 @@
 
 
-[workspace]
-members = [
-	"../errors",
-	"../bytes",
-	"../preludes",
-	"../random",
-]
-
-
 [package]
-name = "vrl"
+name = "vrl-random"
 version = "0.1.0"
 authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
 edition = "2021"
@@ -18,12 +9,13 @@ autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
+workspace = "../workspace"
 
 
 [lib]
-name = "vrl"
+name = "vrl_random"
 path = "./lib.rs"
-test = false
+test = true
 bench = false
 doctest = false
 
@@ -33,9 +25,6 @@ default = []
 
 
 [dependencies]
-vrl-errors = { path = "../errors" }
-vrl-bytes = { path = "../bytes" }
 vrl-preludes = { path = "../preludes" }
-vrl-random = { path = "../random" }
-
+rand = { version = "*", default-features = false, features = ["std", "std_rng"], optional = false }
 

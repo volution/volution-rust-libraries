@@ -15,4 +15,8 @@ pub mod preludes {
 	pub use ::vrl_preludes::*;
 }
 
+pub mod random {
+	pub use ::vrl_random::*;
+}
+
 
