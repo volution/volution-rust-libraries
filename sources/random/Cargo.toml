@@ -27,4 +27,5 @@ default = []
 [dependencies]
 vrl-preludes = { path = "../preludes" }
 rand = { version = "*", default-features = false, features = ["std", "std_rng"], optional = false }
+paste = { version = "*", default-features = false, features = [] }
 
