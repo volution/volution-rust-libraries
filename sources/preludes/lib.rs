@@ -21,6 +21,8 @@ pub mod std {
 
 pub mod std_io_only {
 	
+	pub use ::std::io;
+	
 	pub use ::std::io::prelude::*;
 	
 	#[ cfg (unix) ]
@@ -31,6 +33,35 @@ pub mod std_io_only {
 	
 	#[ cfg (wasi) ]
 	pub use ::std::os::wasi::prelude::*;
+	
+	pub use ::std::io::{
+			
+			Read,
+			Write,
+			
+			BufRead,
+			BufReader,
+			BufWriter,
+			
+			Error as IoError,
+			Result as IoResult,
+			
+			stdin,
+			stdout,
+			stderr,
+		};
+	
+	pub fn stdin_locked () -> io::StdinLock<'static> {
+		io::stdin () .lock ()
+	}
+	
+	pub fn stdout_locked () -> io::StdoutLock<'static> {
+		io::stdout () .lock ()
+	}
+	
+	pub fn stderr_locked () -> io::StderrLock<'static> {
+		io::stderr () .lock ()
+	}
 }
 
 
