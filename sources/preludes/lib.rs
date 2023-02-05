@@ -311,6 +311,8 @@ pub mod std_extras_only {
 			Arguments as FmtArguments,
 			Error as FmtError,
 			Result as FmtResult,
+			
+			Write as FmtWrite,
 		};
 	
 	
