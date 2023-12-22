@@ -2,8 +2,9 @@
 
 [workspace]
 members = [
-	"../errors",
 	"../bytes",
+	"../cli-arguments",
+	"../errors",
 	"../preludes",
 	"../random",
 ]
@@ -33,8 +34,9 @@ default = []
 
 
 [dependencies]
-vrl-errors = { path = "../errors" }
 vrl-bytes = { path = "../bytes" }
+vrl-cli-arguments = { path = "../cli-arguments" }
+vrl-errors = { path = "../errors" }
 vrl-preludes = { path = "../preludes" }
 vrl-random = { path = "../random" }
 

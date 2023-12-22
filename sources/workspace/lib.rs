@@ -3,12 +3,16 @@
 #![ no_implicit_prelude ]
 
 
-pub mod errors {
-	pub use ::vrl_errors::*;
-}
-
 pub mod bytes {
 	pub use ::vrl_bytes::*;
+}
+
+pub mod cli_arguments {
+	pub use ::vrl_cli_arguments::*;
+}
+
+pub mod errors {
+	pub use ::vrl_errors::*;
 }
 
 pub mod preludes {

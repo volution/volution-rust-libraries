@@ -84,6 +84,7 @@ name = "vrl"
 version = "0.1.0"
 dependencies = [
  "vrl-bytes",
+ "vrl-cli-arguments",
  "vrl-errors",
  "vrl-preludes",
  "vrl-random",
@@ -95,6 +96,13 @@ version = "0.1.0"
 dependencies = [
  "byteorder",
  "vrl-errors",
+ "vrl-preludes",
+]
+
+[[package]]
+name = "vrl-cli-arguments"
+version = "0.1.0"
+dependencies = [
  "vrl-preludes",
 ]
 
