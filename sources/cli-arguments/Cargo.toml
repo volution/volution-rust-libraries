@@ -1,0 +1,36 @@
+
+
+[package]
+name = "vrl-cli-arguments"
+version = "0.1.0"
+authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
+edition = "2021"
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
+workspace = "../workspace"
+
+
+[lib]
+name = "vrl_cli_arguments"
+path = "./lib.rs"
+test = true
+bench = false
+doctest = false
+
+
+[features]
+default = []
+
+
+[dependencies]
+vrl-preludes = { path = "../preludes" }
+vrl-errors = { path = "../errors" }
+
+
+[[test]]
+name = "vrl_cli_arguments_tests_public"
+path = "./tests_public.rs"
+
+
