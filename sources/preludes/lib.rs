@@ -21,8 +21,6 @@ pub mod std {
 
 pub mod std_io_only {
 	
-	pub use ::std::io;
-	
 	pub use ::std::io::prelude::*;
 	
 	#[ cfg (unix) ]
@@ -33,6 +31,8 @@ pub mod std_io_only {
 	
 	#[ cfg (wasi) ]
 	pub use ::std::os::wasi::prelude::*;
+	
+	pub use ::std::io;
 	
 	pub use ::std::io::{
 			
@@ -51,6 +51,8 @@ pub mod std_io_only {
 			stderr,
 		};
 	
+	pub use ::std::os::fd;
+	
 	pub use ::std::os::fd::{
 			
 			RawFd,
@@ -62,7 +64,6 @@ pub mod std_io_only {
 			AsRawFd,
 			FromRawFd,
 			IntoRawFd,
-			
 		};
 	
 	pub fn stdin_locked () -> io::StdinLock<'static> {
@@ -83,6 +84,95 @@ pub mod std_plus_io {
 	
 	pub use crate::std_only::*;
 	pub use crate::std_io_only::*;
+}
+
+
+
+
+pub mod std_os_only {
+	
+	pub use ::std::ffi;
+	
+	pub use ::std::ffi::{
+			
+			OsStr,
+			OsString,
+		};
+	
+	#[ cfg (unix) ]
+	pub use ::std::os::unix::ffi::{
+			
+			OsStrExt,
+			OsStringExt,
+		};
+	
+	#[ cfg (windows) ]
+	pub use ::std::os::windows::ffi::{
+			
+			OsStrExt,
+			OsStringExt,
+		};
+	
+	#[ cfg (wasi) ]
+	pub use ::std::os::wasi::ffi::{
+			
+			OsStrExt,
+			OsStringExt,
+		};
+	
+	pub use ::std::path;
+	
+	pub use ::std::path::{
+			
+			Path,
+			PathBuf,
+		};
+	
+	pub use ::std::env;
+	
+	pub use ::std::env::{
+			
+			Args,
+			ArgsOs,
+			
+			Vars,
+			VarsOs,
+			
+			args,
+			args_os,
+			
+			vars,
+			vars_os,
+			
+			var,
+			var_os,
+			
+			current_exe,
+			current_dir,
+			temp_dir,
+		};
+	
+	pub use ::std::os::fd;
+	
+	pub use ::std::os::fd::{
+			
+			RawFd,
+			
+			BorrowedFd,
+			OwnedFd,
+			
+			AsFd,
+			AsRawFd,
+			FromRawFd,
+			IntoRawFd,
+		};
+}
+
+
+pub mod std_plus_os {
+	
+	pub use crate::std_only::*;
+	pub use crate::std_os_only::*;
 }
 
 
@@ -127,7 +217,11 @@ pub mod std_plus_io_and_net {
 
 pub mod std_collections_only {
 	
+	pub use ::std::vec;
+	
 	pub use ::std::vec::Vec;
+	
+	pub use ::std::collections;
 	
 	pub use ::std::collections::{
 			
@@ -161,6 +255,7 @@ pub mod std_strings_only {
 	
 	
 	pub use ::std::str;
+	
 	pub use ::std::str::{
 			
 			FromStr,
@@ -178,7 +273,6 @@ pub mod std_extras_only {
 			
 			f32,
 			f64,
-			
 		};
 	
 	
@@ -388,21 +482,6 @@ pub mod std_extras_only {
 		};
 	
 	
-	pub use ::std::path;
-	pub use ::std::path::{
-			
-			Path,
-			PathBuf,
-		};
-	
-	
-	pub use ::std::ffi;
-	pub use ::std::ffi::{
-			
-			OsStr,
-			OsString,
-		};
-	
 	pub use ::std::fs;
 	
 	
@@ -486,6 +565,7 @@ pub mod std_macros_only {
 pub mod std_plus_extras {
 	
 	pub use crate::std_only::*;
+	pub use crate::std_os_only::*;
 	pub use crate::std_io_only::*;
 	pub use crate::std_net_only::*;
 	pub use crate::std_collections_only::*;
