@@ -27,8 +27,11 @@
 :: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
 :: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
 
-:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
-:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
+:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+
+:: debug / run / tests / package / errors :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-errors --jobs 1 -- "${@}"
+:: debug / run / tests / package / cli-arguments :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-cli-arguments --jobs 1 -- "${@}"
 
 
 
