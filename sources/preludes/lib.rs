@@ -51,6 +51,20 @@ pub mod std_io_only {
 			stderr,
 		};
 	
+	pub use ::std::os::fd::{
+			
+			RawFd,
+			
+			BorrowedFd,
+			OwnedFd,
+			
+			AsFd,
+			AsRawFd,
+			FromRawFd,
+			IntoRawFd,
+			
+		};
+	
 	pub fn stdin_locked () -> io::StdinLock<'static> {
 		io::stdin () .lock ()
 	}
@@ -69,6 +83,43 @@ pub mod std_plus_io {
 	
 	pub use crate::std_only::*;
 	pub use crate::std_io_only::*;
+}
+
+
+
+
+pub mod std_net_only {
+	
+	pub use ::std::net;
+	
+	pub use ::std::net::{
+			
+			IpAddr,
+			Ipv4Addr,
+			Ipv6Addr,
+			
+			SocketAddr,
+			SocketAddrV4,
+			SocketAddrV6,
+			
+			ToSocketAddrs,
+		};
+	
+	pub use ::std::net::{
+			
+			TcpListener,
+			TcpStream,
+			
+			UdpSocket,
+		};
+}
+
+
+pub mod std_plus_io_and_net {
+	
+	pub use crate::std_only::*;
+	pub use crate::std_io_only::*;
+	pub use crate::std_net_only::*;
 }
 
 
@@ -345,6 +396,13 @@ pub mod std_extras_only {
 		};
 	
 	
+	pub use ::std::ffi;
+	pub use ::std::ffi::{
+			
+			OsStr,
+			OsString,
+		};
+	
 	pub use ::std::fs;
 	
 	
@@ -429,6 +487,7 @@ pub mod std_plus_extras {
 	
 	pub use crate::std_only::*;
 	pub use crate::std_io_only::*;
+	pub use crate::std_net_only::*;
 	pub use crate::std_collections_only::*;
 	pub use crate::std_strings_only::*;
 	pub use crate::std_extras_only::*;
