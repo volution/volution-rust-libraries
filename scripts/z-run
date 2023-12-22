@@ -15,51 +15,74 @@
 
 
 
-:: debug / build / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' build --lib -- "${@}"
-:: release / build / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' build --lib --release -- "${@}"
+:: debug / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --lib -- "${@}"
+:: release / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --lib --release -- "${@}"
 
-:: debug / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib -- "${@}"
-:: release / check / lib :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --lib --release -- "${@}"
-
-
-
-
-:: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
-:: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
-
-:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
-:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN[@]}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+:: debug / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --lib -- "${@}"
+:: release / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --lib --release -- "${@}"
 
 
 
 
-:: docs / crate / internals / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace --no-deps --document-private-items "${@}"
-:: docs / crate / exports / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace --no-deps "${@}"
+:: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
+:: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
 
-:: docs / dependencies / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' doc --workspace "${@}"
+:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
+:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+
+
+
+
+:: docs / crate / internals / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps --document-private-items "${@}"
+:: docs / crate / exports / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps "${@}"
+
+:: docs / dependencies / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace "${@}"
 
 :: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.target/doc/vrl/index.html" )"
 
 
 
 
-:: cargo / debug / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' build "${@}"
-:: cargo / release / build :: exec -- "${ZRUN[@]}" ':: cargo / tool' build --release "${@}"
+:: cargo / debug / build :: exec -- "${ZRUN}" ':: cargo / tool' build "${@}"
+:: cargo / release / build :: exec -- "${ZRUN}" ':: cargo / tool' build --release "${@}"
 
-:: cargo / debug / check :: exec -- "${ZRUN[@]}" ':: cargo / tool' check "${@}"
-:: cargo / release / check :: exec -- "${ZRUN[@]}" ':: cargo / tool' check --release "${@}"
-
-
+:: cargo / debug / check :: exec -- "${ZRUN}" ':: cargo / tool' check "${@}"
+:: cargo / release / check :: exec -- "${ZRUN}" ':: cargo / tool' check --release "${@}"
 
 
-:: dependencies / tree :: exec -- "${ZRUN[@]}" ':: cargo / tool' tree "${@}"
-:: dependencies / licenses :: exec -- "${ZRUN[@]}" ':: cargo / tool' license --all-features --avoid-build-deps --avoid-dev-deps "${@}"
-:: dependencies / update :: exec -- "${ZRUN[@]}" ':: cargo / tool' update --aggressive "${@}"
-:: dependencies / outdated :: exec -- "${ZRUN[@]}" ':: cargo / tool' outdated "${@}"
-:: dependencies / duplicates :: exec -- "${ZRUN[@]}" ':: cargo / tool' duplicates "${@}"
-:: dependencies / audit :: exec -- "${ZRUN[@]}" ':: cargo / tool' audit "${@}"
-:: dependencies / geiger :: exec -- "${ZRUN[@]}" ':: cargo / tool' geiger --output-format Ascii "${@}"
-:: dependencies / bom :: exec -- "${ZRUN[@]}" ':: cargo / tool' cyclonedx --all --format json "${@}"
+
+
+:: dependencies / tree :: exec -- "${ZRUN}" ':: cargo / tool' tree "${@}"
+:: dependencies / licenses :: exec -- "${ZRUN}" ':: cargo / tool' license --all-features --avoid-build-deps --avoid-dev-deps "${@}"
+:: dependencies / update :: exec -- "${ZRUN}" ':: cargo / tool' update --aggressive "${@}"
+:: dependencies / outdated :: exec -- "${ZRUN}" ':: cargo / tool' outdated "${@}"
+:: dependencies / duplicates :: exec -- "${ZRUN}" ':: cargo / tool' duplicates "${@}"
+:: dependencies / audit :: exec -- "${ZRUN}" ':: cargo / tool' audit "${@}"
+:: dependencies / geiger :: exec -- "${ZRUN}" ':: cargo / tool' geiger --output-format Ascii "${@}"
+:: dependencies / bom :: exec -- "${ZRUN}" ':: cargo / tool' cyclonedx --all --format json "${@}"
+
+
+
+
+<< cargo / tools / install
+	test "${#}" -eq 0
+	
+	_tools=(
+			cargo-audit
+			cargo-outdated
+			cargo-duplicates
+			cargo-geiger
+			cargo-license
+			cargo-cyclonedx
+		)
+	
+	exec -- "${ZRUN}" ':: cargo / tool' install \
+			--locked \
+			--jobs 1 \
+			-- \
+			"${_tools[@]}" \
+	#
+!!
 
 
 
