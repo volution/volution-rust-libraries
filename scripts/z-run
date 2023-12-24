@@ -15,23 +15,35 @@
 
 
 
-:: debug / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --lib -- "${@}"
-:: release / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --lib --release -- "${@}"
+:: debug / check / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
+:: debug / build / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
 
-:: debug / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --lib -- "${@}"
-:: release / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --lib --release -- "${@}"
-
-
+:: release / check / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets --release -- "${@}"
+:: release / build / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets --release -- "${@}"
 
 
-:: debug / build / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
-:: debug / check / workspace :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
+:: debug / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --workspace --lib -- "${@}"
+:: debug / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --workspace --lib -- "${@}"
 
-:: debug / run / tests / workspace :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
-:: debug / run / benches / workspace :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+:: release / build / lib :: exec -- "${ZRUN}" ':: cargo / tool' build --workspace --lib --release -- "${@}"
+:: release / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --workspace --lib --release -- "${@}"
 
-:: debug / run / tests / package / errors :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-errors --jobs 1 -- "${@}"
-:: debug / run / tests / package / cli-arguments :: export -- RUSTC_BOOTSTRAP=1 RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-cli-arguments --jobs 1 -- "${@}"
+
+:: debug / check / tests :: exec -- "${ZRUN}" ':: cargo / tool' check --workspace --tests -- "${@}"
+:: debug / build / tests :: exec -- "${ZRUN}" ':: cargo / tool' build --workspace --tests -- "${@}"
+
+:: debug / check / benches :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --benches -- "${@}"
+:: debug / build / benches :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' build --workspace --benches -- "${@}"
+
+
+
+
+:: debug / run / tests / all :: export -- RUST_BACKTRACE=1 ;  exec -- "${ZRUN}" ':: cargo / tool' test --workspace --jobs 1 -- "${@}"
+:: debug / run / benches / all :: export -- RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' bench --workspace --jobs 1 -- "${@}"
+
+
+:: debug / run / tests / package / errors :: export -- RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-errors --jobs 1 -- "${@}"
+:: debug / run / tests / package / cli-arguments :: export -- RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-cli-arguments --jobs 1 -- "${@}"
 
 
 
@@ -42,15 +54,6 @@
 :: docs / dependencies / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace "${@}"
 
 :: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.target/doc/vrl/index.html" )"
-
-
-
-
-:: cargo / debug / build :: exec -- "${ZRUN}" ':: cargo / tool' build "${@}"
-:: cargo / release / build :: exec -- "${ZRUN}" ':: cargo / tool' build --release "${@}"
-
-:: cargo / debug / check :: exec -- "${ZRUN}" ':: cargo / tool' check "${@}"
-:: cargo / release / check :: exec -- "${ZRUN}" ':: cargo / tool' check --release "${@}"
 
 
 
