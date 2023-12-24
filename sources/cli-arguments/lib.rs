@@ -417,7 +417,7 @@ pub struct FlagDefinition<'a> {
 
 pub struct ComplexFlag<'a, Value, Consumer>
 	where
-		Value : FlagValue,
+		Value : FlagValue + 'a,
 		Consumer : ComplexFlagConsumer<Value> + 'a,
 {
 	pub consumer : &'a mut Consumer,
@@ -426,7 +426,7 @@ pub struct ComplexFlag<'a, Value, Consumer>
 
 pub struct ComplexFlagBranch<'a, Value>
 	where
-		Value : FlagValue,
+		Value : FlagValue + 'a,
 {
 	pub action : ComplexFlagAction<'a, Value>,
 	pub definition : FlagDefinition<'a>,
@@ -434,7 +434,7 @@ pub struct ComplexFlagBranch<'a, Value>
 
 pub enum ComplexFlagAction<'a, Value>
 	where
-		Value : FlagValue,
+		Value : FlagValue + 'a,
 {
 	Constant (Value),
 	Constants (Vec<Value>),
@@ -775,7 +775,7 @@ impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 
 impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue,
+		Value : FlagValue + 'a,
 		Parser : FlagValueParser<Value>,
 {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
@@ -793,7 +793,7 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parse
 
 impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue,
+		Value : FlagValue + 'a,
 		Parser : FlagValueParser<Value>,
 {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
