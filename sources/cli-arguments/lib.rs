@@ -23,8 +23,12 @@ define_error! (pub FlagsParserError, result : FlagsParserResult, type : 0xcfabea
 pub trait FlagValue
 	where
 		Self : Sized,
-{
-	fn display (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult<Self>;
+		Self : FlagValueDisplay,
+{}
+
+
+pub trait FlagValueDisplay {
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult;
 }
 
 
@@ -32,11 +36,15 @@ pub trait FlagValueParsable
 	where
 		Self : FlagValue,
 {
-	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self>;
-	
-	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
-		Self::parse_os_string (_input.into ())
+	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self> {
+		let Ok (_input) = _input.into_string ()
+			else {
+				fail! (0x4b378eb6);
+			};
+		Self::parse_string (_input)
 	}
+	
+	fn parse_string (_input : String) -> FlagValueParseResult<Self>;
 }
 
 
@@ -44,18 +52,293 @@ pub trait FlagValueParser<Value>
 	where
 		Value : FlagValue,
 {
+	fn parse_os_string (&mut self, _input : OsString) -> FlagValueParseResult<Value> {
+		let Ok (_input) = _input.into_string ()
+			else {
+				fail! (0xa6cce4b3);
+			};
+		self.parse_string (_input)
+	}
 	
-	fn parse_os_string (&mut self, _input : OsString) -> FlagValueParseResult<Value>;
-	
-	fn parse_string (&mut self, _input : String) -> FlagValueParseResult<Value> {
-		self.parse_os_string (_input.into ())
+	fn parse_string (&mut self, _input : String) -> FlagValueParseResult<Value>;
+}
+
+
+
+
+impl FlagValue for String {}
+impl ImplicitFlagValueParsable for String {}
+impl ImplicitFlagValueDisplay for String {}
+
+impl FlagValue for char {}
+impl ImplicitFlagValueParsable for char {}
+impl ImplicitFlagValueDisplay for char {}
+
+impl FlagValue for bool {}
+impl ImplicitFlagValueParsable for bool {}
+impl ImplicitFlagValueDisplay for bool {}
+
+impl FlagValue for u8 {}
+impl ImplicitFlagValueParsable for u8 {}
+impl ImplicitFlagValueDisplay for u8 {}
+
+impl FlagValue for u16 {}
+impl ImplicitFlagValueParsable for u16 {}
+impl ImplicitFlagValueDisplay for u16 {}
+
+impl FlagValue for u32 {}
+impl ImplicitFlagValueParsable for u32 {}
+impl ImplicitFlagValueDisplay for u32 {}
+
+impl FlagValue for u64 {}
+impl ImplicitFlagValueParsable for u64 {}
+impl ImplicitFlagValueDisplay for u64 {}
+
+impl FlagValue for usize {}
+impl ImplicitFlagValueParsable for usize {}
+impl ImplicitFlagValueDisplay for usize {}
+
+impl FlagValue for u128 {}
+impl ImplicitFlagValueParsable for u128 {}
+impl ImplicitFlagValueDisplay for u128 {}
+
+impl FlagValue for i8 {}
+impl ImplicitFlagValueParsable for i8 {}
+impl ImplicitFlagValueDisplay for i8 {}
+
+impl FlagValue for i16 {}
+impl ImplicitFlagValueParsable for i16 {}
+impl ImplicitFlagValueDisplay for i16 {}
+
+impl FlagValue for i32 {}
+impl ImplicitFlagValueParsable for i32 {}
+impl ImplicitFlagValueDisplay for i32 {}
+
+impl FlagValue for i64 {}
+impl ImplicitFlagValueParsable for i64 {}
+impl ImplicitFlagValueDisplay for i64 {}
+
+impl FlagValue for i128 {}
+impl ImplicitFlagValueParsable for i128 {}
+impl ImplicitFlagValueDisplay for i128 {}
+
+impl FlagValue for isize {}
+impl ImplicitFlagValueParsable for isize {}
+impl ImplicitFlagValueDisplay for isize {}
+
+impl FlagValue for f32 {}
+impl ImplicitFlagValueParsable for f32 {}
+impl ImplicitFlagValueDisplay for f32 {}
+
+impl FlagValue for f64 {}
+impl ImplicitFlagValueParsable for f64 {}
+impl ImplicitFlagValueDisplay for f64 {}
+
+impl FlagValue for NonZeroU8 {}
+impl ImplicitFlagValueParsable for NonZeroU8 {}
+impl ImplicitFlagValueDisplay for NonZeroU8 {}
+
+impl FlagValue for NonZeroU16 {}
+impl ImplicitFlagValueParsable for NonZeroU16 {}
+impl ImplicitFlagValueDisplay for NonZeroU16 {}
+
+impl FlagValue for NonZeroU32 {}
+impl ImplicitFlagValueParsable for NonZeroU32 {}
+impl ImplicitFlagValueDisplay for NonZeroU32 {}
+
+impl FlagValue for NonZeroU64 {}
+impl ImplicitFlagValueParsable for NonZeroU64 {}
+impl ImplicitFlagValueDisplay for NonZeroU64 {}
+
+impl FlagValue for NonZeroU128 {}
+impl ImplicitFlagValueParsable for NonZeroU128 {}
+impl ImplicitFlagValueDisplay for NonZeroU128 {}
+
+impl FlagValue for NonZeroUsize {}
+impl ImplicitFlagValueParsable for NonZeroUsize {}
+impl ImplicitFlagValueDisplay for NonZeroUsize {}
+
+impl FlagValue for NonZeroI8 {}
+impl ImplicitFlagValueParsable for NonZeroI8 {}
+impl ImplicitFlagValueDisplay for NonZeroI8 {}
+
+impl FlagValue for NonZeroI16 {}
+impl ImplicitFlagValueParsable for NonZeroI16 {}
+impl ImplicitFlagValueDisplay for NonZeroI16 {}
+
+impl FlagValue for NonZeroI32 {}
+impl ImplicitFlagValueParsable for NonZeroI32 {}
+impl ImplicitFlagValueDisplay for NonZeroI32 {}
+
+impl FlagValue for NonZeroI64 {}
+impl ImplicitFlagValueParsable for NonZeroI64 {}
+impl ImplicitFlagValueDisplay for NonZeroI64 {}
+
+impl FlagValue for NonZeroI128 {}
+impl ImplicitFlagValueParsable for NonZeroI128 {}
+impl ImplicitFlagValueDisplay for NonZeroI128 {}
+
+impl FlagValue for NonZeroIsize {}
+impl ImplicitFlagValueParsable for NonZeroIsize {}
+impl ImplicitFlagValueDisplay for NonZeroIsize {}
+
+impl FlagValue for IpAddr {}
+impl ImplicitFlagValueParsable for IpAddr {}
+impl ImplicitFlagValueDisplay for IpAddr {}
+
+impl FlagValue for Ipv4Addr {}
+impl ImplicitFlagValueParsable for Ipv4Addr {}
+impl ImplicitFlagValueDisplay for Ipv4Addr {}
+
+impl FlagValue for Ipv6Addr {}
+impl ImplicitFlagValueParsable for Ipv6Addr {}
+impl ImplicitFlagValueDisplay for Ipv6Addr {}
+
+impl FlagValue for SocketAddr {}
+impl ImplicitFlagValueParsable for SocketAddr {}
+impl ImplicitFlagValueDisplay for SocketAddr {}
+
+impl FlagValue for SocketAddrV4 {}
+impl ImplicitFlagValueParsable for SocketAddrV4 {}
+impl ImplicitFlagValueDisplay for SocketAddrV4 {}
+
+impl FlagValue for SocketAddrV6 {}
+impl ImplicitFlagValueParsable for SocketAddrV6 {}
+impl ImplicitFlagValueDisplay for SocketAddrV6 {}
+
+/*
+impl FlagValue for XXX {}
+impl ImplicitFlagValueParsable for XXX {}
+impl ImplicitFlagValueDisplay for XXX {}
+*/
+
+impl FlagValue for OsString {}
+impl FlagValue for PathBuf {}
+impl FlagValue for CString {}
+
+
+
+
+trait ImplicitFlagValueParsable
+	where
+		Self : FlagValue,
+		Self : FromStr,
+		<Self as FromStr>::Err : StdError + Sync + Send + 'static,
+{}
+
+
+impl <Value> FlagValueParsable for Value
+	where
+		Self : FlagValue,
+		Self : ImplicitFlagValueParsable,
+		<Self as FromStr>::Err : StdError + Sync + Send + 'static,
+{
+	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
+		FromStr::from_str (&_input) .else_wrap (0xa08a8874)
 	}
 }
 
 
-pub trait FlagValueConsumer<Value : FlagValue>
+
+
+trait ImplicitFlagValueDisplay
+	where
+		Self : FlagValue,
+		Self : Display,
+{}
+
+
+impl <Value> FlagValueDisplay for Value
+	where
+		Value : FlagValue,
+		Value : ImplicitFlagValueDisplay,
 {
-	fn consume (&mut self, _value : Value, _index : u16) -> FlagValueParseResult;
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
+		Display::fmt (self, _formatter) .else_wrap (0x73030a0e)
+	}
+}
+
+
+
+
+impl FlagValueParsable for OsString {
+	
+	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self> {
+		Ok (_input.into ())
+	}
+	
+	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
+		Ok (_input.into ())
+	}
+}
+
+impl FlagValueDisplay for OsString {
+	
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
+		write! (_formatter, "{}", self.to_string_lossy ()) .else_wrap (0x2e24588a)
+	}
+}
+
+
+
+
+impl FlagValueParsable for PathBuf {
+	
+	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self> {
+		Ok (_input.into ())
+	}
+	
+	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
+		Ok (_input.into ())
+	}
+}
+
+
+impl FlagValueDisplay for PathBuf {
+	
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
+		write! (_formatter, "{}", self.to_string_lossy ()) .else_wrap (0xd27ea5a3)
+	}
+}
+
+
+
+
+impl FlagValueParsable for CString {
+	
+	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self> {
+		CString::new (_input.into_encoded_bytes ()) .else_wrap (0xdffa9aea)
+	}
+	
+	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
+		CString::new (_input.into_bytes ()) .else_wrap (0xee94da2a)
+	}
+}
+
+impl FlagValueDisplay for CString {
+	
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
+		write! (_formatter, "{}", self.to_string_lossy ()) .else_wrap (0x1c8de351)
+	}
+}
+
+
+
+
+pub struct ImplicitFlagValueParser ();
+
+
+impl <Value> FlagValueParser<Value> for ImplicitFlagValueParser
+	where
+		Value : FlagValueParsable,
+{
+	fn parse_os_string (&mut self, _input : OsString) -> FlagValueParseResult<Value> {
+		Value::parse_os_string (_input)
+	}
+	
+	fn parse_string (&mut self, _input : String) -> FlagValueParseResult<Value> {
+		Value::parse_string (_input)
+	}
 }
 
 
@@ -68,38 +351,39 @@ pub struct SwitchFlag<'a>
 	pub negative_definition : Option<FlagDefinition<'a>>,
 }
 
-pub struct RequiredFlag<'a, Value>
+pub struct SingleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValueParsable + 'a,
-{
-	pub value : &'a mut Value,
-	pub definition : FlagDefinition<'a>,
-}
-
-pub struct OptionalFlag<'a, Value>
-	where
-		Value : FlagValueParsable + 'a,
+		Value : FlagValue + 'a,
+		Parser : FlagValueParser<Value>,
 {
 	pub value : &'a mut Option<Value>,
+	pub parser : Parser,
 	pub definition : FlagDefinition<'a>,
 }
 
-pub struct MultipleFlag<'a, Value>
+pub struct MultipleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValueParsable + 'a,
+		Value : FlagValue + 'a,
+		Parser : FlagValueParser<Value>,
 {
-	pub value : &'a mut Vec<Value>,
+	pub values : &'a mut Vec<Value>,
+	pub parser : Parser,
 	pub definition : FlagDefinition<'a>,
 }
+
+
+
 
 #[ derive (Default) ]
 pub struct FlagDefinition<'a> {
-	pub handle : FlagDefinitionHandle,
+	pub(crate) discriminant : FlagDiscriminant,
 	pub short_flag : Option<char>,
 	pub long_flag : Option<FlagString<'a>>,
 	pub short_aliases : Vec<char>,
 	pub long_aliases : Vec<FlagString<'a>>,
+	pub positional : bool,
 	pub value_placeholder : Option<FlagString<'a>>,
+	pub value_default : Option<FlagString<'a>>,
 	pub help_short : Option<FlagString<'a>>,
 	pub help_long : Option<FlagString<'a>>,
 	pub help_caution : Option<FlagString<'a>>,
@@ -115,22 +399,10 @@ pub enum FlagString<'a> {
 
 
 
-pub enum SimpleFlag<'a, Value>
-	where
-		Value : FlagValueParsable + 'a,
-{
-	Required (RequiredFlag<'a, Value>),
-	Optional (OptionalFlag<'a, Value>),
-	MultipleFlag (MultipleFlag<'a, Value>),
-}
-
-
-
-
 pub struct ComplexFlag<'a, Value, Consumer>
 	where
 		Value : FlagValue,
-		Consumer : FlagValueConsumer<Value> + 'a,
+		Consumer : ComplexFlagConsumer<Value> + 'a,
 {
 	pub consumer : &'a mut Consumer,
 	pub actions : Vec<ComplexFlagBranch<'a, Value>>,
@@ -153,6 +425,11 @@ pub enum ComplexFlagAction<'a, Value>
 	Parse (&'a mut dyn FlagValueParser<Value>),
 }
 
+pub trait ComplexFlagConsumer<Value : FlagValue>
+{
+	fn consume (&mut self, _value : Value, _index : u16) -> FlagValueParseResult;
+}
+
 
 
 
@@ -162,7 +439,7 @@ pub struct FlagsParser<'a> {
 
 
 pub trait FlagsProcessor<'a> {
-	fn process_flag (&mut self, _matched : FlagDefinitionHandle, _arguments : &mut Vec<OsString>) -> FlagParserResult;
+	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult;
 	fn definitions (&self) -> Vec<&FlagDefinition>;
 }
 
@@ -183,39 +460,91 @@ impl <'a> FlagsParser<'a> {
 }
 
 
+
+
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_switch (&mut self, _value : &'a mut Option<bool>, _short : Option<char>, _long : Option<&'a str>) -> () {
-		let _definition = FlagDefinition {
+	pub fn define_switch (&mut self, _value : &'a mut Option<bool>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+		self.define_flag (SwitchFlag {
+				value : _value,
+				positive_definition : Some (Self::new_definition_simple_flag (_short, _long)),
+				negative_definition : None,
+			})
+	}
+	
+	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : Option<char>, _positive_long : Option<&'a str>, _negative_short : Option<char>, _negative_long : Option<&'a str>) -> &mut Self {
+		self.define_flag (SwitchFlag {
+				value : _value,
+				positive_definition : Some (Self::new_definition_simple_flag (_positive_short, _positive_long)),
+				negative_definition : Some (Self::new_definition_simple_flag (_negative_short, _negative_long)),
+			})
+	}
+}
+
+
+
+
+impl <'a> FlagsParser<'a> {
+	
+	pub fn define_single_flag <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+		self.define_flag (SingleValueFlag {
+				value : _value,
+				parser : ImplicitFlagValueParser (),
+				definition : Self::new_definition_simple_flag (_short, _long),
+			})
+	}
+	
+	pub fn define_multiple_flag <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+		self.define_flag (MultipleValueFlag {
+				values : _values,
+				parser : ImplicitFlagValueParser (),
+				definition : Self::new_definition_simple_flag (_short, _long),
+			})
+	}
+	
+	pub fn define_single_positional <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>) -> &mut Self {
+		self.define_flag (SingleValueFlag {
+				value : _value,
+				parser : ImplicitFlagValueParser (),
+				definition : Self::new_definition_simple_positional (),
+			})
+	}
+	
+	pub fn define_multiple_positional <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>) -> &mut Self {
+		self.define_flag (MultipleValueFlag {
+				values : _values,
+				parser : ImplicitFlagValueParser (),
+				definition : Self::new_definition_simple_positional (),
+			})
+	}
+}
+
+
+
+
+impl <'a> FlagsParser<'a> {
+	
+	pub fn define_flag <Flag> (&mut self, _flag : Flag) -> &mut Self
+		where
+			Flag : FlagsProcessor<'a> + 'a,
+	{
+		self.processors.push (Box::new (_flag));
+		self
+	}
+	
+	fn new_definition_simple_flag (_short : Option<char>, _long : Option<&'a str>) -> FlagDefinition<'a> {
+		FlagDefinition {
 				short_flag : _short,
 				long_flag : _long.map (FlagString::Borrowed),
 				.. Default::default ()
-			};
-		let _flag = SwitchFlag {
-				value : _value,
-				positive_definition : Some (_definition),
-				negative_definition : None,
-			};
-		self.processors.push (Box::new (_flag));
+			}
 	}
 	
-	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : Option<char>, _positive_long : Option<&'a str>, _negative_short : Option<char>, _negative_long : Option<&'a str>) -> () {
-		let _positive_definition = FlagDefinition {
-				short_flag : _positive_short,
-				long_flag : _positive_long.map (FlagString::Borrowed),
+	fn new_definition_simple_positional () -> FlagDefinition<'a> {
+		FlagDefinition {
+				positional : true,
 				.. Default::default ()
-			};
-		let _negative_definition = FlagDefinition {
-				short_flag : _negative_short,
-				long_flag : _negative_long.map (FlagString::Borrowed),
-				.. Default::default ()
-			};
-		let _flag = SwitchFlag {
-				value : _value,
-				positive_definition : Some (_positive_definition),
-				negative_definition : Some (_negative_definition),
-			};
-		self.processors.push (Box::new (_flag));
+			}
 	}
 }
 
@@ -316,6 +645,10 @@ impl <'a> FlagsParser<'a> {
 			self.process_positional_flags (&mut _arguments) ?;
 		}
 		
+		if ! _arguments.is_empty () {
+			fail! (0x92a7c93b);
+		}
+		
 		Ok (())
 	}
 	
@@ -325,13 +658,13 @@ impl <'a> FlagsParser<'a> {
 			'_matching : for _definition in _processor.definitions () .into_iter () {
 				if let Some (_short_flag) = &_definition.short_flag {
 					if *_short_flag == _popped {
-						_matched = Some (_definition.handle.clone ());
+						_matched = Some (_definition.discriminant.clone ());
 						break '_matching;
 					}
 				}
 				for _short_alias in _definition.short_aliases.iter () {
 					if *_short_alias == _popped {
-						_matched = Some (_definition.handle.clone ());
+						_matched = Some (_definition.discriminant.clone ());
 						break '_matching;
 					}
 				}
@@ -349,13 +682,13 @@ impl <'a> FlagsParser<'a> {
 			'_matching : for _definition in _processor.definitions () .into_iter () {
 				if let Some (_long_flag) = &_definition.long_flag {
 					if _long_flag.eq_str (_popped) {
-						_matched = Some (_definition.handle.clone ());
+						_matched = Some (_definition.discriminant.clone ());
 						break '_matching;
 					}
 				}
 				for _long_alias in _definition.long_aliases.iter () {
 					if _long_alias.eq_str (_popped) {
-						_matched = Some (_definition.handle.clone ());
+						_matched = Some (_definition.discriminant.clone ());
 						break '_matching;
 					}
 				}
@@ -368,7 +701,19 @@ impl <'a> FlagsParser<'a> {
 	}
 	
 	fn process_positional_flags (&mut self, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		fail! (0x1f44d963);
+		for _processor in self.processors.iter_mut () {
+			let mut _matched = None;
+			'_matching : for _definition in _processor.definitions () .into_iter () {
+				if _definition.positional {
+					_matched = Some (_definition.discriminant.clone ());
+					break '_matching;
+				}
+			}
+			if let Some (_matched) = _matched {
+				return _processor.process_flag (_matched, _arguments) .else_wrap (0xcd71f274);
+			}
+		}
+		fail! (0xb16f43dc);
 	}
 }
 
@@ -398,15 +743,15 @@ impl <'a> FlagString<'a> {
 
 impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 	
-	fn process_flag (&mut self, _matched : FlagDefinitionHandle, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
 		if let Some (_definition) = &self.positive_definition {
-			if _definition.handle.eq (&_matched) {
+			if _definition.discriminant.eq (&_matched) {
 				*self.value = Some (true);
 				return Ok (());
 			}
 		}
 		if let Some (_definition) = &self.negative_definition {
-			if _definition.handle.eq (&_matched) {
+			if _definition.discriminant.eq (&_matched) {
 				*self.value = Some (false);
 				return Ok (());
 			}
@@ -433,13 +778,55 @@ impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 
 
 
-pub struct FlagDefinitionHandle {
+impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parser>
+	where
+		Value : FlagValue,
+		Parser : FlagValueParser<Value>,
+{
+	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+		let _argument = _arguments.pop () .else_wrap (0xfb2a6936) ?;
+		let _value = self.parser.parse_os_string (_argument) .else_wrap (0xaf692a79) ?;
+		*self.value = Some (_value);
+		Ok (())
+	}
+	
+	fn definitions (&self) -> Vec<&FlagDefinition> {
+		vec! [&self.definition]
+	}
+}
+
+
+impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Parser>
+	where
+		Value : FlagValue,
+		Parser : FlagValueParser<Value>,
+{
+	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+		let _argument = _arguments.pop () .else_wrap (0x9d6fdeed) ?;
+		let _value = self.parser.parse_os_string (_argument) .else_wrap (0x3c975c21) ?;
+		self.values.push (_value);
+		Ok (())
+	}
+	
+	fn definitions (&self) -> Vec<&FlagDefinition> {
+		vec! [&self.definition]
+	}
+}
+
+
+
+
+
+
+
+
+pub struct FlagDiscriminant {
 	//  FIXME:  Find a way that doesn't involve memory allocation!
 	pointer : Rc<()>,
 }
 
 
-impl FlagDefinitionHandle {
+impl FlagDiscriminant {
 	
 	pub fn new () -> Self {
 		Self {
@@ -453,13 +840,13 @@ impl FlagDefinitionHandle {
 			}
 	}
 	
-	pub fn eq (&self, _other : &FlagDefinitionHandle) -> bool {
+	pub fn eq (&self, _other : &FlagDiscriminant) -> bool {
 		Rc::ptr_eq (&self.pointer, &_other.pointer)
 	}
 }
 
 
-impl Default for FlagDefinitionHandle {
+impl Default for FlagDiscriminant {
 	
 	fn default () -> Self {
 		Self::new ()
