@@ -377,23 +377,17 @@ pub struct MultipleValueFlag<'a, Value, Parser>
 #[ derive (Default) ]
 pub struct FlagDefinition<'a> {
 	pub(crate) discriminant : FlagDiscriminant,
-	pub short_flag : Option<char>,
-	pub long_flag : Option<FlagString<'a>>,
-	pub short_aliases : Vec<char>,
-	pub long_aliases : Vec<FlagString<'a>>,
+	pub short_flag : FlagCharOptional<'a>,
+	pub long_flag : FlagStrOptional<'a>,
+	pub short_aliases : Vec<FlagChar<'a>>,
+	pub long_aliases : Vec<FlagStr<'a>>,
 	pub positional : bool,
-	pub value_placeholder : Option<FlagString<'a>>,
-	pub value_default : Option<FlagString<'a>>,
-	pub help_short : Option<FlagString<'a>>,
-	pub help_long : Option<FlagString<'a>>,
-	pub help_caution : Option<FlagString<'a>>,
-	pub help_deprecated : Option<FlagString<'a>>,
-}
-
-pub enum FlagString<'a> {
-	Borrowed (&'a str),
-	Owned (String),
-	Formatted (FmtArguments<'a>),
+	pub value_placeholder : FlagStrOptional<'a>,
+	pub value_default : FlagStrOptional<'a>,
+	pub help_short : FlagStrOptional<'a>,
+	pub help_long : FlagStrOptional<'a>,
+	pub help_caution : FlagStrOptional<'a>,
+	pub help_deprecated : FlagStrOptional<'a>,
 }
 
 
@@ -464,7 +458,7 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_switch (&mut self, _value : &'a mut Option<bool>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+	pub fn define_switch (&mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				positive_definition : Some (Self::new_definition_simple_flag (_short, _long)),
@@ -472,7 +466,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : Option<char>, _positive_long : Option<&'a str>, _negative_short : Option<char>, _negative_long : Option<&'a str>) -> &mut Self {
+	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : impl Into<FlagCharOptional<'a>>, _positive_long : impl Into<FlagStrOptional<'a>>, _negative_short : impl Into<FlagCharOptional<'a>>, _negative_long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				positive_definition : Some (Self::new_definition_simple_flag (_positive_short, _positive_long)),
@@ -486,7 +480,7 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_single_flag <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+	pub fn define_single_flag <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
@@ -494,7 +488,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_multiple_flag <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>, _short : Option<char>, _long : Option<&'a str>) -> &mut Self {
+	pub fn define_multiple_flag <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
@@ -532,10 +526,10 @@ impl <'a> FlagsParser<'a> {
 		self
 	}
 	
-	fn new_definition_simple_flag (_short : Option<char>, _long : Option<&'a str>) -> FlagDefinition<'a> {
+	fn new_definition_simple_flag (_short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> FlagDefinition<'a> {
 		FlagDefinition {
-				short_flag : _short,
-				long_flag : _long.map (FlagString::Borrowed),
+				short_flag : _short.into (),
+				long_flag : _long.into (),
 				.. Default::default ()
 			}
 	}
@@ -656,14 +650,12 @@ impl <'a> FlagsParser<'a> {
 		for _processor in self.processors.iter_mut () {
 			let mut _matched = None;
 			'_matching : for _definition in _processor.definitions () .into_iter () {
-				if let Some (_short_flag) = &_definition.short_flag {
-					if *_short_flag == _popped {
-						_matched = Some (_definition.discriminant.clone ());
-						break '_matching;
-					}
+				if _definition.short_flag.eq_char (_popped) {
+					_matched = Some (_definition.discriminant.clone ());
+					break '_matching;
 				}
 				for _short_alias in _definition.short_aliases.iter () {
-					if *_short_alias == _popped {
+					if _short_alias.eq_char (_popped) {
 						_matched = Some (_definition.discriminant.clone ());
 						break '_matching;
 					}
@@ -680,11 +672,9 @@ impl <'a> FlagsParser<'a> {
 		for _processor in self.processors.iter_mut () {
 			let mut _matched = None;
 			'_matching : for _definition in _processor.definitions () .into_iter () {
-				if let Some (_long_flag) = &_definition.long_flag {
-					if _long_flag.eq_str (_popped) {
-						_matched = Some (_definition.discriminant.clone ());
-						break '_matching;
-					}
+				if _definition.long_flag.eq_str (_popped) {
+					_matched = Some (_definition.discriminant.clone ());
+					break '_matching;
 				}
 				for _long_alias in _definition.long_aliases.iter () {
 					if _long_alias.eq_str (_popped) {
@@ -714,23 +704,6 @@ impl <'a> FlagsParser<'a> {
 			}
 		}
 		fail! (0xb16f43dc);
-	}
-}
-
-
-
-
-impl <'a> FlagString<'a> {
-	
-	pub fn eq_str (&self, _other : &str) -> bool {
-		match self {
-			Self::Borrowed (_self) => str::eq (_self, _other),
-			Self::Owned (_self) => str::eq (_self.as_str (), _other),
-			Self::Formatted (_format) => {
-				let _string = format! ("{}", _format);
-				str::eq (_string.as_str (), _other)
-			}
-		}
 	}
 }
 
@@ -810,6 +783,210 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Par
 	
 	fn definitions (&self) -> Vec<&FlagDefinition> {
 		vec! [&self.definition]
+	}
+}
+
+
+
+
+
+
+
+
+pub enum FlagChar<'a> {
+	Char (char),
+	Constructed (Box<dyn FnOnce() -> char + 'a>),
+}
+
+pub enum FlagCharOptional<'a> {
+	None,
+	Some (FlagChar<'a>),
+}
+
+
+pub enum FlagStr<'a> {
+	Borrowed (&'a str),
+	Owned (String),
+	Constructed (FmtArguments<'a>),
+}
+
+pub enum FlagStrOptional<'a> {
+	None,
+	Some (FlagStr<'a>)
+}
+
+
+
+
+impl <'a> From<char> for FlagChar<'a> {
+	
+	fn from (_char : char) -> Self {
+		Self::Char (_char)
+	}
+}
+
+
+
+
+impl <'a> From<char> for FlagStr<'a> {
+	
+	fn from (_char : char) -> Self {
+		Self::Owned (_char.into ())
+	}
+}
+
+
+impl <'a> From<&'a str> for FlagStr<'a> {
+	
+	fn from (_string : &'a str) -> Self {
+		Self::Borrowed (_string)
+	}
+}
+
+
+impl From<String> for FlagStr<'static> {
+	
+	fn from (_string : String) -> Self {
+		Self::Owned (_string)
+	}
+}
+
+
+
+
+impl <'a, Value> From<Value> for FlagCharOptional<'a>
+	where
+		Value : 'a,
+		Value : Into<FlagChar<'a>>,
+{
+	fn from (_value : Value) -> Self {
+		Self::Some (_value.into ())
+	}
+}
+
+
+impl <'a, Value> From<Value> for FlagStrOptional<'a>
+	where
+		Value : 'a,
+		Value : Into<FlagStr<'a>>,
+{
+	fn from (_value : Value) -> Self {
+		Self::Some (_value.into ())
+	}
+}
+
+
+
+
+impl <'a, Value> From<Option<Value>> for FlagCharOptional<'a>
+	where
+		Value : 'a,
+		Value : Into<FlagChar<'a>>,
+{
+	fn from (_value : Option<Value>) -> Self {
+		if let Some (_value) = _value {
+			Self::Some (_value.into ())
+		} else {
+			Self::None
+		}
+	}
+}
+
+
+impl <'a, Value> From<Option<Value>> for FlagStrOptional<'a>
+	where
+		Value : 'a,
+		Value : Into<FlagStr<'a>>,
+{
+	fn from (_value : Option<Value>) -> Self {
+		if let Some (_value) = _value {
+			Self::Some (_value.into ())
+		} else {
+			Self::None
+		}
+	}
+}
+
+
+
+
+impl <'a> From<()> for FlagCharOptional<'a> {
+	
+	fn from (_nothing : ()) -> Self {
+		Self::None
+	}
+}
+
+
+impl <'a> From<()> for FlagStrOptional<'a> {
+	
+	fn from (_nothing : ()) -> Self {
+		Self::None
+	}
+}
+
+
+
+
+impl <'a> Default for FlagCharOptional<'a> {
+	
+	fn default () -> Self {
+		Self::None
+	}
+}
+
+
+impl <'a> Default for FlagStrOptional<'a> {
+	
+	fn default () -> Self {
+		Self::None
+	}
+}
+
+
+
+
+impl <'a> FlagChar<'a> {
+	
+	pub fn eq_char (&self, _other : char) -> bool {
+		match self {
+			Self::Char (_self) => char::eq (_self, &_other),
+			Self::Constructed (_) => false,
+		}
+	}
+}
+
+
+impl <'a> FlagStr<'a> {
+	
+	pub fn eq_str (&self, _other : &str) -> bool {
+		match self {
+			Self::Borrowed (_self) => str::eq (_self, _other),
+			Self::Owned (_self) => str::eq (_self.as_str (), _other),
+			Self::Constructed (_) => false,
+		}
+	}
+}
+
+
+impl <'a> FlagCharOptional<'a> {
+	
+	pub fn eq_char (&self, _other : char) -> bool {
+		match self {
+			Self::None => false,
+			Self::Some (_self) => _self.eq_char (_other),
+		}
+	}
+}
+
+
+impl <'a> FlagStrOptional<'a> {
+	
+	pub fn eq_str (&self, _other : &str) -> bool {
+		match self {
+			Self::None => false,
+			Self::Some (_self) => _self.eq_str (_other),
+		}
 	}
 }
 

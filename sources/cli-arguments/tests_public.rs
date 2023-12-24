@@ -30,7 +30,7 @@ mod switch_flags {
 	fn simple () -> () {
 		let mut _value = None;
 		let mut _parser = FlagsParser::new ();
-		_parser.define_switch (&mut _value, Some ('s'), None);
+		_parser.define_switch (&mut _value, 's', ());
 		_parser.parse_slice_str (&["-s"]) .else_panic (0xf30b994c);
 		assert_eq! (_value, Some (true));
 	}
@@ -39,7 +39,7 @@ mod switch_flags {
 	fn none () -> () {
 		let mut _value = None;
 		let mut _parser = FlagsParser::new ();
-		_parser.define_switch_2 (&mut _value, Some ('p'), None, Some ('n'), None);
+		_parser.define_switch_2 (&mut _value, 'p', (), 'n', ());
 		_parser.parse_slice_str (&[]) .else_panic (0x916b1538);
 		assert_eq! (_value, None);
 	}
@@ -48,7 +48,7 @@ mod switch_flags {
 	fn positive () -> () {
 		let mut _value = None;
 		let mut _parser = FlagsParser::new ();
-		_parser.define_switch_2 (&mut _value, Some ('p'), None, Some ('n'), None);
+		_parser.define_switch_2 (&mut _value, 'p', (), 'n', ());
 		_parser.parse_slice_str (&["-p"]) .else_panic (0xb1d50f5c);
 		assert_eq! (_value, Some (true));
 	}
@@ -57,7 +57,7 @@ mod switch_flags {
 	fn negative () -> () {
 		let mut _value = None;
 		let mut _parser = FlagsParser::new ();
-		_parser.define_switch_2 (&mut _value, Some ('p'), None, Some ('n'), None);
+		_parser.define_switch_2 (&mut _value, 'p', (), 'n', ());
 		_parser.parse_slice_str (&["-n"]) .else_panic (0xf540886b);
 		assert_eq! (_value, Some (false));
 	}
@@ -75,7 +75,7 @@ mod string_flags {
 	fn single () -> () {
 		let mut _value : Option<String> = None;
 		let mut _parser = FlagsParser::new ();
-		_parser.define_single_flag (&mut _value, Some ('v'), None);
+		_parser.define_single_flag (&mut _value, 'v', ());
 		_parser.parse_slice_str (&["-v", "value"]) .else_panic (0x6cbba228);
 		assert_eq! (_value.as_ref () .map (String::as_str), Some ("value"));
 	}
@@ -84,7 +84,7 @@ mod string_flags {
 	fn multiple () -> () {
 		let mut _values : Vec<String> = Vec::new ();
 		let mut _parser = FlagsParser::new ();
-		_parser.define_multiple_flag (&mut _values, Some ('v'), None);
+		_parser.define_multiple_flag (&mut _values, 'v', ());
 		_parser.parse_slice_str (&["-v", "value-1", "-v", "value-2"]) .else_panic (0xe50aaee7);
 		assert_eq! (&_values, & vec! ["value-1", "value-2"]);
 	}
