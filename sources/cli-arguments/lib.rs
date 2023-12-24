@@ -805,6 +805,7 @@ pub enum FlagCharOptional<'a> {
 
 
 pub enum FlagStr<'a> {
+	Empty,
 	Borrowed (&'a str),
 	Owned (String),
 	Constructed (FmtArguments<'a>),
@@ -821,7 +822,7 @@ pub enum FlagStrOptional<'a> {
 impl <'a> From<char> for FlagChar<'a> {
 	
 	fn from (_char : char) -> Self {
-		Self::Char (_char)
+		Self::Char (_char) .coerce ()
 	}
 }
 
@@ -831,7 +832,7 @@ impl <'a> From<char> for FlagChar<'a> {
 impl <'a> From<char> for FlagStr<'a> {
 	
 	fn from (_char : char) -> Self {
-		Self::Owned (_char.into ())
+		Self::Owned (_char.into ()) .coerce ()
 	}
 }
 
@@ -839,7 +840,7 @@ impl <'a> From<char> for FlagStr<'a> {
 impl <'a> From<&'a str> for FlagStr<'a> {
 	
 	fn from (_string : &'a str) -> Self {
-		Self::Borrowed (_string)
+		Self::Borrowed (_string) .coerce ()
 	}
 }
 
@@ -847,7 +848,7 @@ impl <'a> From<&'a str> for FlagStr<'a> {
 impl From<String> for FlagStr<'static> {
 	
 	fn from (_string : String) -> Self {
-		Self::Owned (_string)
+		Self::Owned (_string) .coerce ()
 	}
 }
 
@@ -860,7 +861,7 @@ impl <'a, Value> From<Value> for FlagCharOptional<'a>
 		Value : Into<FlagChar<'a>>,
 {
 	fn from (_value : Value) -> Self {
-		Self::Some (_value.into ())
+		Self::Some (_value.into ()) .coerce ()
 	}
 }
 
@@ -871,7 +872,7 @@ impl <'a, Value> From<Value> for FlagStrOptional<'a>
 		Value : Into<FlagStr<'a>>,
 {
 	fn from (_value : Value) -> Self {
-		Self::Some (_value.into ())
+		Self::Some (_value.into ()) .coerce ()
 	}
 }
 
@@ -885,7 +886,7 @@ impl <'a, Value> From<Option<Value>> for FlagCharOptional<'a>
 {
 	fn from (_value : Option<Value>) -> Self {
 		if let Some (_value) = _value {
-			Self::Some (_value.into ())
+			Self::Some (_value.into ()) .coerce ()
 		} else {
 			Self::None
 		}
@@ -900,7 +901,7 @@ impl <'a, Value> From<Option<Value>> for FlagStrOptional<'a>
 {
 	fn from (_value : Option<Value>) -> Self {
 		if let Some (_value) = _value {
-			Self::Some (_value.into ())
+			Self::Some (_value.into ()) .coerce ()
 		} else {
 			Self::None
 		}
@@ -948,6 +949,10 @@ impl <'a> Default for FlagStrOptional<'a> {
 
 impl <'a> FlagChar<'a> {
 	
+	pub fn coerce (self) -> Self {
+		self
+	}
+	
 	pub fn eq_char (&self, _other : char) -> bool {
 		match self {
 			Self::Char (_self) => char::eq (_self, &_other),
@@ -959,8 +964,18 @@ impl <'a> FlagChar<'a> {
 
 impl <'a> FlagStr<'a> {
 	
+	pub fn coerce (self) -> Self {
+		match self {
+			Self::Empty => self,
+			Self::Borrowed (ref _self) => if _self.is_empty () { Self::Empty } else { self },
+			Self::Owned (ref _self) => if _self.is_empty () { Self::Empty } else { self },
+			Self::Constructed (_) => self,
+		}
+	}
+	
 	pub fn eq_str (&self, _other : &str) -> bool {
 		match self {
+			Self::Empty => false,
 			Self::Borrowed (_self) => str::eq (_self, _other),
 			Self::Owned (_self) => str::eq (_self.as_str (), _other),
 			Self::Constructed (_) => false,
@@ -970,6 +985,10 @@ impl <'a> FlagStr<'a> {
 
 
 impl <'a> FlagCharOptional<'a> {
+	
+	pub fn coerce (self) -> Self {
+		self
+	}
 	
 	pub fn eq_char (&self, _other : char) -> bool {
 		match self {
@@ -981,6 +1000,20 @@ impl <'a> FlagCharOptional<'a> {
 
 
 impl <'a> FlagStrOptional<'a> {
+	
+	pub fn coerce (self) -> Self {
+		match self {
+			Self::None => self,
+			Self::Some (_self) => {
+				let _self = _self.coerce ();
+				if let FlagStr::Empty = _self {
+					Self::None
+				} else {
+					Self::Some (_self)
+				}
+			}
+		}
+	}
 	
 	pub fn eq_str (&self, _other : &str) -> bool {
 		match self {
