@@ -206,12 +206,6 @@ impl FlagValue for SocketAddrV6 {}
 impl ImplicitFlagValueParsable for SocketAddrV6 {}
 impl ImplicitFlagValueDisplay for SocketAddrV6 {}
 
-/*
-impl FlagValue for XXX {}
-impl ImplicitFlagValueParsable for XXX {}
-impl ImplicitFlagValueDisplay for XXX {}
-*/
-
 impl FlagValue for Vec<u8> {}
 impl FlagValue for OsString {}
 impl FlagValue for PathBuf {}
@@ -375,7 +369,7 @@ pub struct SwitchFlag<'a>
 
 pub struct SingleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
 	pub value : &'a mut Option<Value>,
@@ -385,7 +379,7 @@ pub struct SingleValueFlag<'a, Value, Parser>
 
 pub struct MultipleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
 	pub values : &'a mut Vec<Value>,
@@ -417,8 +411,8 @@ pub struct FlagDefinition<'a> {
 
 pub struct ComplexFlag<'a, Value, Consumer>
 	where
-		Value : FlagValue + 'a,
-		Consumer : ComplexFlagConsumer<Value> + 'a,
+		Value : FlagValue,
+		Consumer : ComplexFlagConsumer<Value>,
 {
 	pub consumer : &'a mut Consumer,
 	pub actions : Vec<ComplexFlagBranch<'a, Value>>,
@@ -426,7 +420,7 @@ pub struct ComplexFlag<'a, Value, Consumer>
 
 pub struct ComplexFlagBranch<'a, Value>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 {
 	pub action : ComplexFlagAction<'a, Value>,
 	pub definition : FlagDefinition<'a>,
@@ -434,7 +428,7 @@ pub struct ComplexFlagBranch<'a, Value>
 
 pub enum ComplexFlagAction<'a, Value>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 {
 	Constant (Value),
 	Constants (Vec<Value>),
@@ -443,7 +437,7 @@ pub enum ComplexFlagAction<'a, Value>
 
 pub trait ComplexFlagConsumer<Value : FlagValue>
 {
-	fn consume (&mut self, _value : Value, _index : u16) -> FlagValueParseResult;
+	fn consume (&mut self, _value : Value) -> FlagValueParseResult;
 }
 
 
@@ -480,7 +474,7 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_switch (&mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+	pub fn define_switch <'b> (&'b mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				positive_definition : Some (Self::new_definition_simple_flag (_short, _long)),
@@ -488,7 +482,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : impl Into<FlagCharOptional<'a>>, _positive_long : impl Into<FlagStrOptional<'a>>, _negative_short : impl Into<FlagCharOptional<'a>>, _negative_long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : impl Into<FlagCharOptional<'a>>, _positive_long : impl Into<FlagStrOptional<'a>>, _negative_short : impl Into<FlagCharOptional<'a>>, _negative_long : impl Into<FlagStrOptional<'a>>) -> &mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				positive_definition : Some (Self::new_definition_simple_flag (_positive_short, _positive_long)),
@@ -502,7 +496,7 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_single_flag <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+	pub fn define_single_flag <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SingleValueFlag<'a, Value, ImplicitFlagValueParser> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
@@ -510,7 +504,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_multiple_flag <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+	pub fn define_multiple_flag <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut MultipleValueFlag<'a, Value, ImplicitFlagValueParser> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
@@ -518,7 +512,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_single_positional <Value : FlagValueParsable> (&mut self, _value : &'a mut Option<Value>) -> &mut Self {
+	pub fn define_single_positional <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>) -> &'b mut SingleValueFlag<'a, Value, ImplicitFlagValueParser> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
@@ -526,7 +520,7 @@ impl <'a> FlagsParser<'a> {
 			})
 	}
 	
-	pub fn define_multiple_positional <Value : FlagValueParsable> (&mut self, _values : &'a mut Vec<Value>) -> &mut Self {
+	pub fn define_multiple_positional <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>) -> &'b mut MultipleValueFlag<'a, Value, ImplicitFlagValueParser> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
@@ -540,12 +534,39 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_flag <Flag> (&mut self, _flag : Flag) -> &mut Self
+	pub fn define_complex <'b, Value : FlagValue, Consumer : ComplexFlagConsumer<Value>> (&'b mut self, _consumer : &'a mut Consumer) -> &'b mut ComplexFlag<'a, Value, Consumer> {
+		self.define_flag (ComplexFlag {
+				consumer : _consumer,
+				actions : Vec::new (),
+			})
+	}
+}
+
+
+
+
+impl <'a> FlagsParser<'a> {
+	
+	pub fn define_flag <'b, Flag> (&'b mut self, _flag : Flag) -> &'b mut Flag
 		where
 			Flag : FlagsProcessor<'a> + 'a,
 	{
-		self.processors.push (Box::new (_flag));
-		self
+		
+		let _box = Box::new (_flag);
+		self.processors.push (_box);
+		let _box = self.processors.last_mut () .else_panic (0x2589c851);
+		
+		// FIXME:  In essence we should be able to downcast the reference, but I can't find the "magic" incantation...
+		/*
+		let _any = (&mut * _box) as &mut dyn Any;
+		let _flag = <dyn Any>::downcast_mut (_any) .else_panic (0xed45abe5);
+		*/
+		
+		let _flag_dyn = Box::deref_mut (_box);
+		let _flag_ptr = _flag_dyn as *mut dyn FlagsProcessor as *mut Flag;
+		let _flag : &mut Flag = unsafe { &mut * _flag_ptr };
+		
+		_flag
 	}
 	
 	fn new_definition_simple_flag (_short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> FlagDefinition<'a> {
@@ -775,7 +796,7 @@ impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 
 impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
@@ -793,7 +814,7 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parse
 
 impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Parser>
 	where
-		Value : FlagValue + 'a,
+		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
@@ -805,6 +826,23 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Par
 	
 	fn definitions (&self) -> Vec<&FlagDefinition> {
 		vec! [&self.definition]
+	}
+}
+
+
+
+
+impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consumer>
+	where
+		Value : FlagValue,
+		Consumer : ComplexFlagConsumer<Value>,
+{
+	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+		panic! (unimplemented, 0x15a429cc);
+	}
+	
+	fn definitions (&self) -> Vec<&FlagDefinition> {
+		panic! (unimplemented, 0x46d30a26);
 	}
 }
 
@@ -867,7 +905,7 @@ impl <'a> From<&'a str> for FlagStr<'a> {
 }
 
 
-impl From<String> for FlagStr<'static> {
+impl <'a> From<String> for FlagStr<'a> {
 	
 	fn from (_string : String) -> Self {
 		Self::Owned (_string) .coerce ()
@@ -879,7 +917,6 @@ impl From<String> for FlagStr<'static> {
 
 impl <'a, Value> From<Value> for FlagCharOptional<'a>
 	where
-		Value : 'a,
 		Value : Into<FlagChar<'a>>,
 {
 	fn from (_value : Value) -> Self {
@@ -890,7 +927,6 @@ impl <'a, Value> From<Value> for FlagCharOptional<'a>
 
 impl <'a, Value> From<Value> for FlagStrOptional<'a>
 	where
-		Value : 'a,
 		Value : Into<FlagStr<'a>>,
 {
 	fn from (_value : Value) -> Self {
@@ -903,7 +939,6 @@ impl <'a, Value> From<Value> for FlagStrOptional<'a>
 
 impl <'a, Value> From<Option<Value>> for FlagCharOptional<'a>
 	where
-		Value : 'a,
 		Value : Into<FlagChar<'a>>,
 {
 	fn from (_value : Option<Value>) -> Self {
@@ -918,7 +953,6 @@ impl <'a, Value> From<Option<Value>> for FlagCharOptional<'a>
 
 impl <'a, Value> From<Option<Value>> for FlagStrOptional<'a>
 	where
-		Value : 'a,
 		Value : Into<FlagStr<'a>>,
 {
 	fn from (_value : Option<Value>) -> Self {
