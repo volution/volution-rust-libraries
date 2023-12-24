@@ -212,6 +212,7 @@ impl ImplicitFlagValueParsable for XXX {}
 impl ImplicitFlagValueDisplay for XXX {}
 */
 
+impl FlagValue for Vec<u8> {}
 impl FlagValue for OsString {}
 impl FlagValue for PathBuf {}
 impl FlagValue for CString {}
@@ -255,6 +256,27 @@ impl <Value> FlagValueDisplay for Value
 {
 	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
 		Display::fmt (self, _formatter) .else_wrap (0x73030a0e)
+	}
+}
+
+
+
+
+impl FlagValueParsable for Vec<u8> {
+	
+	fn parse_os_string (_input : OsString) -> FlagValueParseResult<Self> {
+		Ok (_input.into_encoded_bytes ())
+	}
+	
+	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
+		Ok (_input.into_bytes ())
+	}
+}
+
+impl FlagValueDisplay for Vec<u8> {
+	
+	fn display_value (&self, _formatter : &mut Formatter) -> FlagValueDisplayResult {
+		write! (_formatter, "{:?}", self) .else_wrap (0x5b8cf7b8)
 	}
 }
 
