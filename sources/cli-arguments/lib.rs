@@ -3,6 +3,9 @@
 #![ no_implicit_prelude ]
 
 
+#![ allow (dead_code) ]
+
+
 
 
 use ::vrl_preludes::std_plus_extras::*;
@@ -484,12 +487,33 @@ pub trait ComplexFlagConsumer<Value : FlagValue>
 
 
 pub struct FlagsParser<'a> {
-	pub(crate) processors : Vec<Box<dyn FlagsProcessor<'a> + 'a>>,
+	pub(crate) model : FlagsParserModel<'a>,
+	pub(crate) state : FlagsParserState,
+}
+
+
+pub struct FlagsParsed<'a> {
+	pub(crate) model : FlagsParserModel<'a>,
+	pub(crate) state : FlagsParserState,
 }
 
 
 pub struct FlagsParserBuilder<'a> {
+	pub(crate) model : FlagsParserModel<'a>,
+}
+
+
+pub(crate) struct FlagsParserModel<'a> {
 	pub(crate) processors : Vec<Box<dyn FlagsProcessor<'a> + 'a>>,
+	pub(crate) version_switch : Option<FlagDefinition<'a>>,
+	pub(crate) help_switch : Option<FlagDefinition<'a>>,
+}
+
+
+pub(crate) struct FlagsParserState {
+	pub(crate) errors_encountered : Vec<FlagsParserError>,
+	pub(crate) version_requested : bool,
+	pub(crate) help_requested : bool,
 }
 
 
@@ -508,15 +532,42 @@ pub trait FlagsProcessor<'a> {
 impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn new () -> Self {
-		Self {
+		let _model = FlagsParserModel {
 				processors : Vec::new (),
+				version_switch : None,
+				help_switch : None,
+			};
+		Self {
+				model : _model,
 			}
 	}
 	
 	pub fn build (self) -> FlagsParserResult<FlagsParser<'a>> {
+		let _state = FlagsParserState {
+				errors_encountered : Vec::new (),
+				version_requested : false,
+				help_requested : false,
+			};
 		Ok (FlagsParser {
-				processors : self.processors,
+				model : self.model,
+				state : _state,
 			})
+	}
+}
+
+
+
+
+impl <'a> FlagsParserBuilder<'a> {
+	
+	pub fn define_version <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut FlagDefinition<'a> {
+		self.model.version_switch = Some (Self::new_definition_simple_flag (_short, _long));
+		self.model.version_switch.as_mut () .infallible (0x44e9d679)
+	}
+	
+	pub fn define_help <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut FlagDefinition<'a> {
+		self.model.help_switch = Some (Self::new_definition_simple_flag (_short, _long));
+		self.model.help_switch.as_mut () .infallible (0x364838e7)
 	}
 }
 
@@ -678,8 +729,8 @@ impl <'a> FlagsParserBuilder<'a> {
 	{
 		
 		let _box = Box::new (_flag);
-		self.processors.push (_box);
-		let _box = self.processors.last_mut () .else_panic (0x2589c851);
+		self.model.processors.push (_box);
+		let _box = self.model.processors.last_mut () .else_panic (0x2589c851);
 		
 		// FIXME:  In essence we should be able to downcast the reference, but I can't find the "magic" incantation...
 		/*
@@ -715,31 +766,44 @@ impl <'a> FlagsParserBuilder<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn parse_main (self) -> FlagsParserResult {
+	pub fn parse_main (self) -> FlagsParsed<'a> {
 		self.parse_args_os (args_os ())
 	}
 	
-	pub fn parse_args (self, _arguments : Args) -> FlagsParserResult {
-		self.parse_0 (_arguments.map (OsString::from) .collect (), true)
+	pub fn parse_args (self, _arguments : Args) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.map (OsString::from) .collect (), true)
 	}
 	
-	pub fn parse_args_os (self, _arguments : ArgsOs) -> FlagsParserResult {
-		self.parse_0 (_arguments.collect (), true)
+	pub fn parse_args_os (self, _arguments : ArgsOs) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.collect (), true)
 	}
 	
-	pub fn parse_vec_string (self, _arguments : Vec<String>) -> FlagsParserResult {
-		self.parse_0 (_arguments.into_iter () .map (OsString::from) .collect (), false)
+	pub fn parse_vec_string (self, _arguments : Vec<String>) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.into_iter () .map (OsString::from) .collect (), false)
 	}
 	
-	pub fn parse_vec_os_string (self, _arguments : Vec<OsString>) -> FlagsParserResult {
-		self.parse_0 (_arguments, false)
+	pub fn parse_vec_os_string (self, _arguments : Vec<OsString>) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments, false)
 	}
 	
-	pub fn parse_slice_str (self, _arguments : &[&str]) -> FlagsParserResult {
-		self.parse_0 (_arguments.iter () .map (OsString::from) .collect (), false)
+	pub fn parse_slice_str (self, _arguments : &[&str]) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.iter () .map (OsString::from) .collect (), false)
 	}
 	
-	pub(crate) fn parse_0 (mut self, mut _arguments : Vec<OsString>, _skip_exec : bool) -> FlagsParserResult {
+	pub(crate) fn parse_1 (mut self, mut _arguments : Vec<OsString>, _skip_exec : bool) -> FlagsParsed<'a> {
+		match self.parse_0 (_arguments, _skip_exec) {
+			Ok (()) =>
+				(),
+			Err (_error) =>
+				self.state.errors_encountered.push (_error),
+		}
+		FlagsParsed {
+				model : self.model,
+				state : self.state,
+			}
+	}
+	
+	pub(crate) fn parse_0 (&mut self, mut _arguments : Vec<OsString>, _skip_exec : bool) -> FlagsParserResult {
 		
 		_arguments.reverse ();
 		
@@ -815,7 +879,7 @@ impl <'a> FlagsParser<'a> {
 	}
 	
 	fn process_short_flag (&mut self, _popped : char, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.processors.iter_mut () {
+		for _processor in self.model.processors.iter_mut () {
 			let mut _matched = None;
 			'_matching : for _definition in _processor.definitions () .into_iter () {
 				if _definition.short_flag.eq_char (_popped) {
@@ -837,7 +901,7 @@ impl <'a> FlagsParser<'a> {
 	}
 	
 	fn process_long_flag (&mut self, _popped : &str, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.processors.iter_mut () {
+		for _processor in self.model.processors.iter_mut () {
 			let mut _matched = None;
 			'_matching : for _definition in _processor.definitions () .into_iter () {
 				if _definition.long_flag.eq_str (_popped) {
@@ -859,7 +923,7 @@ impl <'a> FlagsParser<'a> {
 	}
 	
 	fn process_positional_flags (&mut self, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.processors.iter_mut () {
+		for _processor in self.model.processors.iter_mut () {
 			let mut _matched = None;
 			'_matching : for _definition in _processor.definitions () .into_iter () {
 				if _definition.positional {
@@ -872,6 +936,24 @@ impl <'a> FlagsParser<'a> {
 			}
 		}
 		fail! (0xb16f43dc);
+	}
+}
+
+
+
+
+
+
+
+
+impl <'a> FlagsParsed<'a> {
+	
+	pub fn done (mut self) -> FlagsParserResult {
+		if let Some (_error) = self.state.errors_encountered.pop () {
+			Err (_error)
+		} else {
+			Ok (())
+		}
 	}
 }
 
