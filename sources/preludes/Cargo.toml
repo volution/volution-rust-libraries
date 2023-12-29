@@ -2,14 +2,23 @@
 
 [package]
 name = "vrl-preludes"
-version = "0.1.0"
-authors = ["Ciprian Dorin Craciun <ciprian@volution.ro>"]
-edition = "2021"
+workspace = "../workspace"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description.workspace = true
+keywords.workspace = true
+categories.workspace = true
+homepage.workspace = true
+repository.workspace = true
+documentation.workspace = true
+publish.workspace = true
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-workspace = "../workspace"
 
 
 [lib]
