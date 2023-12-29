@@ -12,6 +12,7 @@ use ::vrl_errors::*;
 
 
 
+define_error! (pub FlagValueConstructError, result : FlagValueConstructResult, type : 0xc17128f8);
 define_error! (pub FlagValueParseError, result : FlagValueParseResult, type : 0x183d2481);
 define_error! (pub FlagValueDisplayError, result : FlagValueDisplayResult, type : 0x8d202eeb);
 define_error! (pub FlagParserError, result : FlagParserResult, type : 0x45d943d6);
@@ -61,6 +62,14 @@ pub trait FlagValueParser<Value>
 	}
 	
 	fn parse_string (&mut self, _input : String) -> FlagValueParseResult<Value>;
+}
+
+
+pub trait FlagValueConstructor<Value>
+	where
+		Value : FlagValue,
+{
+	fn construct (&mut self) -> FlagValueConstructResult<Value>;
 }
 
 
@@ -360,6 +369,38 @@ impl <Value> FlagValueParser<Value> for ImplicitFlagValueParser
 
 
 
+pub struct CloningFlagValueConstructor<Value>
+	where
+		Value : FlagValue + Clone,
+{
+	pub(crate) value : Value,
+}
+
+
+impl <Value> FlagValueConstructor<Value> for CloningFlagValueConstructor<Value>
+	where
+		Value : FlagValue + Clone,
+{
+	fn construct (&mut self) -> FlagValueConstructResult<Value> {
+		Ok (self.value.clone ())
+	}
+}
+
+
+impl <Value> From<Value> for CloningFlagValueConstructor<Value>
+	where
+		Value : FlagValue + Clone,
+{
+	fn from (_value : Value) -> Self {
+		Self {
+				value : _value,
+			}
+	}
+}
+
+
+
+
 pub struct SwitchFlag<'a>
 {
 	pub value : &'a mut Option<bool>,
@@ -415,7 +456,7 @@ pub struct ComplexFlag<'a, Value, Consumer>
 		Consumer : ComplexFlagConsumer<Value>,
 {
 	pub consumer : &'a mut Consumer,
-	pub actions : Vec<ComplexFlagBranch<'a, Value>>,
+	pub branches : Vec<ComplexFlagBranch<'a, Value>>,
 }
 
 pub struct ComplexFlagBranch<'a, Value>
@@ -430,9 +471,8 @@ pub enum ComplexFlagAction<'a, Value>
 	where
 		Value : FlagValue,
 {
-	Constant (Value),
-	Constants (Vec<Value>),
-	Parse (&'a mut dyn FlagValueParser<Value>),
+	Construct (Box<dyn FlagValueConstructor<Value> + 'a>),
+	Parse (Box<dyn FlagValueParser<Value> + 'a>),
 }
 
 pub trait ComplexFlagConsumer<Value : FlagValue>
@@ -534,11 +574,85 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub fn define_complex <'b, Value : FlagValue, Consumer : ComplexFlagConsumer<Value>> (&'b mut self, _consumer : &'a mut Consumer) -> &'b mut ComplexFlag<'a, Value, Consumer> {
+	pub fn define_complex <'b, Value : FlagValue + 'a, Consumer : ComplexFlagConsumer<Value>> (&'b mut self, _consumer : &'a mut Consumer) -> &'b mut ComplexFlag<'a, Value, Consumer> {
 		self.define_flag (ComplexFlag {
 				consumer : _consumer,
-				actions : Vec::new (),
+				branches : Vec::new (),
 			})
+	}
+}
+
+
+impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
+	where
+		Value : FlagValue + 'a,
+		Consumer : ComplexFlagConsumer<Value>,
+{
+	pub fn define_switch (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>, _value : Value) -> &mut Self
+		where
+			Value : FlagValue + Clone + 'a,
+	{
+		self.branches.push (ComplexFlagBranch {
+				action : ComplexFlagAction::Construct (Box::new (CloningFlagValueConstructor::from (_value))),
+				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+			});
+		self
+	}
+	
+	pub fn define_flag (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self
+		where
+			Value : FlagValueParsable,
+	{
+		self.branches.push (ComplexFlagBranch {
+				action : ComplexFlagAction::Parse (Box::new (ImplicitFlagValueParser ())),
+				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+			});
+		self
+	}
+	
+	pub fn define_flag_with_wrapper <Lambda> (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>, _wrapper : Lambda) -> &mut Self
+		where
+		
+			Lambda : Fn (String) -> Value + 'a,
+	{
+		self.branches.push (ComplexFlagBranch {
+				action : ComplexFlagAction::Parse (Box::new (FnStringFlagValueParser (_wrapper))),
+				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+			});
+		self
+	}
+}
+
+
+impl <'a, Value> ComplexFlagConsumer<Value> for Value
+	where
+		Value : FlagValue,
+{
+	fn consume (&mut self, _value : Value) -> FlagValueParseResult {
+		*self = _value;
+		Ok (())
+	}
+}
+
+
+impl <'a, Value> ComplexFlagConsumer<Value> for Option<Value>
+	where
+		Value : FlagValue,
+{
+	fn consume (&mut self, _value : Value) -> FlagValueParseResult {
+		*self = Some (_value);
+		Ok (())
+	}
+}
+
+
+impl <'a, Value> ComplexFlagConsumer<Value> for Vec<Value>
+	where
+		Value : FlagValue,
+{
+	fn consume (&mut self, _value : Value) -> FlagValueParseResult {
+		self.push (_value);
+		Ok (())
 	}
 }
 
@@ -838,11 +952,28 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 		Consumer : ComplexFlagConsumer<Value>,
 {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
-		panic! (unimplemented, 0x15a429cc);
+		for _branch in self.branches.iter_mut () {
+			if _branch.definition.discriminant.eq (&_matched) {
+				match _branch.action {
+					ComplexFlagAction::Construct (ref mut _constructor) => {
+						let _value = _constructor.construct () .else_wrap (0x49e7ec7e) ?;
+						self.consumer.consume (_value) .else_wrap (0x3f9a255f) ?;
+						return Ok (());
+					}
+					ComplexFlagAction::Parse (ref mut _parser) => {
+						let _argument = _arguments.pop () .else_wrap (0x0e6b71cd) ?;
+						let _value = _parser.parse_os_string (_argument) .else_wrap (0xad238efb) ?;
+						self.consumer.consume (_value) .else_wrap (0x575a437c) ?;
+						return Ok (());
+					}
+				}
+			}
+		}
+		fail! (0x565769ae);
 	}
 	
 	fn definitions (&self) -> Vec<&FlagDefinition> {
-		panic! (unimplemented, 0x46d30a26);
+		self.branches.iter () .map (|_branch| &_branch.definition) .collect ()
 	}
 }
 
@@ -1126,7 +1257,32 @@ impl Default for FlagDiscriminant {
 
 
 
-#[ cfg (tests) ]
-mod tests;
+pub struct FnStringFlagValueParser<Value, Lambda>
+	(Lambda)
+	where
+		Value : FlagValue,
+		Lambda : Fn (String) -> Value
+;
+
+
+impl <Value, Lambda> FlagValueParser<Value> for FnStringFlagValueParser<Value, Lambda>
+	where
+		Value : FlagValue,
+		Lambda : Fn (String) -> Value,
+{
+	fn parse_string (&mut self, _input : String) -> FlagValueParseResult<Value> {
+		Ok (self.0 (_input))
+	}
+}
+
+
+
+
+
+
+
+
+#[ cfg (test) ]
+mod tests_private;
 
 

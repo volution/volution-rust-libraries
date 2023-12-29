@@ -118,3 +118,41 @@ mod positional_flags {
 }
 
 
+
+
+mod complex_flags {
+	
+	use ::vrl_cli_arguments::*;
+	use ::vrl_errors::*;
+	
+	#[ test ]
+	fn single () -> () {
+		let mut _value : Option<String> = None;
+		let mut _parser = FlagsParser::new ();
+		_parser.define_complex (&mut _value) .define_flag ('v', ());
+		_parser.parse_slice_str (&["-v", "value"]) .else_panic (0x93d29703);
+		assert_eq! (_value.as_ref () .map (String::as_str), Some ("value"));
+	}
+	
+	#[ test ]
+	fn multiple () -> () {
+		let mut _values : Vec<String> = Vec::new ();
+		let mut _parser = FlagsParser::new ();
+		_parser.define_complex (&mut _values) .define_flag ('v', ());
+		_parser.parse_slice_str (&["-v", "value-1", "-v", "value-2"]) .else_panic (0x9b407eb8);
+		assert_eq! (&_values, & vec! ["value-1", "value-2"]);
+	}
+	
+	#[ test ]
+	fn branches () -> () {
+		let mut _value : Option<String> = None;
+		let mut _parser = FlagsParser::new ();
+		_parser.define_complex (&mut _value)
+			.define_flag ('a', ())
+			.define_switch ('b', (), String::from ("value"));
+		_parser.parse_slice_str (&["-b"]) .else_panic (0x5678ed08);
+		assert_eq! (_value.as_ref () .map (String::as_str), Some ("value"));
+	}
+}
+
+
