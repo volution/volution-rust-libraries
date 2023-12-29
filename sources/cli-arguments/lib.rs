@@ -407,6 +407,7 @@ impl <Value> From<Value> for CloningFlagValueConstructor<Value>
 pub struct SwitchFlag<'a>
 {
 	pub value : &'a mut Option<bool>,
+	pub(crate) discriminant : FlagDiscriminant,
 	pub positive_definition : Option<FlagDefinition<'a>>,
 	pub negative_definition : Option<FlagDefinition<'a>>,
 }
@@ -418,6 +419,7 @@ pub struct SingleValueFlag<'a, Value, Parser>
 {
 	pub value : &'a mut Option<Value>,
 	pub parser : Parser,
+	pub(crate) discriminant : FlagDiscriminant,
 	pub definition : FlagDefinition<'a>,
 }
 
@@ -428,6 +430,7 @@ pub struct MultipleValueFlag<'a, Value, Parser>
 {
 	pub values : &'a mut Vec<Value>,
 	pub parser : Parser,
+	pub(crate) discriminant : FlagDiscriminant,
 	pub definition : FlagDefinition<'a>,
 }
 
@@ -459,6 +462,7 @@ pub struct ComplexFlag<'a, Value, Consumer>
 		Consumer : ComplexFlagConsumer<Value>,
 {
 	pub consumer : &'a mut Consumer,
+	pub(crate) discriminant : FlagDiscriminant,
 	pub branches : Vec<ComplexFlagBranch<'a, Value>>,
 }
 
@@ -518,8 +522,22 @@ pub(crate) struct FlagsParserState {
 
 
 pub trait FlagsProcessor<'a> {
-	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult;
-	fn definitions (&self) -> Vec<&FlagDefinition>;
+	
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult;
+	
+	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> ();
+	
+	fn definitions (&self) -> Vec<&FlagDefinition<'a>> {
+		let mut _collector = Vec::new ();
+		self.definitions_collect (&mut _collector);
+		_collector
+	}
+	
+	fn discriminant (&self) -> &FlagDiscriminant;
+	
+	fn discriminant_eq (&self, _other : &FlagDiscriminant) -> bool {
+		self.discriminant () .eq (_other)
+	}
 }
 
 
@@ -579,6 +597,7 @@ impl <'a> FlagsParserBuilder<'a> {
 	pub fn define_switch <'b> (&'b mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
+				discriminant : FlagDiscriminant::new (),
 				positive_definition : Some (Self::new_definition_simple_flag (_short, _long)),
 				negative_definition : None,
 			})
@@ -587,6 +606,7 @@ impl <'a> FlagsParserBuilder<'a> {
 	pub fn define_switch_2 (&mut self, _value : &'a mut Option<bool>, _positive_short : impl Into<FlagCharOptional<'a>>, _positive_long : impl Into<FlagStrOptional<'a>>, _negative_short : impl Into<FlagCharOptional<'a>>, _negative_long : impl Into<FlagStrOptional<'a>>) -> &mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
+				discriminant : FlagDiscriminant::new (),
 				positive_definition : Some (Self::new_definition_simple_flag (_positive_short, _positive_long)),
 				negative_definition : Some (Self::new_definition_simple_flag (_negative_short, _negative_long)),
 			})
@@ -602,6 +622,7 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
+				discriminant : FlagDiscriminant::new (),
 				definition : Self::new_definition_simple_flag (_short, _long),
 			})
 	}
@@ -610,6 +631,7 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
+				discriminant : FlagDiscriminant::new (),
 				definition : Self::new_definition_simple_flag (_short, _long),
 			})
 	}
@@ -618,6 +640,7 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
+				discriminant : FlagDiscriminant::new (),
 				definition : Self::new_definition_simple_positional (),
 			})
 	}
@@ -626,6 +649,7 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
+				discriminant : FlagDiscriminant::new (),
 				definition : Self::new_definition_simple_positional (),
 			})
 	}
@@ -639,6 +663,7 @@ impl <'a> FlagsParserBuilder<'a> {
 	pub fn define_complex <'b, Value : FlagValue + 'a, Consumer : ComplexFlagConsumer<Value>> (&'b mut self, _consumer : &'a mut Consumer) -> &'b mut ComplexFlag<'a, Value, Consumer> {
 		self.define_flag (ComplexFlag {
 				consumer : _consumer,
+				discriminant : FlagDiscriminant::new (),
 				branches : Vec::new (),
 			})
 	}
@@ -821,6 +846,29 @@ impl <'a> FlagsParser<'a> {
 		
 		let mut _positional_only = false;
 		
+		let mut _definitions = Vec::new ();
+		for _processor in self.model.processors.iter_mut () {
+			let _processor_discriminant = _processor.discriminant ();
+			_definitions.extend (_processor.definitions () .into_iter () .map (|_definition| (_processor_discriminant.clone (), _definition)));
+		}
+		for _switch in [&self.model.version_switch, &self.model.help_switch] {
+			if let Some (_switch) = _switch {
+				_definitions.push ((_switch.discriminant.clone (), _switch));
+			}
+		}
+		let mut _short_definitions = Vec::with_capacity (_definitions.len ());
+		let mut _long_definitions = Vec::with_capacity (_definitions.len ());
+		let mut _positional_definitions = Vec::new ();
+		for (_processor_discriminant, _definition) in _definitions {
+			_short_definitions.extend (_definition.short_flag.iter () .map (|_char| (_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ())));
+			_short_definitions.extend (_definition.short_aliases.iter () .map (|_char| (_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ())));
+			_long_definitions.extend (_definition.long_flag.iter () .map (|_str| (_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ())));
+			_long_definitions.extend (_definition.long_aliases.iter () .map (|_str| (_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ())));
+			if _definition.positional {
+				_positional_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone ()))
+			}
+		}
+		
 		loop {
 			
 			let Some (_next) = _arguments.pop ()
@@ -844,7 +892,7 @@ impl <'a> FlagsParser<'a> {
 									continue;
 								} else if _third_char != Some ('-') {
 									//  NOTE:  encountered `--x...`;
-									self.process_long_flag (_third_str, &mut _arguments) ?;
+									self.process_long_flag (_third_str, &mut _arguments, &_long_definitions) ?;
 									continue;
 								} else {
 									//  NOTE:  encountered `---...`;
@@ -852,7 +900,7 @@ impl <'a> FlagsParser<'a> {
 								}
 							} else if _third_char.is_none () {
 								//  NOTE:  encountered `-x`;
-								self.process_short_flag (_second_char, &mut _arguments) ?;
+								self.process_short_flag (_second_char, &mut _arguments, &_short_definitions) ?;
 								continue;
 							} else {
 								//  NOTE:  encountered `-x?...`;
@@ -868,7 +916,7 @@ impl <'a> FlagsParser<'a> {
 			
 			//  NOTE:  fallback for positional flags;
 			_arguments.push (_next);
-			self.process_positional_flags (&mut _arguments) ?;
+			self.process_positional_flags (&mut _arguments, &_positional_definitions) ?;
 		}
 		
 		if ! _arguments.is_empty () {
@@ -878,64 +926,50 @@ impl <'a> FlagsParser<'a> {
 		Ok (())
 	}
 	
-	fn process_short_flag (&mut self, _popped : char, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.model.processors.iter_mut () {
-			let mut _matched = None;
-			'_matching : for _definition in _processor.definitions () .into_iter () {
-				if _definition.short_flag.eq_char (_popped) {
-					_matched = Some (_definition.discriminant.clone ());
-					break '_matching;
-				}
-				for _short_alias in _definition.short_aliases.iter () {
-					if _short_alias.eq_char (_popped) {
-						_matched = Some (_definition.discriminant.clone ());
-						break '_matching;
-					}
-				}
-			}
-			if let Some (_matched) = _matched {
-				return _processor.process_flag (_matched, _arguments) .else_wrap (0x746336f0);
+	fn process_short_flag (&mut self, _popped : char, _arguments : &mut Vec<OsString>, _definitions : &Vec<(FlagDiscriminant, FlagDiscriminant, FlagChar<'a>)>) -> FlagsParserResult {
+		for _definition in _definitions {
+			if _definition.2.eq_char (_popped) {
+				return self.process_matched (&_definition.0, &_definition.1, _arguments);
 			}
 		}
 		fail! (0x177ab13c);
 	}
 	
-	fn process_long_flag (&mut self, _popped : &str, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.model.processors.iter_mut () {
-			let mut _matched = None;
-			'_matching : for _definition in _processor.definitions () .into_iter () {
-				if _definition.long_flag.eq_str (_popped) {
-					_matched = Some (_definition.discriminant.clone ());
-					break '_matching;
-				}
-				for _long_alias in _definition.long_aliases.iter () {
-					if _long_alias.eq_str (_popped) {
-						_matched = Some (_definition.discriminant.clone ());
-						break '_matching;
-					}
-				}
-			}
-			if let Some (_matched) = _matched {
-				return _processor.process_flag (_matched, _arguments) .else_wrap (0x544e916d);
+	fn process_long_flag (&mut self, _popped : &str, _arguments : &mut Vec<OsString>, _definitions : &Vec<(FlagDiscriminant, FlagDiscriminant, FlagStr<'a>)>) -> FlagsParserResult {
+		for _definition in _definitions {
+			if _definition.2.eq_str (_popped) {
+				return self.process_matched (&_definition.0, &_definition.1, _arguments);
 			}
 		}
-		fail! (0xbc9a239d);
+		fail! (0x5c883697);
 	}
 	
-	fn process_positional_flags (&mut self, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		for _processor in self.model.processors.iter_mut () {
-			let mut _matched = None;
-			'_matching : for _definition in _processor.definitions () .into_iter () {
-				if _definition.positional {
-					_matched = Some (_definition.discriminant.clone ());
-					break '_matching;
-				}
-			}
-			if let Some (_matched) = _matched {
-				return _processor.process_flag (_matched, _arguments) .else_wrap (0xcd71f274);
-			}
+	fn process_positional_flags (&mut self, _arguments : &mut Vec<OsString>, _definitions : &Vec<(FlagDiscriminant, FlagDiscriminant)>) -> FlagsParserResult {
+		for _definition in _definitions {
+			return self.process_matched (&_definition.0, &_definition.1, _arguments);
 		}
 		fail! (0xb16f43dc);
+	}
+	
+	fn process_matched (&mut self, _processor_discriminant : &FlagDiscriminant, _definition_discriminant : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
+		for _processor in self.model.processors.iter_mut () {
+			if _processor.discriminant_eq (&_processor_discriminant) {
+				return _processor.process_flag (_definition_discriminant, _arguments) .else_wrap (0x544e916d);
+			}
+		}
+		if let Some (_switch) = &self.model.version_switch {
+			if _switch.discriminant.eq (_definition_discriminant) {
+				self.state.version_requested = true;
+				return Ok (());
+			}
+		}
+		if let Some (_switch) = &self.model.help_switch {
+			if _switch.discriminant.eq (_definition_discriminant) {
+				self.state.help_requested = true;
+				return Ok (());
+			}
+		}
+		fail! (0xcc7f2e05);
 	}
 }
 
@@ -947,6 +981,14 @@ impl <'a> FlagsParser<'a> {
 
 
 impl <'a> FlagsParsed<'a> {
+	
+	pub fn is_version_requested (&self) -> bool {
+		self.state.version_requested
+	}
+	
+	pub fn is_help_requested (&self) -> bool {
+		self.state.help_requested
+	}
 	
 	pub fn done (mut self) -> FlagsParserResult {
 		if let Some (_error) = self.state.errors_encountered.pop () {
@@ -966,15 +1008,15 @@ impl <'a> FlagsParsed<'a> {
 
 impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 	
-	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
 		if let Some (_definition) = &self.positive_definition {
-			if _definition.discriminant.eq (&_matched) {
+			if _definition.discriminant.eq (_matched) {
 				*self.value = Some (true);
 				return Ok (());
 			}
 		}
 		if let Some (_definition) = &self.negative_definition {
-			if _definition.discriminant.eq (&_matched) {
+			if _definition.discriminant.eq (_matched) {
 				*self.value = Some (false);
 				return Ok (());
 			}
@@ -982,15 +1024,13 @@ impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 		fail! (0x07b75f99);
 	}
 	
-	fn definitions (&self) -> Vec<&FlagDefinition> {
-		let mut _definitions = Vec::new ();
-		if let Some (_definition) = &self.positive_definition {
-			_definitions.push (_definition)
-		}
-		if let Some (_definition) = &self.negative_definition {
-			_definitions.push (_definition)
-		}
-		_definitions
+	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> () {
+		let _iterator = Iterator::chain (self.positive_definition.iter (), self.negative_definition.iter ());
+		_collector.extend (_iterator);
+	}
+	
+	fn discriminant (&self) -> &FlagDiscriminant {
+		&self.discriminant
 	}
 }
 
@@ -1006,15 +1046,20 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parse
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
 		let _argument = _arguments.pop () .else_wrap (0xfb2a6936) ?;
 		let _value = self.parser.parse_os_string (_argument) .else_wrap (0xaf692a79) ?;
 		*self.value = Some (_value);
 		Ok (())
 	}
 	
-	fn definitions (&self) -> Vec<&FlagDefinition> {
-		vec! [&self.definition]
+	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> () {
+		let _iterator = Some (&self.definition) .into_iter ();
+		_collector.extend (_iterator);
+	}
+	
+	fn discriminant (&self) -> &FlagDiscriminant {
+		&self.discriminant
 	}
 }
 
@@ -1024,15 +1069,20 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Par
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
 		let _argument = _arguments.pop () .else_wrap (0x9d6fdeed) ?;
 		let _value = self.parser.parse_os_string (_argument) .else_wrap (0x3c975c21) ?;
 		self.values.push (_value);
 		Ok (())
 	}
 	
-	fn definitions (&self) -> Vec<&FlagDefinition> {
-		vec! [&self.definition]
+	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> () {
+		let _iterator = Some (&self.definition) .into_iter ();
+		_collector.extend (_iterator);
+	}
+	
+	fn discriminant (&self) -> &FlagDiscriminant {
+		&self.discriminant
 	}
 }
 
@@ -1044,9 +1094,9 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 		Value : FlagValue,
 		Consumer : ComplexFlagConsumer<Value>,
 {
-	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
 		for _branch in self.branches.iter_mut () {
-			if _branch.definition.discriminant.eq (&_matched) {
+			if _branch.definition.discriminant.eq (_matched) {
 				match _branch.action {
 					ComplexFlagAction::Construct (ref mut _constructor) => {
 						let _value = _constructor.construct () .else_wrap (0x49e7ec7e) ?;
@@ -1065,8 +1115,13 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 		fail! (0x565769ae);
 	}
 	
-	fn definitions (&self) -> Vec<&FlagDefinition> {
-		self.branches.iter () .map (|_branch| &_branch.definition) .collect ()
+	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> () {
+		let _iterator = self.branches.iter () .map (|_branch| &_branch.definition);
+		_collector.extend (_iterator);
+	}
+	
+	fn discriminant (&self) -> &FlagDiscriminant {
+		&self.discriminant
 	}
 }
 
@@ -1077,17 +1132,20 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 
 
 
+#[ derive (Clone) ]
 pub enum FlagChar<'a> {
 	Char (char),
-	Constructed (Box<dyn FnOnce() -> char + 'a>),
+	Constructed (Rc<dyn FnOnce() -> char + 'a>),
 }
 
+#[ derive (Clone) ]
 pub enum FlagCharOptional<'a> {
 	None,
 	Some (FlagChar<'a>),
 }
 
 
+#[ derive (Clone) ]
 pub enum FlagStr<'a> {
 	Empty,
 	Borrowed (&'a str),
@@ -1095,6 +1153,7 @@ pub enum FlagStr<'a> {
 	Constructed (FmtArguments<'a>),
 }
 
+#[ derive (Clone) ]
 pub enum FlagStrOptional<'a> {
 	None,
 	Some (FlagStr<'a>)
@@ -1276,6 +1335,13 @@ impl <'a> FlagCharOptional<'a> {
 			Self::Some (_self) => _self.eq_char (_other),
 		}
 	}
+	
+	pub fn iter <'b> (&'b self) -> impl Iterator<Item = &'b FlagChar<'a>> {
+		match self {
+			Self::None => None.into_iter (),
+			Self::Some (ref _self) => Some (_self) .into_iter (),
+		}
+	}
 }
 
 
@@ -1299,6 +1365,13 @@ impl <'a> FlagStrOptional<'a> {
 		match self {
 			Self::None => false,
 			Self::Some (_self) => _self.eq_str (_other),
+		}
+	}
+	
+	pub fn iter <'b> (&'b self) -> impl Iterator<Item = &'b FlagStr<'a>> {
+		match self {
+			Self::None => None.into_iter (),
+			Self::Some (ref _self) => Some (_self) .into_iter (),
 		}
 	}
 }
