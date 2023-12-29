@@ -37,7 +37,6 @@ pub use crate::{
 		internals::*,
 		codes::*,
 		panic::*,
-		macros::*,
 		prelude::*,
 	};
 
