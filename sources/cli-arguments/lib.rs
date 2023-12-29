@@ -488,6 +488,11 @@ pub struct FlagsParser<'a> {
 }
 
 
+pub struct FlagsParserBuilder<'a> {
+	pub(crate) processors : Vec<Box<dyn FlagsProcessor<'a> + 'a>>,
+}
+
+
 pub trait FlagsProcessor<'a> {
 	fn process_flag (&mut self, _matched : FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult;
 	fn definitions (&self) -> Vec<&FlagDefinition>;
@@ -500,19 +505,25 @@ pub trait FlagsProcessor<'a> {
 
 
 
-impl <'a> FlagsParser<'a> {
+impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn new () -> Self {
 		Self {
 				processors : Vec::new (),
 			}
 	}
+	
+	pub fn build (self) -> FlagsParserResult<FlagsParser<'a>> {
+		Ok (FlagsParser {
+				processors : self.processors,
+			})
+	}
 }
 
 
 
 
-impl <'a> FlagsParser<'a> {
+impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn define_switch <'b> (&'b mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
@@ -534,7 +545,7 @@ impl <'a> FlagsParser<'a> {
 
 
 
-impl <'a> FlagsParser<'a> {
+impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn define_single_flag <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SingleValueFlag<'a, Value, ImplicitFlagValueParser> {
 		self.define_flag (SingleValueFlag {
@@ -572,7 +583,7 @@ impl <'a> FlagsParser<'a> {
 
 
 
-impl <'a> FlagsParser<'a> {
+impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn define_complex <'b, Value : FlagValue + 'a, Consumer : ComplexFlagConsumer<Value>> (&'b mut self, _consumer : &'a mut Consumer) -> &'b mut ComplexFlag<'a, Value, Consumer> {
 		self.define_flag (ComplexFlag {
@@ -594,7 +605,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.branches.push (ComplexFlagBranch {
 				action : ComplexFlagAction::Construct (Box::new (CloningFlagValueConstructor::from (_value))),
-				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
 			});
 		self
 	}
@@ -605,7 +616,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.branches.push (ComplexFlagBranch {
 				action : ComplexFlagAction::Parse (Box::new (ImplicitFlagValueParser ())),
-				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
 			});
 		self
 	}
@@ -617,7 +628,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.branches.push (ComplexFlagBranch {
 				action : ComplexFlagAction::Parse (Box::new (FnStringFlagValueParser (_wrapper))),
-				definition : FlagsParser::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
 			});
 		self
 	}
@@ -659,7 +670,7 @@ impl <'a, Value> ComplexFlagConsumer<Value> for Vec<Value>
 
 
 
-impl <'a> FlagsParser<'a> {
+impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn define_flag <'b, Flag> (&'b mut self, _flag : Flag) -> &'b mut Flag
 		where
