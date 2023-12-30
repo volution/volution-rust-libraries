@@ -30,8 +30,10 @@ pub use ::std::io::{
 		stderr,
 	};
 
+#[ cfg (unix) ]
 pub use ::std::os::fd;
 
+#[ cfg (unix) ]
 pub use ::std::os::fd::{
 		
 		RawFd,

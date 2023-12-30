@@ -91,8 +91,10 @@ pub use ::std::env::{
 		temp_dir,
 	};
 
+#[ cfg (unix) ]
 pub use ::std::os::fd;
 
+#[ cfg (unix) ]
 pub use ::std::os::fd::{
 		
 		RawFd,
