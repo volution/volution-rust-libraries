@@ -76,7 +76,7 @@ impl <'a> FlagsParserBuilder<'a> {
 
 impl <'a> FlagsParserBuilder<'a> {
 	
-	pub fn define_single_flag <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SingleValueFlag<'a, Value, ImplicitFlagValueParser> {
+	pub fn define_single_flag <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SingleValueFlag<'a, Value, impl FlagValueParser<Value>> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
@@ -85,7 +85,7 @@ impl <'a> FlagsParserBuilder<'a> {
 			})
 	}
 	
-	pub fn define_multiple_flag <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut MultipleValueFlag<'a, Value, ImplicitFlagValueParser> {
+	pub fn define_multiple_flag <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut MultipleValueFlag<'a, Value, impl FlagValueParser<Value>> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
@@ -94,7 +94,7 @@ impl <'a> FlagsParserBuilder<'a> {
 			})
 	}
 	
-	pub fn define_single_positional <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>) -> &'b mut SingleValueFlag<'a, Value, ImplicitFlagValueParser> {
+	pub fn define_single_positional <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>) -> &'b mut SingleValueFlag<'a, Value, impl FlagValueParser<Value>> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
@@ -103,7 +103,7 @@ impl <'a> FlagsParserBuilder<'a> {
 			})
 	}
 	
-	pub fn define_multiple_positional <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>) -> &'b mut MultipleValueFlag<'a, Value, ImplicitFlagValueParser> {
+	pub fn define_multiple_positional <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>) -> &'b mut MultipleValueFlag<'a, Value, impl FlagValueParser<Value>> {
 		self.define_flag (MultipleValueFlag {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
@@ -173,7 +173,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 
 impl <'a> FlagsParserBuilder<'a> {
 	
-	pub fn define_flag <'b, Flag> (&'b mut self, _flag : Flag) -> &'b mut Flag
+	pub(crate) fn define_flag <'b, Flag> (&'b mut self, _flag : Flag) -> &'b mut Flag
 		where
 			Flag : FlagsProcessor<'a> + 'a,
 	{

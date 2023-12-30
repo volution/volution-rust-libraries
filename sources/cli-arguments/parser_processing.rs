@@ -208,7 +208,7 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 	
-	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
 		if let Some (_definition) = &self.positive_definition {
 			if _definition.discriminant.eq (_matched) {
 				*self.value = Some (true);
@@ -242,7 +242,7 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for SingleValueFlag<'a, Value, Parse
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
 		let _argument = _arguments.pop () .else_wrap (0xfb2a6936) ?;
 		let _value = self.parser.parse_os_string (_argument) .else_wrap (0xaf692a79) ?;
 		*self.value = Some (_value);
@@ -267,7 +267,7 @@ impl <'a, Value, Parser> FlagsProcessor<'a> for MultipleValueFlag<'a, Value, Par
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
 		let _argument = _arguments.pop () .else_wrap (0x9d6fdeed) ?;
 		let _value = self.parser.parse_os_string (_argument) .else_wrap (0x3c975c21) ?;
 		self.values.push (_value);
@@ -292,7 +292,7 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 		Value : FlagValue,
 		Consumer : ComplexFlagConsumer<Value>,
 {
-	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult {
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
 		for _branch in self.branches.iter_mut () {
 			if _branch.definition.discriminant.eq (_matched) {
 				match _branch.action {

@@ -26,7 +26,7 @@ pub struct FlagDefinition<'a> {
 
 pub struct SwitchFlag<'a>
 {
-	pub value : &'a mut Option<bool>,
+	pub(crate) value : &'a mut Option<bool>,
 	pub(crate) discriminant : FlagDiscriminant,
 	pub positive_definition : Option<FlagDefinition<'a>>,
 	pub negative_definition : Option<FlagDefinition<'a>>,
@@ -40,8 +40,8 @@ pub struct SingleValueFlag<'a, Value, Parser>
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	pub value : &'a mut Option<Value>,
-	pub parser : Parser,
+	pub(crate) value : &'a mut Option<Value>,
+	pub(crate) parser : Parser,
 	pub(crate) discriminant : FlagDiscriminant,
 	pub definition : FlagDefinition<'a>,
 }
@@ -54,8 +54,8 @@ pub struct MultipleValueFlag<'a, Value, Parser>
 		Value : FlagValue,
 		Parser : FlagValueParser<Value>,
 {
-	pub values : &'a mut Vec<Value>,
-	pub parser : Parser,
+	pub(crate) values : &'a mut Vec<Value>,
+	pub(crate) parser : Parser,
 	pub(crate) discriminant : FlagDiscriminant,
 	pub definition : FlagDefinition<'a>,
 }
@@ -68,26 +68,26 @@ pub struct ComplexFlag<'a, Value, Consumer>
 		Value : FlagValue,
 		Consumer : ComplexFlagConsumer<Value>,
 {
-	pub consumer : &'a mut Consumer,
+	pub(crate) consumer : &'a mut Consumer,
 	pub(crate) discriminant : FlagDiscriminant,
-	pub branches : Vec<ComplexFlagBranch<'a, Value>>,
+	pub(crate) branches : Vec<ComplexFlagBranch<'a, Value>>,
 }
 
 
 
 
-pub struct ComplexFlagBranch<'a, Value>
+pub(crate) struct ComplexFlagBranch<'a, Value>
 	where
 		Value : FlagValue,
 {
-	pub action : ComplexFlagAction<'a, Value>,
+	pub(crate) action : ComplexFlagAction<'a, Value>,
 	pub definition : FlagDefinition<'a>,
 }
 
 
 
 
-pub enum ComplexFlagAction<'a, Value>
+pub(crate) enum ComplexFlagAction<'a, Value>
 	where
 		Value : FlagValue,
 {

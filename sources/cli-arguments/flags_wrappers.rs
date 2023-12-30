@@ -5,7 +5,7 @@ use crate::prelude::*;
 
 
 
-pub struct FnStringFlagValueParser<Value, Lambda>
+pub(crate) struct FnStringFlagValueParser<Value, Lambda>
 	( pub(crate) Lambda )
 	where
 		Value : FlagValue,

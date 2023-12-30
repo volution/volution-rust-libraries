@@ -8,6 +8,8 @@ use crate::prelude::*;
 pub trait FlagValue
 	where
 		Self : Sized,
+		Self : Send,
+		Self : Sync,
 		Self : FlagValueDisplay,
 {}
 

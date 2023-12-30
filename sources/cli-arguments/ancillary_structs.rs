@@ -12,7 +12,7 @@ use crate::prelude::*;
 #[ derive (Clone) ]
 pub enum FlagChar<'a> {
 	Char (char),
-	Constructed (Rc<dyn FnOnce() -> char + 'a>),
+	Constructed (Rc<iter::Once<Box<dyn FnOnce() -> char + 'a>>>),
 }
 
 
@@ -30,7 +30,8 @@ pub enum FlagStr<'a> {
 	Empty,
 	Borrowed (&'a str),
 	Owned (String),
-	Constructed (FmtArguments<'a>),
+	Constructed (Rc<iter::Once<Box<dyn FnOnce() -> String + 'a>>>),
+	Formatted (FmtArguments<'a>),
 }
 
 
@@ -68,6 +69,7 @@ impl <'a> FlagStr<'a> {
 			Self::Borrowed (ref _self) => if _self.is_empty () { Self::Empty } else { self },
 			Self::Owned (ref _self) => if _self.is_empty () { Self::Empty } else { self },
 			Self::Constructed (_) => self,
+			Self::Formatted (_) => self,
 		}
 	}
 	
@@ -77,6 +79,7 @@ impl <'a> FlagStr<'a> {
 			Self::Borrowed (_self) => str::eq (_self, _other),
 			Self::Owned (_self) => str::eq (_self.as_str (), _other),
 			Self::Constructed (_) => false,
+			Self::Formatted (_) => false,
 		}
 	}
 }
@@ -270,7 +273,7 @@ impl <'a> Default for FlagStrOptional<'a> {
 
 
 
-pub struct FlagDiscriminant {
+pub(crate) struct FlagDiscriminant {
 	//  FIXME:  Find a way that doesn't involve memory allocation!
 	pointer : Rc<()>,
 }

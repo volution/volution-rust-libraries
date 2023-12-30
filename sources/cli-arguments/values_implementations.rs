@@ -153,11 +153,11 @@ impl FlagValue for CString {}
 
 
 
-trait ImplicitFlagValueParsable
+pub trait ImplicitFlagValueParsable
 	where
 		Self : FlagValue,
 		Self : FromStr,
-		<Self as FromStr>::Err : StdError + Sync + Send + 'static,
+		<Self as FromStr>::Err : StdError + Send + Sync + 'static,
 {}
 
 
@@ -165,7 +165,7 @@ impl <Value> FlagValueParsable for Value
 	where
 		Self : FlagValue,
 		Self : ImplicitFlagValueParsable,
-		<Self as FromStr>::Err : StdError + Sync + Send + 'static,
+		<Self as FromStr>::Err : StdError + Send + Sync + 'static,
 {
 	fn parse_string (_input : String) -> FlagValueParseResult<Self> {
 		FromStr::from_str (&_input) .else_wrap (0xa08a8874)
@@ -175,7 +175,7 @@ impl <Value> FlagValueParsable for Value
 
 
 
-trait ImplicitFlagValueDisplay
+pub trait ImplicitFlagValueDisplay
 	where
 		Self : FlagValue,
 		Self : Display,
@@ -280,7 +280,7 @@ impl FlagValueDisplay for CString {
 
 
 
-pub struct ImplicitFlagValueParser ();
+pub(crate) struct ImplicitFlagValueParser ();
 
 
 impl <Value> FlagValueParser<Value> for ImplicitFlagValueParser
@@ -299,7 +299,7 @@ impl <Value> FlagValueParser<Value> for ImplicitFlagValueParser
 
 
 
-pub struct CloningFlagValueConstructor<Value>
+pub(crate) struct CloningFlagValueConstructor<Value>
 	where
 		Value : FlagValue + Clone,
 {
@@ -327,3 +327,5 @@ impl <Value> From<Value> for CloningFlagValueConstructor<Value>
 			}
 	}
 }
+
+

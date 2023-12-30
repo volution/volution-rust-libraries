@@ -46,9 +46,9 @@ pub(crate) struct FlagsParserState {
 
 
 
-pub trait FlagsProcessor<'a> {
+pub(crate) trait FlagsProcessor<'a> {
 	
-	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagParserResult;
+	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult;
 	
 	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> ();
 	
