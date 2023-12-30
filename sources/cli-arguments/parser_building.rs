@@ -5,6 +5,10 @@ use crate::prelude::*;
 
 
 
+
+
+
+
 impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn new () -> Self {
@@ -208,6 +212,36 @@ impl <'a> FlagsParserBuilder<'a> {
 				positional : true,
 				.. Default::default ()
 			}
+	}
+}
+
+
+
+
+
+
+
+
+impl <'a> FlagDefinition<'a> {
+	
+	pub fn with_alias (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+		self.alias_flags.push ((_short.into (), _long.into ()));
+		self
+	}
+	
+	pub fn with_default (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+		self.descriptions.push ((_short.into (), _long.into ()));
+		self
+	}
+	
+	pub fn with_description (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+		self.descriptions.push ((_short.into (), _long.into ()));
+		self
+	}
+	
+	pub fn with_warning (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+		self.warnings.push ((_short.into (), _long.into ()));
+		self
 	}
 }
 

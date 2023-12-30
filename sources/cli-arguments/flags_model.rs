@@ -10,15 +10,12 @@ pub struct FlagDefinition<'a> {
 	pub(crate) discriminant : FlagDiscriminant,
 	pub short_flag : FlagCharOptional<'a>,
 	pub long_flag : FlagStrOptional<'a>,
-	pub short_aliases : Vec<FlagChar<'a>>,
-	pub long_aliases : Vec<FlagStr<'a>>,
+	pub alias_flags : Vec<(FlagCharOptional<'a>, FlagStrOptional<'a>)>,
 	pub positional : bool,
-	pub value_placeholder : FlagStrOptional<'a>,
-	pub value_default : FlagStrOptional<'a>,
-	pub help_short : FlagStrOptional<'a>,
-	pub help_long : FlagStrOptional<'a>,
-	pub help_caution : FlagStrOptional<'a>,
-	pub help_deprecated : FlagStrOptional<'a>,
+	pub placeholder : FlagStrOptional<'a>,
+	pub defaults : Vec<(FlagStrOptional<'a>, FlagStrOptional<'a>)>,
+	pub descriptions : Vec<(FlagStrOptional<'a>, FlagStrOptional<'a>)>,
+	pub warnings : Vec<(FlagStrOptional<'a>, FlagStrOptional<'a>)>,
 }
 
 
