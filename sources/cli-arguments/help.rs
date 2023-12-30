@@ -133,6 +133,15 @@ impl <'a> FlagsParserModel<'a> {
 		
 		_buffer.push ('\n');
 		
+		// FIXME!
+		loop {
+			let _previous_len = _buffer.len ();
+			_buffer = _buffer.replace (" \n", "\n");
+			if _previous_len == _buffer.len () {
+				break;
+			}
+		}
+		
 		Ok (_buffer)
 	}
 }
