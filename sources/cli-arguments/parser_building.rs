@@ -41,12 +41,12 @@ impl <'a> FlagsParserBuilder<'a> {
 impl <'a> FlagsParserBuilder<'a> {
 	
 	pub fn define_version <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a> {
-		self.model.version_switch = Some (Self::new_definition_simple_flag (_short, _long));
+		self.model.version_switch = Some (Self::new_definition_simple_flag (_short, _long, false));
 		self.model.version_switch.as_mut () .infallible (0x44e9d679)
 	}
 	
 	pub fn define_help <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a> {
-		self.model.help_switch = Some (Self::new_definition_simple_flag (_short, _long));
+		self.model.help_switch = Some (Self::new_definition_simple_flag (_short, _long, false));
 		self.model.help_switch.as_mut () .infallible (0x364838e7)
 	}
 }
@@ -60,7 +60,7 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				discriminant : FlagDiscriminant::new (),
-				positive_definition : Self::new_definition_simple_flag (_short, _long),
+				positive_definition : Self::new_definition_simple_flag (_short, _long, false),
 				negative_definition : None,
 			})
 	}
@@ -69,8 +69,8 @@ impl <'a> FlagsParserBuilder<'a> {
 		self.define_flag (SwitchFlag {
 				value : _value,
 				discriminant : FlagDiscriminant::new (),
-				positive_definition : Self::new_definition_simple_flag (_positive_short, _positive_long),
-				negative_definition : Some (Self::new_definition_simple_flag (_negative_short, _negative_long)),
+				positive_definition : Self::new_definition_simple_flag (_positive_short, _positive_long, false),
+				negative_definition : Some (Self::new_definition_simple_flag (_negative_short, _negative_long, false)),
 			})
 	}
 }
@@ -85,7 +85,7 @@ impl <'a> FlagsParserBuilder<'a> {
 				value : _value,
 				parser : ImplicitFlagValueParser (),
 				discriminant : FlagDiscriminant::new (),
-				definition : Self::new_definition_simple_flag (_short, _long),
+				definition : Self::new_definition_simple_flag (_short, _long, true),
 			})
 	}
 	
@@ -94,7 +94,7 @@ impl <'a> FlagsParserBuilder<'a> {
 				values : _values,
 				parser : ImplicitFlagValueParser (),
 				discriminant : FlagDiscriminant::new (),
-				definition : Self::new_definition_simple_flag (_short, _long),
+				definition : Self::new_definition_simple_flag (_short, _long, true),
 			})
 	}
 	
@@ -143,7 +143,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.define_branch (ComplexFlagBranch {
 				action : ComplexFlagAction::Construct (Box::new (CloningFlagValueConstructor::from (_value))),
-				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long, false),
 			})
 	}
 	
@@ -153,7 +153,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.define_branch (ComplexFlagBranch {
 				action : ComplexFlagAction::Parse (Box::new (ImplicitFlagValueParser ())),
-				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long, true),
 			})
 	}
 	
@@ -164,7 +164,7 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 	{
 		self.define_branch (ComplexFlagBranch {
 				action : ComplexFlagAction::Parse (Box::new (FnStringFlagValueParser (_wrapper))),
-				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long),
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long, true),
 			})
 	}
 	
@@ -201,10 +201,11 @@ impl <'a> FlagsParserBuilder<'a> {
 		_flag
 	}
 	
-	fn new_definition_simple_flag (_short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> FlagDefinition<'a> {
+	fn new_definition_simple_flag (_short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>, _value_required : bool) -> FlagDefinition<'a> {
 		FlagDefinition {
 				short_flag : _short.into (),
 				long_flag : _long.into (),
+				value_required : _value_required,
 				.. Default::default ()
 			}
 	}
@@ -212,6 +213,7 @@ impl <'a> FlagsParserBuilder<'a> {
 	fn new_definition_simple_positional () -> FlagDefinition<'a> {
 		FlagDefinition {
 				positional : true,
+				value_required : true,
 				.. Default::default ()
 			}
 	}
@@ -307,7 +309,7 @@ impl <'a, Builder> WithFlagDefinition<'a> for Builder
 	}
 	
 	fn with_default_2 (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
-		self.definition_mut () .descriptions.push ((_short.into (), _long.into ()));
+		self.definition_mut () .defaults.push ((_short.into (), _long.into ()));
 		self
 	}
 	
@@ -322,4 +324,50 @@ impl <'a, Builder> WithFlagDefinition<'a> for Builder
 	}
 }
 
+
+
+
+
+
+
+
+impl <'a> FlagsParserModel<'a> {
+	
+	pub(crate) fn definitions <'b> (&'b self) -> Vec<(FlagDiscriminant, &'b FlagDefinition<'a>)> {
+		let mut _definitions = Vec::new ();
+		for _processor in self.processors.iter () {
+			let _processor_discriminant = _processor.discriminant ();
+			_definitions.extend (_processor.definitions () .into_iter () .map (|_definition| (_processor_discriminant.clone (), _definition)));
+		}
+		for _switch in [&self.version_switch, &self.help_switch] {
+			if let Some (_switch) = _switch {
+				_definitions.push ((_switch.discriminant.clone (), _switch));
+			}
+		}
+		_definitions
+	}
+	
+	pub(crate) fn definitions_3 (&self) -> (Vec<(FlagDiscriminant, FlagDiscriminant, FlagChar<'a>)>, Vec<(FlagDiscriminant, FlagDiscriminant, FlagStr<'a>)>, Vec<(FlagDiscriminant, FlagDiscriminant)>) {
+		let _definitions = self.definitions ();
+		let mut _short_definitions = Vec::with_capacity (_definitions.len ());
+		let mut _long_definitions = Vec::with_capacity (_definitions.len ());
+		let mut _positional_definitions = Vec::new ();
+		for (_processor_discriminant, _definition) in _definitions {
+			_short_definitions.extend (_definition.short_flag.iter () .map (|_char| (_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ())));
+			_long_definitions.extend (_definition.long_flag.iter () .map (|_str| (_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ())));
+			for (_char, _str) in _definition.alias_flags.iter () {
+				if let Some (_char) = _char.option () {
+					_short_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ()));
+				}
+				if let Some (_str) = _str.option () {
+					_long_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ()));
+				}
+			}
+			if _definition.positional {
+				_positional_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone ()))
+			}
+		}
+		(_short_definitions, _long_definitions, _positional_definitions)
+	}
+}
 

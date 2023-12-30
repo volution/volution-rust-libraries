@@ -8,6 +8,7 @@ use crate::prelude::*;
 #[ derive (Default) ]
 pub struct FlagDefinition<'a> {
 	pub(crate) discriminant : FlagDiscriminant,
+	pub(crate) value_required : bool,
 	pub short_flag : FlagCharOptional<'a>,
 	pub long_flag : FlagStrOptional<'a>,
 	pub alias_flags : Vec<(FlagCharOptional<'a>, FlagStrOptional<'a>)>,

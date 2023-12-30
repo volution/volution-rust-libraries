@@ -11,5 +11,6 @@ define_error! (pub FlagValueConstructError, result : FlagValueConstructResult, t
 define_error! (pub FlagValueParseError, result : FlagValueParseResult, type : 0x183d2481);
 define_error! (pub FlagValueDisplayError, result : FlagValueDisplayResult, type : 0x8d202eeb);
 define_error! (pub FlagsParserError, result : FlagsParserResult, type : 0xcfabeaf3);
+define_error! (pub FlagsHelpError, result : FlagsHelpResult, type : 0xf7db533d);
 
 

@@ -72,34 +72,7 @@ impl <'a> FlagsParser<'a> {
 		
 		let mut _positional_only = false;
 		
-		let mut _definitions = Vec::new ();
-		for _processor in self.model.processors.iter_mut () {
-			let _processor_discriminant = _processor.discriminant ();
-			_definitions.extend (_processor.definitions () .into_iter () .map (|_definition| (_processor_discriminant.clone (), _definition)));
-		}
-		for _switch in [&self.model.version_switch, &self.model.help_switch] {
-			if let Some (_switch) = _switch {
-				_definitions.push ((_switch.discriminant.clone (), _switch));
-			}
-		}
-		let mut _short_definitions = Vec::with_capacity (_definitions.len ());
-		let mut _long_definitions = Vec::with_capacity (_definitions.len ());
-		let mut _positional_definitions = Vec::new ();
-		for (_processor_discriminant, _definition) in _definitions {
-			_short_definitions.extend (_definition.short_flag.iter () .map (|_char| (_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ())));
-			_long_definitions.extend (_definition.long_flag.iter () .map (|_str| (_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ())));
-			for (_char, _str) in _definition.alias_flags.iter () {
-				if let Some (_char) = _char.option () {
-					_short_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone (), _char.clone ()));
-				}
-				if let Some (_str) = _str.option () {
-					_long_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone (), _str.clone ()));
-				}
-			}
-			if _definition.positional {
-				_positional_definitions.push ((_processor_discriminant.clone (), _definition.discriminant.clone ()))
-			}
-		}
+		let (_short_definitions, _long_definitions, _positional_definitions) = self.model.definitions_3 ();
 		
 		loop {
 			

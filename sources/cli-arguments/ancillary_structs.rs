@@ -12,7 +12,7 @@ use crate::prelude::*;
 #[ derive (Clone) ]
 pub enum FlagChar<'a> {
 	Char (char),
-	Constructed (Rc<iter::Once<Box<dyn FnOnce() -> char + 'a>>>),
+	Constructed (Rc<dyn Fn () -> char + 'a>),
 }
 
 
@@ -30,7 +30,7 @@ pub enum FlagStr<'a> {
 	Empty,
 	Borrowed (&'a str),
 	Owned (String),
-	Constructed (Rc<iter::Once<Box<dyn FnOnce() -> String + 'a>>>),
+	Constructed (Rc<dyn Fn () -> String + 'a>),
 	Formatted (FmtArguments<'a>),
 }
 
@@ -54,6 +54,13 @@ impl <'a> FlagChar<'a> {
 		match self {
 			Self::Char (_self) => char::eq (_self, &_other),
 			Self::Constructed (_) => false,
+		}
+	}
+	
+	pub fn push_into (&self, _buffer : &mut String) -> () {
+		match self {
+			Self::Char (_self) => _buffer.push (*_self),
+			Self::Constructed (ref _self) => _buffer.push (_self ()),
 		}
 	}
 }
@@ -80,6 +87,21 @@ impl <'a> FlagStr<'a> {
 			Self::Owned (_self) => str::eq (_self.as_str (), _other),
 			Self::Constructed (_) => false,
 			Self::Formatted (_) => false,
+		}
+	}
+	
+	pub fn push_into (&self, _buffer : &mut String) -> () {
+		match self {
+			Self::Empty => (),
+			Self::Borrowed (_self) => _buffer.push_str (_self),
+			Self::Owned (_self) => _buffer.push_str (_self.as_str ()),
+			Self::Constructed (_self) => _buffer.push_str (_self () .as_str ()),
+			Self::Formatted (_self) =>
+				if let Some (_self) = _self.as_str () {
+					_buffer.push_str (_self)
+				} else {
+					_buffer.push_str (_self.to_string () .as_str ())
+				}
 		}
 	}
 }
