@@ -32,6 +32,8 @@ pub trait HasFlagDefinition<'a> {
 
 pub trait WithFlagDefinition<'a> {
 	
+	fn with_flag (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
+	
 	fn with_alias (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
 	
 	fn with_placeholder (&mut self, _placeholder : impl Into<FlagStr<'a>>) -> &mut Self;

@@ -40,9 +40,17 @@ impl <'a> FlagsParserBuilder<'a> {
 
 impl <'a> FlagsParserBuilder<'a> {
 	
+	pub fn define_version_0 <'b> (&'b mut self) -> &'b mut impl HasFlagDefinition<'a> {
+		self.define_version ((), ())
+	}
+	
 	pub fn define_version <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a> {
 		self.model.version_switch = Some (Self::new_definition_simple_flag (_short, _long, false));
 		self.model.version_switch.as_mut () .infallible (0x44e9d679)
+	}
+	
+	pub fn define_help_0 <'b> (&'b mut self) -> &'b mut impl HasFlagDefinition<'a> {
+		self.define_help ((), ())
 	}
 	
 	pub fn define_help <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a> {
@@ -55,6 +63,10 @@ impl <'a> FlagsParserBuilder<'a> {
 
 
 impl <'a> FlagsParserBuilder<'a> {
+	
+	pub fn define_switch_0 <'b> (&'b mut self, _value : &'a mut Option<bool>) -> &'b mut SwitchFlag<'a> {
+		self.define_switch (_value, (), ())
+	}
 	
 	pub fn define_switch <'b> (&'b mut self, _value : &'a mut Option<bool>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SwitchFlag<'a> {
 		self.define_flag (SwitchFlag {
@@ -80,6 +92,10 @@ impl <'a> FlagsParserBuilder<'a> {
 
 impl <'a> FlagsParserBuilder<'a> {
 	
+	pub fn define_single_flag_0 <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>) -> &'b mut SingleValueFlag<'a, Value, impl FlagValueParser<Value>> {
+		self.define_single_flag (_value, (), ())
+	}
+	
 	pub fn define_single_flag <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Option<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut SingleValueFlag<'a, Value, impl FlagValueParser<Value>> {
 		self.define_flag (SingleValueFlag {
 				value : _value,
@@ -87,6 +103,10 @@ impl <'a> FlagsParserBuilder<'a> {
 				discriminant : FlagDiscriminant::new (),
 				definition : Self::new_definition_simple_flag (_short, _long, true),
 			})
+	}
+	
+	pub fn define_multiple_flag_0 <'b, Value : FlagValueParsable> (&'b mut self, _value : &'a mut Vec<Value>) -> &'b mut MultipleValueFlag<'a, Value, impl FlagValueParser<Value>> {
+		self.define_multiple_flag (_value, (), ())
 	}
 	
 	pub fn define_multiple_flag <'b, Value : FlagValueParsable> (&'b mut self, _values : &'a mut Vec<Value>, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut MultipleValueFlag<'a, Value, impl FlagValueParser<Value>> {
@@ -137,6 +157,13 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 		Value : FlagValue + 'a,
 		Consumer : ComplexFlagConsumer<Value>,
 {
+	pub fn define_switch_0 <'b> (&'b mut self, _value : Value) -> &'b mut impl HasFlagDefinition<'a>
+		where
+			Value : FlagValue + Clone + 'a,
+	{
+		self.define_switch ((), (), _value)
+	}
+	
 	pub fn define_switch <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>, _value : Value) -> &'b mut impl HasFlagDefinition<'a>
 		where
 			Value : FlagValue + Clone + 'a,
@@ -145,6 +172,13 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 				action : ComplexFlagAction::Construct (Box::new (CloningFlagValueConstructor::from (_value))),
 				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long, false),
 			})
+	}
+	
+	pub fn define_flag_0 <'b> (&'b mut self) -> &'b mut impl HasFlagDefinition<'a>
+		where
+			Value : FlagValueParsable,
+	{
+		self.define_flag ((), ())
 	}
 	
 	pub fn define_flag <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a>
@@ -157,9 +191,15 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 			})
 	}
 	
+	pub fn define_flag_with_wrapper_0 <'b, Lambda> (&'b mut self, _wrapper : Lambda) -> &'b mut impl HasFlagDefinition<'a>
+		where
+			Lambda : Fn (String) -> Value + 'a,
+	{
+		self.define_flag_with_wrapper ((), (), _wrapper)
+	}
+	
 	pub fn define_flag_with_wrapper <'b, Lambda> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>, _wrapper : Lambda) -> &'b mut impl HasFlagDefinition<'a>
 		where
-		
 			Lambda : Fn (String) -> Value + 'a,
 	{
 		self.define_branch (ComplexFlagBranch {
@@ -298,6 +338,12 @@ impl <'a, Builder> WithFlagDefinition<'a> for Builder
 	where
 		Builder : HasFlagDefinition<'a>,
 {
+	fn with_flag (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
+		self.definition_mut () .short_flag = _short.into ();
+		self.definition_mut () .long_flag = _long.into ();
+		self
+	}
+	
 	fn with_alias (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self {
 		self.definition_mut () .alias_flags.push ((_short.into (), _long.into ()));
 		self
