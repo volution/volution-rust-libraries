@@ -159,9 +159,9 @@ mod complex_flags {
 	fn branches () -> () {
 		let mut _value : Option<String> = None;
 		let mut _parser = FlagsParserBuilder::new ();
-		_parser.define_complex (&mut _value)
-			.define_flag ('a', ())
-			.define_switch ('b', (), String::from ("value"));
+		let mut _argument = _parser.define_complex (&mut _value);
+		_argument.define_flag ('a', ());
+		_argument.define_switch ('b', (), String::from ("value"));
 		let mut _parser = _parser.build () .else_panic (0x50856c6d);
 		_parser.parse_slice_str (&["-b"]) .done () .else_panic (0x5678ed08);
 		assert_eq! (_value.as_ref () .map (String::as_str), Some ("value"));

@@ -21,11 +21,47 @@ pub struct FlagDefinition<'a> {
 
 
 
+pub trait HasFlagDefinition<'a> {
+	
+	fn definition (&self) -> &FlagDefinition<'a>;
+	
+	fn definition_mut (&mut self) -> &mut FlagDefinition<'a>;
+}
+
+
+pub trait WithFlagDefinition<'a> {
+	
+	fn with_alias (&mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
+	
+	fn with_placeholder (&mut self, _placeholder : impl Into<FlagStr<'a>>) -> &mut Self;
+	
+	fn with_default (&mut self, _short : impl Into<FlagStr<'a>>) -> &mut Self {
+		self.with_default_2 (_short, ())
+	}
+	
+	fn with_default_2 (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
+	
+	fn with_description (&mut self, _short : impl Into<FlagStr<'a>>) -> &mut Self {
+		self.with_description_2 (_short, ())
+	}
+	
+	fn with_description_2 (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
+	
+	fn with_warning (&mut self, _short : impl Into<FlagStr<'a>>) -> &mut Self {
+		self.with_warning_2 (_short, ())
+	}
+	
+	fn with_warning_2 (&mut self, _short : impl Into<FlagStrOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &mut Self;
+}
+
+
+
+
 pub struct SwitchFlag<'a>
 {
 	pub(crate) value : &'a mut Option<bool>,
 	pub(crate) discriminant : FlagDiscriminant,
-	pub positive_definition : Option<FlagDefinition<'a>>,
+	pub positive_definition : FlagDefinition<'a>,
 	pub negative_definition : Option<FlagDefinition<'a>>,
 }
 

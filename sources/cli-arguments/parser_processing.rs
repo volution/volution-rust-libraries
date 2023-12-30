@@ -215,11 +215,9 @@ impl <'a> FlagsParser<'a> {
 impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 	
 	fn process_flag (&mut self, _matched : &FlagDiscriminant, _arguments : &mut Vec<OsString>) -> FlagsParserResult {
-		if let Some (_definition) = &self.positive_definition {
-			if _definition.discriminant.eq (_matched) {
-				*self.value = Some (true);
-				return Ok (());
-			}
+		if self.positive_definition.discriminant.eq (_matched) {
+			*self.value = Some (true);
+			return Ok (());
 		}
 		if let Some (_definition) = &self.negative_definition {
 			if _definition.discriminant.eq (_matched) {
@@ -231,7 +229,7 @@ impl <'a> FlagsProcessor<'a> for SwitchFlag<'a> {
 	}
 	
 	fn definitions_collect <'b> (&'b self, _collector : &mut Vec<&'b FlagDefinition<'a>>) -> () {
-		let _iterator = Iterator::chain (self.positive_definition.iter (), self.negative_definition.iter ());
+		let _iterator = Iterator::chain (iter::once (&self.positive_definition), self.negative_definition.iter ());
 		_collector.extend (_iterator);
 	}
 	
