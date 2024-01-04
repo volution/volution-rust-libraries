@@ -50,6 +50,16 @@ pub use ::std::os::fd::{
 
 
 
+pub use ::std::fs;
+
+pub use ::std::fs::{
+		
+		File,
+	};
+
+
+
+
 pub fn stdin_locked () -> io::StdinLock<'static> {
 	io::stdin () .lock ()
 }
