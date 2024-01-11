@@ -131,6 +131,7 @@
 :: dependencies / tree :: exec -- "${ZRUN}" ':: cargo / tool' tree "${@}"
 :: dependencies / licenses :: exec -- "${ZRUN}" ':: cargo / tool' license --all-features --avoid-build-deps --avoid-dev-deps "${@}"
 :: dependencies / update :: exec -- "${ZRUN}" ':: cargo / tool' update --aggressive "${@}"
+:: dependencies / upgrade :: exec -- "${ZRUN}" ':: cargo / tool' upgrade --compatible allow --incompatible allow --pinned allow --recursive --verbose --verbose "${@}"
 :: dependencies / outdated :: exec -- "${ZRUN}" ':: cargo / tool' outdated "${@}"
 :: dependencies / duplicates :: exec -- "${ZRUN}" ':: cargo / tool' duplicates "${@}"
 :: dependencies / audit :: exec -- "${ZRUN}" ':: cargo / tool' audit "${@}"
