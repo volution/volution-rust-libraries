@@ -15,11 +15,11 @@
 
 
 
-:: debug / check / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets -- "${@}"
-:: debug / build / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets -- "${@}"
+:: debug / check / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets --all-features -- "${@}"
+:: debug / build / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets --all-features -- "${@}"
 
-:: release / check / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets --release -- "${@}"
-:: release / build / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets --release -- "${@}"
+:: release / check / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets --all-features --release -- "${@}"
+:: release / build / all :: export -- RUSTC_BOOTSTRAP=1 ; exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets --all-features --release -- "${@}"
 
 
 :: debug / check / lib :: exec -- "${ZRUN}" ':: cargo / tool' check --workspace --lib -- "${@}"
@@ -44,6 +44,76 @@
 
 :: debug / run / tests / package / errors :: export -- RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-errors --jobs 1 -- "${@}"
 :: debug / run / tests / package / cli-arguments :: export -- RUST_BACKTRACE=1 ; exec -- "${ZRUN}" ':: cargo / tool' test --package vrl-cli-arguments --jobs 1 -- "${@}"
+
+
+
+
+<< debug / check / all / cross
+	test "${#}" -eq 0
+	_targets=(
+			
+			native
+			
+			x86_64-unknown-linux-gnu
+			i686-unknown-linux-gnu
+			aarch64-unknown-linux-gnu
+			armv7-unknown-linux-gnueabihf
+			arm-unknown-linux-gnueabihf
+			
+			x86_64-unknown-linux-musl
+			i686-unknown-linux-musl
+			aarch64-unknown-linux-musl
+			armv7-unknown-linux-musleabihf
+			arm-unknown-linux-musleabihf
+			
+			x86_64-linux-android
+			i686-linux-android
+			aarch64-linux-android
+			armv7-linux-androideabi
+			arm-linux-androideabi
+			
+			x86_64-unknown-freebsd
+			i686-unknown-freebsd
+		#!	aarch64-unknown-freebsd
+		#!	armv7-unknown-freebsd
+		#!	armv6-unknown-freebsd
+			
+		#!	x86_64-unknown-openbsd
+		#!	i686-unknown-openbsd
+		#!	aarch64-unknown-openbsd
+			
+			x86_64-apple-darwin
+		#!	i686-apple-darwin
+			aarch64-apple-darwin
+			
+			x86_64-pc-windows-msvc
+			i686-pc-windows-msvc
+			aarch64-pc-windows-msvc
+			
+			x86_64-pc-windows-gnu
+			i686-pc-windows-gnu
+			
+			riscv64gc-unknown-linux-gnu
+			
+			wasm32-wasi
+			
+		)
+	
+	export -- RUSTC_BOOTSTRAP=1
+	
+	for _target in "${_targets[@]}" ; do
+		_arguments=()
+		case "${_target}" in
+			( native )
+			;;
+			( * )
+				_arguments+=( --target "${_target}" )
+			;;
+		esac
+		printf -- '[ii]  checking for `%s`...\n' "${_target}" >&2
+		"${ZRUN}" ':: cargo / tool' check --workspace --all-targets --all-features "${_arguments[@]}"
+	done
+!!
 
 
 
@@ -74,6 +144,7 @@
 	test "${#}" -eq 0
 	
 	_tools=(
+			cargo-edit
 			cargo-audit
 			cargo-outdated
 			cargo-duplicates
@@ -104,7 +175,7 @@
 	
 	exec -- \
 		nice -n 19 -- \
-	cargo \
+	cargo +stable \
 		"${@}" \
 	#
 !!
