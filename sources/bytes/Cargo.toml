@@ -4,6 +4,7 @@
 name = "vrl-bytes"
 workspace = "../workspace"
 version.workspace = true
+publish.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
@@ -14,7 +15,6 @@ categories.workspace = true
 homepage.workspace = true
 repository.workspace = true
 documentation.workspace = true
-publish.workspace = true
 autobins = false
 autoexamples = false
 autotests = false
@@ -33,13 +33,9 @@ doctest = false
 default = []
 
 
-
-
 [dependencies]
-
 vrl-preludes = { path = "../preludes" }
 vrl-errors = { path = "../errors" }
-
 byteorder = "*"
 
 
