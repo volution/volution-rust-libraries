@@ -179,41 +179,41 @@ mod splitter {
 	#[ test ]
 	fn empty_without_extract () -> () {
 		let _arguments = Arguments::parse_slice_str (&[], false);
-		assert_eq! (_arguments.argument_0, None);
-		assert_eq! (_arguments.executable_0, None);
-		assert_eq! (_arguments.command_0, None);
-		assert! (_arguments.commands.is_empty ());
-		assert! (_arguments.arguments.is_empty ());
+		assert_eq! (_arguments.has_argument_0 (), false);
+		assert_eq! (_arguments.has_executable_0 (), false);
+		assert_eq! (_arguments.has_command_0 (), false);
+		assert_eq! (_arguments.has_commands (), false);
+		assert_eq! (_arguments.has_arguments (), false);
 	}
 	
 	#[ test ]
 	fn empty_with_extract () -> () {
 		let _arguments = Arguments::parse_slice_str (&[], true);
-		assert_eq! (_arguments.argument_0, None);
-		assert_eq! (_arguments.executable_0, None);
-		assert_eq! (_arguments.command_0, None);
-		assert! (_arguments.commands.is_empty ());
-		assert! (_arguments.arguments.is_empty ());
+		assert_eq! (_arguments.has_argument_0 (), false);
+		assert_eq! (_arguments.has_executable_0 (), false);
+		assert_eq! (_arguments.has_command_0 (), false);
+		assert_eq! (_arguments.has_commands (), false);
+		assert_eq! (_arguments.has_arguments (), false);
 	}
 	
 	#[ test ]
 	fn just_executable_path_with_extract () -> () {
 		let _arguments = Arguments::parse_slice_str (&["/bin/true"], true);
-		assert_eq! (_arguments.argument_0.as_deref (), Some (OsStr::new ("/bin/true")));
-		assert_eq! (_arguments.executable_0.as_deref (), Some (Path::new ("/bin/true")));
-		assert_eq! (_arguments.command_0.as_deref (), Some ("true"));
-		assert! (_arguments.commands.is_empty ());
-		assert! (_arguments.arguments.is_empty ());
+		assert_eq! (_arguments.argument_0_deref (), Some (OsStr::new ("/bin/true")));
+		assert_eq! (_arguments.executable_0_deref (), Some (Path::new ("/bin/true")));
+		assert_eq! (_arguments.command_0_deref (), Some ("true"));
+		assert_eq! (_arguments.has_commands (), false);
+		assert_eq! (_arguments.has_arguments (), false);
 	}
 	
 	#[ test ]
 	fn just_executable_fake_with_extract () -> () {
 		let _arguments = Arguments::parse_slice_str (&["true"], true);
-		assert_eq! (_arguments.argument_0.as_deref (), Some (OsStr::new ("true")));
-		assert_eq! (_arguments.executable_0.as_deref (), None);
-		assert_eq! (_arguments.command_0.as_deref (), Some ("true"));
-		assert! (_arguments.commands.is_empty ());
-		assert! (_arguments.arguments.is_empty ());
+		assert_eq! (_arguments.argument_0_deref (), Some (OsStr::new ("true")));
+		assert_eq! (_arguments.executable_0_deref (), None);
+		assert_eq! (_arguments.command_0_deref (), Some ("true"));
+		assert_eq! (_arguments.has_commands (), false);
+		assert_eq! (_arguments.has_arguments (), false);
 	}
 	
 	#[ test ]
@@ -225,11 +225,11 @@ mod splitter {
 				"/a/(exec", "/a/exec)", "/a/(exec)", "/a/exec.bin", "/a/exec:42",
 		] {
 			let _arguments = Arguments::parse_slice_str (&[_token], true);
-			assert_eq! (_arguments.argument_0.as_deref (), Some (OsStr::new (_token)));
-			assert_eq! (_arguments.executable_0.as_deref (), None);
-			assert_eq! (_arguments.command_0.as_deref (), Some ("exec"));
-			assert! (_arguments.commands.is_empty ());
-			assert! (_arguments.arguments.is_empty ());
+			assert_eq! (_arguments.argument_0_deref (), Some (OsStr::new (_token)));
+			assert_eq! (_arguments.executable_0_deref (), None);
+			assert_eq! (_arguments.command_0_deref (), Some ("exec"));
+			assert_eq! (_arguments.has_commands (), false);
+			assert_eq! (_arguments.has_arguments (), false);
 		}
 	}
 	
@@ -237,11 +237,12 @@ mod splitter {
 	fn just_arguments_1 () -> () {
 		for _token_1 in &["", "-", "--", "-a", "--a", "-0", "--0", ":", "#"] {
 			let _arguments = Arguments::parse_slice_str (&[_token_1], false);
-			assert_eq! (_arguments.argument_0, None);
-			assert_eq! (_arguments.executable_0, None);
-			assert_eq! (_arguments.command_0, None);
-			assert! (_arguments.commands.is_empty ());
-			assert_eq! (_arguments.arguments, [_token_1].iter () .map (OsStr::new) .map (Cow::from) .collect::<Vec<_>> ());
+			assert_eq! (_arguments.has_argument_0 (), false);
+			assert_eq! (_arguments.has_executable_0 (), false);
+			assert_eq! (_arguments.has_command_0 (), false);
+			assert_eq! (_arguments.has_commands (), false);
+			assert_eq! (_arguments.has_arguments (), true);
+			assert_eq! (_arguments.arguments_deref_vec () .as_slice (), &[OsStr::new (_token_1)]);
 		}
 	}
 	
@@ -250,11 +251,12 @@ mod splitter {
 		for _token_1 in &["", "-", "--", "-a", "--a", "-0", "--0", ":", "#", "!"] {
 			for _token_2 in &["a", "z", "A", "Z", "0", "9", "_", _token_1] {
 				let _arguments = Arguments::parse_slice_str (&[_token_1, _token_2], false);
-				assert_eq! (_arguments.argument_0, None);
-				assert_eq! (_arguments.executable_0, None);
-				assert_eq! (_arguments.command_0, None);
-				assert! (_arguments.commands.is_empty ());
-				assert_eq! (_arguments.arguments, [_token_1, _token_2].iter () .map (OsStr::new) .map (Cow::from) .collect::<Vec<_>> ());
+				assert_eq! (_arguments.has_argument_0 (), false);
+				assert_eq! (_arguments.has_executable_0 (), false);
+				assert_eq! (_arguments.has_command_0 (), false);
+				assert_eq! (_arguments.has_commands (), false);
+				assert_eq! (_arguments.has_arguments (), true);
+				assert_eq! (_arguments.arguments_deref_vec () .as_slice (), &[OsStr::new (_token_1), OsStr::new (_token_2)]);
 			}
 		}
 	}
@@ -263,11 +265,12 @@ mod splitter {
 	fn just_commands_1 () -> () {
 		for _token_1 in &["a", "z", "A", "Z", "0", "9", "_"] {
 			let _arguments = Arguments::parse_slice_str (&[_token_1], false);
-			assert_eq! (_arguments.argument_0, None);
-			assert_eq! (_arguments.executable_0, None);
-			assert_eq! (_arguments.command_0, None);
-			assert_eq! (_arguments.commands, [_token_1].iter () .map (OsStr::new) .map (Cow::from) .collect::<Vec<_>> ());
-			assert! (_arguments.arguments.is_empty ());
+			assert_eq! (_arguments.has_argument_0 (), false);
+			assert_eq! (_arguments.has_executable_0 (), false);
+			assert_eq! (_arguments.has_command_0 (), false);
+			assert_eq! (_arguments.has_commands (), true);
+			assert_eq! (_arguments.commands_deref_vec () .as_slice (), &[OsStr::new (_token_1)]);
+			assert_eq! (_arguments.has_arguments (), false);
 		}
 	}
 	
@@ -276,11 +279,12 @@ mod splitter {
 		for _token_1 in &["a", "z", "A", "Z", "0", "_"] {
 			for _token_2 in &["a", "z", "A", "Z", "0", "_"] {
 				let _arguments = Arguments::parse_slice_str (&[_token_1, _token_2], false);
-				assert_eq! (_arguments.argument_0, None);
-				assert_eq! (_arguments.executable_0, None);
-				assert_eq! (_arguments.command_0, None);
-				assert_eq! (_arguments.commands, [_token_1, _token_2].iter () .map (OsStr::new) .map (Cow::from) .collect::<Vec<_>> ());
-				assert! (_arguments.arguments.is_empty ());
+				assert_eq! (_arguments.has_argument_0 (), false);
+				assert_eq! (_arguments.has_executable_0 (), false);
+				assert_eq! (_arguments.has_command_0 (), false);
+				assert_eq! (_arguments.has_commands (), true);
+				assert_eq! (_arguments.commands_deref_vec () .as_slice (), &[OsStr::new (_token_1), OsStr::new (_token_2)]);
+				assert_eq! (_arguments.has_arguments (), false);
 			}
 		}
 	}

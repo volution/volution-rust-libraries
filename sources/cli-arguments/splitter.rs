@@ -8,12 +8,185 @@ use crate::prelude::*;
 pub struct Arguments<'a> {
 	
 	//  NOTE:  All these are based on `argv0`.
-	pub argument_0 : Option<Cow<'a, OsStr>>,
-	pub executable_0 : Option<Cow<'a, Path>>,
-	pub command_0 : Option<Cow<'a, str>>,
+	pub(crate) argument_0 : Option<Cow<'a, OsStr>>,
+	pub(crate) executable_0 : Option<Cow<'a, Path>>,
+	pub(crate) command_0 : Option<Cow<'a, str>>,
 	
-	pub commands : Vec<Cow<'a, str>>,
-	pub arguments : Vec<Cow<'a, OsStr>>,
+	pub(crate) commands : Vec<Cow<'a, str>>,
+	pub(crate) arguments : Vec<Cow<'a, OsStr>>,
+}
+
+
+
+
+impl <'a> Arguments<'a> {
+	
+	
+	pub fn has_argument_0 (&self) -> bool {
+		self.argument_0.is_some ()
+	}
+	
+	pub fn has_executable_0 (&self) -> bool {
+		self.executable_0.is_some ()
+	}
+	
+	pub fn has_command_0 (&self) -> bool {
+		self.command_0.is_some ()
+	}
+	
+	pub fn has_commands (&self) -> bool {
+		! self.commands.is_empty ()
+	}
+	
+	pub fn has_arguments (&self) -> bool {
+		! self.arguments.is_empty ()
+	}
+	
+	
+	pub fn argument_0_deref (&self) -> Option<&OsStr> {
+		self.argument_0.as_ref () .map (Cow::deref)
+	}
+	
+	pub fn executable_0_deref (&self) -> Option<&Path> {
+		self.executable_0.as_ref () .map (Cow::deref)
+	}
+	
+	pub fn command_0_deref (&self) -> Option<&str> {
+		self.command_0.as_ref () .map (Cow::deref)
+	}
+	
+	
+	pub fn commands_deref_iter (&self) -> impl Iterator<Item = &str> {
+		self.commands.iter () .map (Cow::deref)
+	}
+	
+	pub fn arguments_deref_iter (&self) -> impl Iterator<Item = &OsStr> {
+		self.arguments.iter () .map (Cow::deref)
+	}
+	
+	
+	pub fn commands_deref_vec (&self) -> Vec<&str> {
+		self.commands_deref_iter () .collect ()
+	}
+	
+	pub fn arguments_deref_vec (&self) -> Vec<&OsStr> {
+		self.arguments_deref_iter () .collect ()
+	}
+	
+	
+	pub fn commands_cloned_vec (&self) -> Vec<Cow<'a, str>> {
+		self.commands.iter () .cloned () .collect ()
+	}
+	
+	pub fn arguments_cloned_vec (&self) -> Vec<Cow<'a, OsStr>> {
+		self.arguments.iter () .cloned () .collect ()
+	}
+	
+	pub fn arguments_cloned_vec_to_string_lossy (&self) -> Vec<Cow<'a, str>> {
+		fn to_string_lossy <'a> (_string : Cow<'a, OsStr>) -> Cow<'a, str> {
+			match _string {
+				Cow::Borrowed (_string) =>
+					_string.to_string_lossy (),
+				Cow::Owned (_string) =>
+					match _string.into_string () {
+						Ok (_string) =>
+							Cow::Owned (_string),
+						Err (_string) =>
+							Cow::Owned (_string.to_string_lossy () .into_owned ()),
+					}
+			}
+		}
+		self.arguments.iter () .cloned () .map (to_string_lossy) .collect ()
+	}
+	
+	
+	pub fn commands_into_iter (self) -> impl Iterator<Item = Cow<'a, str>> {
+		self.commands.into_iter ()
+	}
+	
+	pub fn arguments_into_iter (self) -> impl Iterator<Item = Cow<'a, OsStr>> {
+		self.arguments.into_iter ()
+	}
+	
+	
+	
+	
+	pub fn commands_prepend (&mut self, _command : impl Into<Cow<'a, str>>) -> &mut Self {
+		self.commands.insert (0, _command.into ());
+		self
+	}
+	
+	pub fn commands_append (&mut self, _command : impl Into<Cow<'a, str>>) -> &mut Self {
+		self.commands.push (_command.into ());
+		self
+	}
+	
+	pub fn commands_insert (&mut self, _index : usize, _command : impl Into<Cow<'a, str>>) -> &mut Self {
+		self.commands.insert (_index, _command.into ());
+		self
+	}
+	
+	
+	pub fn commands_prepend_all (&mut self, _commands : impl Iterator<Item = impl Into<Cow<'a, str>>>) -> &mut Self {
+		for (_offset, _command) in _commands.enumerate () {
+			self.commands.insert (_offset, _command.into ());
+		}
+		self
+	}
+	
+	pub fn commands_append_all (&mut self, _commands : impl Iterator<Item = impl Into<Cow<'a, str>>>) -> &mut Self {
+		for _command in _commands {
+			self.commands.push (_command.into ());
+		}
+		self
+	}
+	
+	pub fn commands_insert_all (&mut self, _index : usize, _commands : impl Iterator<Item = impl Into<Cow<'a, str>>>) -> &mut Self {
+		for (_offset, _command) in _commands.enumerate () {
+			self.commands.insert (_index + _offset, _command.into ());
+		}
+		self
+	}
+	
+	
+	
+	
+	pub fn arguments_prepend (&mut self, _argument : impl Into<Cow<'a, OsStr>>) -> &mut Self {
+		self.arguments.insert (0, _argument.into ());
+		self
+	}
+	
+	pub fn arguments_append (&mut self, _argument : impl Into<Cow<'a, OsStr>>) -> &mut Self {
+		self.arguments.push (_argument.into ());
+		self
+	}
+	
+	pub fn arguments_insert (&mut self, _index : usize, _argument : impl Into<Cow<'a, OsStr>>) -> &mut Self {
+		self.arguments.insert (_index, _argument.into ());
+		self
+	}
+	
+	
+	pub fn arguments_prepend_all (&mut self, _arguments : impl Iterator<Item = impl Into<Cow<'a, OsStr>>>) -> &mut Self {
+		for (_offset, _argument) in _arguments.enumerate () {
+			self.arguments.insert (_offset, _argument.into ());
+		}
+		self
+	}
+	
+	pub fn arguments_append_all (&mut self, _arguments : impl Iterator<Item = impl Into<Cow<'a, OsStr>>>) -> &mut Self {
+		for _argument in _arguments {
+			self.arguments.push (_argument.into ());
+		}
+		self
+	}
+	
+	pub fn arguments_insert_all (&mut self, _index : usize, _arguments : impl Iterator<Item = impl Into<Cow<'a, OsStr>>>) -> &mut Self {
+		for (_offset, _argument) in _arguments.enumerate () {
+			self.arguments.insert (_index + _offset, _argument.into ());
+		}
+		self
+	}
 }
 
 
