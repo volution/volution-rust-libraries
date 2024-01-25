@@ -11,32 +11,48 @@ use crate::prelude::*;
 
 impl <'a> FlagsParser<'a> {
 	
+	
 	pub fn parse_main (self) -> FlagsParsed<'a> {
 		self.parse_args_os (args_os ())
 	}
 	
 	pub fn parse_args (self, _arguments : Args) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.map (OsString::from) .collect (), true)
+		self.parse_into_iter_string (_arguments, true)
 	}
 	
 	pub fn parse_args_os (self, _arguments : ArgsOs) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.collect (), true)
+		self.parse_into_iter_os_string (_arguments, true)
 	}
 	
-	pub fn parse_vec_string (self, _arguments : Vec<String>) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.into_iter () .map (OsString::from) .collect (), false)
+	pub fn parse_vec_string (self, _arguments : Vec<String>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_into_iter_string (_arguments.into_iter (), _extract_exec)
 	}
 	
-	pub fn parse_vec_os_string (self, _arguments : Vec<OsString>) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments, false)
+	pub fn parse_vec_os_string (self, _arguments : Vec<OsString>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_into_iter_os_string (_arguments.into_iter (), _extract_exec)
 	}
 	
-	pub fn parse_slice_str (self, _arguments : &[&str]) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.iter () .map (OsString::from) .collect (), false)
+	
+	pub fn parse_slice_str (self, _arguments : &[&'a str], _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_iter_str (_arguments.iter () .cloned (), _extract_exec)
 	}
 	
-	pub(crate) fn parse_1 (mut self, mut _arguments : Vec<OsString>, _skip_exec : bool) -> FlagsParsed<'a> {
-		match self.parse_0 (_arguments, _skip_exec) {
+	pub fn parse_iter_str (self, _arguments : impl Iterator<Item = &'a str>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.map (OsStr::new) .map (Cow::from), _extract_exec)
+	}
+	
+	
+	pub fn parse_into_iter_string (self, _arguments : impl Iterator<Item = String>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.map (OsString::from) .map (Cow::from), _extract_exec)
+	}
+	
+	pub fn parse_into_iter_os_string (self, _arguments : impl Iterator<Item = OsString>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments.map (Cow::from), _extract_exec)
+	}
+	
+	
+	pub(crate) fn parse_1 (mut self, _arguments : impl Iterator<Item = Cow<'a, OsStr>>, _extract_exec : bool) -> FlagsParsed<'a> {
+		match self.parse_0 (_arguments, _extract_exec) {
 			Ok (()) =>
 				(),
 			Err (_error) =>
@@ -54,12 +70,14 @@ impl <'a> FlagsParser<'a> {
 
 impl <'a> FlagsParser<'a> {
 	
-	pub(crate) fn parse_0 (&mut self, mut _arguments : Vec<OsString>, _skip_exec : bool) -> FlagsParserResult {
+	pub(crate) fn parse_0 (&mut self, _arguments : impl Iterator<Item = Cow<'a, OsStr>>, _extract_exec : bool) -> FlagsParserResult {
+		
+		let mut _arguments = _arguments.map (Cow::into_owned) .collect::<Vec<_>> ();
 		
 		_arguments.reverse ();
 		
 		let _executable =
-				if _skip_exec {
+				if _extract_exec {
 					let Some (_executable) = _arguments.pop ()
 						else {
 							//  NOTE:  missing executable;

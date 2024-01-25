@@ -16,6 +16,7 @@ pub(crate) mod parser_model;
 pub(crate) mod parser_outcomes;
 pub(crate) mod parser_processing;
 pub(crate) mod prelude;
+pub(crate) mod splitter;
 pub(crate) mod values_model;
 pub(crate) mod values_implementations;
 

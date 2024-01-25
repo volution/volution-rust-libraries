@@ -19,6 +19,7 @@ pub use crate::parser_building::*;
 pub use crate::parser_model::*;
 pub use crate::parser_outcomes::*;
 pub use crate::parser_processing::*;
+pub use crate::splitter::*;
 pub use crate::values_model::*;
 pub use crate::values_implementations::*;
 
