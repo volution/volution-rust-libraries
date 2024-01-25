@@ -49,16 +49,21 @@ impl <'a> Arguments<'a> {
 	}
 	
 	pub fn parse_iter_str (_arguments : impl Iterator<Item = &'a str>, _extract_exec : bool) -> Arguments<'a> {
-		Self::parse_1 (_arguments.map (OsStr::new) .map (Cow::from), _extract_exec)
+		Self::parse_iterator (_arguments.map (OsStr::new) .map (Cow::from), _extract_exec)
 	}
 	
 	
 	pub fn parse_into_iter_string (_arguments : impl Iterator<Item = String>, _extract_exec : bool) -> Arguments<'a> {
-		Self::parse_1 (_arguments.map (OsString::from) .map (Cow::from), _extract_exec)
+		Self::parse_iterator (_arguments.map (OsString::from) .map (Cow::from), _extract_exec)
 	}
 	
 	pub fn parse_into_iter_os_string (_arguments : impl Iterator<Item = OsString>, _extract_exec : bool) -> Arguments<'a> {
-		Self::parse_1 (_arguments.map (Cow::from), _extract_exec)
+		Self::parse_iterator (_arguments.map (Cow::from), _extract_exec)
+	}
+	
+	
+	pub fn parse_iterator (_arguments : impl Iterator<Item = Cow<'a, OsStr>>, _extract_exec : bool) -> Arguments<'a> {
+		Self::parse_1 (_arguments, _extract_exec)
 	}
 }
 

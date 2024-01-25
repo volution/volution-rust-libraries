@@ -38,16 +38,21 @@ impl <'a> FlagsParser<'a> {
 	}
 	
 	pub fn parse_iter_str (self, _arguments : impl Iterator<Item = &'a str>, _extract_exec : bool) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.map (OsStr::new) .map (Cow::from), _extract_exec)
+		self.parse_iterator (_arguments.map (OsStr::new) .map (Cow::from), _extract_exec)
 	}
 	
 	
 	pub fn parse_into_iter_string (self, _arguments : impl Iterator<Item = String>, _extract_exec : bool) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.map (OsString::from) .map (Cow::from), _extract_exec)
+		self.parse_iterator (_arguments.map (OsString::from) .map (Cow::from), _extract_exec)
 	}
 	
 	pub fn parse_into_iter_os_string (self, _arguments : impl Iterator<Item = OsString>, _extract_exec : bool) -> FlagsParsed<'a> {
-		self.parse_1 (_arguments.map (Cow::from), _extract_exec)
+		self.parse_iterator (_arguments.map (Cow::from), _extract_exec)
+	}
+	
+	
+	pub fn parse_iterator (self, _arguments : impl Iterator<Item = Cow<'a, OsStr>>, _extract_exec : bool) -> FlagsParsed<'a> {
+		self.parse_1 (_arguments, _extract_exec)
 	}
 	
 	
