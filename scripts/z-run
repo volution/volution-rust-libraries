@@ -135,7 +135,7 @@
 :: dependencies / outdated :: exec -- "${ZRUN}" ':: cargo / tool' outdated "${@}"
 :: dependencies / duplicates :: exec -- "${ZRUN}" ':: cargo / tool' duplicates "${@}"
 :: dependencies / audit :: exec -- "${ZRUN}" ':: cargo / tool' audit "${@}"
-:: dependencies / geiger :: exec -- "${ZRUN}" ':: cargo / tool' geiger --output-format Ascii "${@}"
+:: dependencies / geiger :: export -- CARGO_SOURCES_SUBDIR=lib ; exec -- "${ZRUN}" ':: cargo / tool' geiger --output-format Ascii --all-features --all-targets "${@}"
 :: dependencies / bom :: exec -- "${ZRUN}" ':: cargo / tool' cyclonedx --all --format json "${@}"
 
 
@@ -172,7 +172,7 @@
 	
 	export -- CARGO_TARGET_DIR="${_target}"
 	
-	cd -- "${_sources}/workspace"
+	cd -- "${_sources}/${CARGO_SOURCES_SUBDIR:-workspace}"
 	
 	exec -- \
 		nice -n 19 -- \
