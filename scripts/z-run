@@ -8,7 +8,7 @@
 ::// dependencies / ...
 ::// docs / ...
 ::// cargo / ...
-::// workspace / ...
+::// workbench / ...
 ::// sources / ...
 ::// *
 
@@ -184,11 +184,11 @@
 
 
 
-<< workspace / initialize / rust
+<< workbench / initialize / rust
 	test "${#}" -eq 0
-	_outputs="$( exec -- readlink -e -- ./.outputs )"
+	_scratch="$( exec -- readlink -e -- ./.scratch )"
 	
-	_target="${_outputs}/${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
+	_target="${_scratch}/${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
 	_release="${_target}/release"
 	_debug="${_target}/debug"
 	
@@ -198,17 +198,19 @@
 		fi
 	done
 	
-	ln -s -f -- "${_target}" ./.target
+	ln -s -f -T -r -- "${_target}" ./.target
 !!
 
 
-<< workspace / initialize / outputs
+<< workbench / initialize / scratch
 	test "${#}" -eq 0
-	if test ! -d ./.outputs ; then
-		_outputs_store="${TMPDIR:-/tmp}/rust--scratch--${UID}"
-		mkdir -- "${_outputs_store}"
-		_outputs_store="$( exec -- readlink -e -- "${_outputs_store}" )"
-		ln -s -f -T -- "${_outputs_store}" ./.outputs
+	if test ! -d ./.scratch ; then
+		_scratch_store="${TMPDIR:-/tmp}/rust--scratch--${UID}"
+		if test ! -e "${_scratch_store}" ; then
+			mkdir -- "${_scratch_store}"
+		fi
+		_scratch_store="$( exec -- readlink -e -- "${_scratch_store}" )"
+		ln -s -f -T -r -- "${_scratch_store}" ./.scratch
 	fi
 !!
 
