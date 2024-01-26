@@ -208,6 +208,20 @@ impl <'a, Value, Consumer> ComplexFlag<'a, Value, Consumer>
 			})
 	}
 	
+	pub fn define_clear_0 <'b> (&'b mut self) -> &'b mut impl HasFlagDefinition<'a>
+	{
+		self.define_clear ((), ())
+	}
+	
+	pub fn define_clear <'b> (&'b mut self, _short : impl Into<FlagCharOptional<'a>>, _long : impl Into<FlagStrOptional<'a>>) -> &'b mut impl HasFlagDefinition<'a>
+	{
+		self.define_branch (ComplexFlagBranch {
+				action : ComplexFlagAction::Clear,
+				definition : FlagsParserBuilder::new_definition_simple_flag (_short, _long, false),
+			})
+	}
+	
+	
 	pub(crate) fn define_branch <'b> (&'b mut self, _branch : ComplexFlagBranch<'a, Value>) -> &'b mut ComplexFlagBranch<'a, Value> {
 		self.branches.push (_branch);
 		self.branches.last_mut () .infallible (0x19e18822)

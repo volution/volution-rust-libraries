@@ -129,6 +129,7 @@ pub(crate) enum ComplexFlagAction<'a, Value>
 {
 	Construct (Box<dyn FlagValueConstructor<Value> + 'a>),
 	Parse (Box<dyn FlagValueParser<Value> + 'a>),
+	Clear,
 }
 
 
@@ -136,6 +137,7 @@ pub(crate) enum ComplexFlagAction<'a, Value>
 pub trait ComplexFlagConsumer<Value : FlagValue>
 {
 	fn consume (&mut self, _value : Value) -> FlagValueParseResult;
+	fn clear (&mut self) -> FlagValueParseResult;
 }
 
 

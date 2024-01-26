@@ -307,6 +307,10 @@ impl <'a, Value, Consumer> FlagsProcessor<'a> for ComplexFlag<'a, Value, Consume
 						self.consumer.consume (_value) .else_wrap (0x575a437c) ?;
 						return Ok (());
 					}
+					ComplexFlagAction::Clear => {
+						self.consumer.clear () .else_wrap (0x8d461cb8) ?;
+						return Ok (());
+					}
 				}
 			}
 		}
