@@ -184,6 +184,13 @@
 
 
 
+<< workbench / initialize
+	test "${#}" -eq 0
+	"${ZRUN}" ':: workbench / initialize / scratch'
+	"${ZRUN}" ':: workbench / initialize / rust'
+!!
+
+
 << workbench / initialize / rust
 	test "${#}" -eq 0
 	_scratch="$( exec -- readlink -e -- ./.scratch )"
