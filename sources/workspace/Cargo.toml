@@ -5,6 +5,7 @@ members = [
 	"../bytes",
 	"../cli-arguments",
 	"../errors",
+	"../experiments",
 	"../lib",
 	"../preludes",
 	"../random",

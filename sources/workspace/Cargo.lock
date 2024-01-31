@@ -116,6 +116,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "vrl-experiments"
+version = "0.1.0"
+dependencies = [
+ "vrl-errors",
+ "vrl-preludes",
+]
+
+[[package]]
 name = "vrl-preludes"
 version = "0.1.0"
 
