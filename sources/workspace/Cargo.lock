@@ -86,6 +86,7 @@ dependencies = [
  "vrl-bytes",
  "vrl-cli-arguments",
  "vrl-errors",
+ "vrl-experiments",
  "vrl-preludes",
  "vrl-random",
 ]

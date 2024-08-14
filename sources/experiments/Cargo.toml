@@ -31,6 +31,9 @@ doctest = false
 
 [features]
 default = []
+all = [
+	"transcript",
+]
 transcript = []
 
 

@@ -31,13 +31,28 @@ doctest = false
 
 [features]
 default = []
+all = [
+	"bytes",
+	"cli-arguments",
+	"errors",
+	"experiments",
+	"preludes",
+	"random",
+]
+bytes = ["vrl-bytes"]
+cli-arguments = ["vrl-cli-arguments"]
+errors = ["vrl-errors"]
+experiments = ["vrl-experiments"]
+preludes = ["vrl-preludes"]
+random = ["vrl-random"]
 
 
 [dependencies]
-vrl-bytes = { path = "../bytes" }
-vrl-cli-arguments = { path = "../cli-arguments" }
-vrl-errors = { path = "../errors" }
-vrl-preludes = { path = "../preludes" }
-vrl-random = { path = "../random" }
+vrl-bytes = { path = "../bytes", optional = true, default-features = false, features = ["all"] }
+vrl-cli-arguments = { path = "../cli-arguments", optional = true, default-features = false, features = ["all"] }
+vrl-errors = { path = "../errors", optional = true, default-features = false, features = ["all"] }
+vrl-experiments = { path = "../experiments", optional = true, default-features = false, features = ["all"] }
+vrl-preludes = { path = "../preludes", optional = true, default-features = false, features = ["all"] }
+vrl-random = { path = "../random", optional = true, default-features = false, features = ["all"] }
 
 

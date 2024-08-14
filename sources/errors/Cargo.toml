@@ -30,8 +30,9 @@ doctest = false
 
 
 [features]
-default = [
-#	"anyhow",
+default = []
+all = [
+	"anyhow",
 ]
 
 
