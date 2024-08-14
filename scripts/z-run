@@ -118,10 +118,10 @@
 
 
 
-:: docs / crate / internals / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps --document-private-items "${@}"
-:: docs / crate / exports / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps "${@}"
+:: docs / crate / internals / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps --all-features --document-private-items "${@}"
+:: docs / crate / exports / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --no-deps --all-features "${@}"
 
-:: docs / dependencies / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace "${@}"
+:: docs / dependencies / build :: exec -- "${ZRUN}" ':: cargo / tool' doc --workspace --all-features "${@}"
 
 :: docs / open :: exec -- x-www guest:volution-rust-libraries open "file://$( exec -- readlink -e -- "./.target/doc/vrl/index.html" )"
 
