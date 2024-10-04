@@ -195,7 +195,8 @@
 	test "${#}" -eq 0
 	_scratch="$( exec -- readlink -e -- ./.scratch )"
 	
-	_target="${_scratch}/${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
+	_target_identifier="${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
+	_target="${_scratch}/${_target_identifier}"
 	_release="${_target}/release"
 	_debug="${_target}/debug"
 	
@@ -205,7 +206,7 @@
 		fi
 	done
 	
-	ln -s -f -T -r -- "${_target}" ./.target
+	ln -s -f -T -- "./.scratch/${_target_identifier}" ./.target
 !!
 
 
