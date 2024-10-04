@@ -8,7 +8,7 @@ pub use ::std::os::unix::prelude::*;
 #[ cfg (windows) ]
 pub use ::std::os::windows::prelude::*;
 
-#[ cfg (wasi) ]
+#[ cfg (target_os = "wasi") ]
 pub use ::std::os::wasi::prelude::*;
 
 pub use ::std::io;

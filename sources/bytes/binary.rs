@@ -115,37 +115,44 @@ pub trait BinaryRef {
 	
 	#[ cfg (feature = "hex") ]
 	fn to_hex_string (&self) -> (String) {
-		encode_binary_to_hex_string (self)
+		// encode_binary_to_hex_string (self)
+		panic! (unimplemented, 0x62febe23);
 	}
 	
 	#[ cfg (feature = "base32hex") ]
 	fn to_base32hex_string (&self) -> (String) {
-		encode_binary_to_base32hex_string (self)
+		// encode_binary_to_base32hex_string (self)
+		panic! (unimplemented, 0x152b7961);
 	}
 	
 	#[ cfg (feature = "base64url") ]
 	fn to_base64url_string (&self) -> (String) {
-		encode_binary_to_base64url_string (self)
+		// encode_binary_to_base64url_string (self)
+		panic! (unimplemented, 0xdf68f182);
 	}
 	
 	#[ cfg (feature = "bech32") ]
 	fn to_bech32_string (&self) -> (String) {
-		encode_binary_to_bech32_string (self)
+		// encode_binary_to_bech32_string (self)
+		panic! (unimplemented, 0x3fba2e97);
 	}
 	
 	#[ cfg (feature = "z85") ]
 	fn to_z85_string (&self) -> (String) {
-		encode_binary_to_z85_string (self)
+		// encode_binary_to_z85_string (self)
+		panic! (unimplemented, 0x34e88058);
 	}
 	
 	#[ cfg (feature = "mnemonic") ]
 	fn to_mnemonic_string (&self) -> (String) {
-		encode_binary_to_mnemonic_string (self)
+		// encode_binary_to_mnemonic_string (self)
+		panic! (unimplemented, 0xa829bc85);
 	}
 	
 	#[ cfg (feature = "proquint") ]
 	fn to_proquint_string (&self) -> (String) {
-		encode_binary_to_proquint_string (self)
+		// encode_binary_to_proquint_string (self)
+		panic! (unimplemented, 0x304187b8);
 	}
 	
 	fn write_to (&self, _stream : &mut dyn Write) -> (BinaryResult) {

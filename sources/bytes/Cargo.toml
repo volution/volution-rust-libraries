@@ -31,7 +31,22 @@ doctest = false
 
 [features]
 default = []
-all = []
+all = [
+	"hex",
+	"base32hex",
+	"base64url",
+	"bech32",
+	"z85",
+	"mnemonic",
+	"proquint",
+]
+hex = []
+base32hex = []
+base64url = []
+bech32 = []
+z85 = []
+mnemonic = []
+proquint = []
 
 
 [dependencies]
