@@ -95,7 +95,7 @@
 			
 			riscv64gc-unknown-linux-gnu
 			
-			wasm32-wasi
+			wasm32-wasip1
 			
 		)
 	
