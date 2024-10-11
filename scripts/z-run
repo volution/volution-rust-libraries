@@ -15,6 +15,10 @@
 
 
 
+
+
+
+
 :: debug / check / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' check --workspace --all-targets --all-features -- "${@}"
 :: debug / build / all :: export -- RUSTC_BOOTSTRAP=1 ;  exec -- "${ZRUN}" ':: cargo / tool' build --workspace --all-targets --all-features -- "${@}"
 
@@ -48,8 +52,13 @@
 
 
 
+
+
+
+
 << debug / check / all / cross
 	test "${#}" -eq 0
+	
 	_targets=(
 			
 			native
@@ -102,6 +111,7 @@
 	export -- RUSTC_BOOTSTRAP=1
 	
 	for _target in "${_targets[@]}" ; do
+		
 		_arguments=()
 		case "${_target}" in
 			( native )
@@ -110,10 +120,16 @@
 				_arguments+=( --target "${_target}" )
 			;;
 		esac
+		
 		printf -- '[ii]  checking for `%s`...\n' "${_target}" >&2
 		"${ZRUN}" ':: cargo / tool' check --workspace --all-targets --all-features "${_arguments[@]}"
+		
 	done
 !!
+
+
+
+
 
 
 
@@ -128,15 +144,28 @@
 
 
 
-:: dependencies / tree :: exec -- "${ZRUN}" ':: cargo / tool' tree "${@}"
-:: dependencies / licenses :: exec -- "${ZRUN}" ':: cargo / tool' license --all-features --avoid-build-deps --avoid-dev-deps "${@}"
-:: dependencies / update :: exec -- "${ZRUN}" ':: cargo / tool' update --aggressive "${@}"
+
+
+
+
+:: dependencies / update / check :: exec -- "${ZRUN}" ':: cargo / tool' update --locked --verbose "${@}"
+:: dependencies / update / conservative :: exec -- "${ZRUN}" ':: cargo / tool' update "${@}"
+:: dependencies / update / aggressive :: exec -- "${ZRUN}" ':: cargo / tool' update --aggressive "${@}"
+
 :: dependencies / upgrade :: exec -- "${ZRUN}" ':: cargo / tool' upgrade --compatible allow --incompatible allow --pinned allow --recursive --verbose --verbose "${@}"
 :: dependencies / outdated :: exec -- "${ZRUN}" ':: cargo / tool' outdated "${@}"
 :: dependencies / duplicates :: exec -- "${ZRUN}" ':: cargo / tool' duplicates "${@}"
 :: dependencies / audit :: exec -- "${ZRUN}" ':: cargo / tool' audit "${@}"
 :: dependencies / geiger :: export -- CARGO_SOURCES_SUBDIR=lib ; exec -- "${ZRUN}" ':: cargo / tool' geiger --output-format Ascii --all-features --all-targets "${@}"
+
 :: dependencies / bom :: exec -- "${ZRUN}" ':: cargo / tool' cyclonedx --all --format json "${@}"
+
+:: dependencies / tree :: exec -- "${ZRUN}" ':: cargo / tool' tree "${@}"
+:: dependencies / licenses :: exec -- "${ZRUN}" ':: cargo / tool' license --all-features --avoid-build-deps --avoid-dev-deps "${@}"
+
+
+
+
 
 
 
@@ -154,19 +183,25 @@
 			cargo-cyclonedx
 		)
 	
-	exec -- "${ZRUN}" ':: cargo / tool' install \
-			--locked \
-			--jobs 1 \
-			-- \
-			"${_tools[@]}" \
-	#
+	for _tool in "${_tools[@]}" ; do
+		printf -- '[ii]  installing `%s`...\n' "${_tool}" >&2
+		if ! "${ZRUN}" ':: cargo / tool' install --locked -- "${_tool}" ; then
+			printf -- '[ee]  failed installing `%s`;  ignoring!\n' "${_tool}" >&2
+		fi
+	done
 !!
 
 
 
 
+
+
+
+
 << cargo / tool
+	
 	test "${#}" -ge 1
+	
 	_target="$( exec -- readlink -e -- ./.target )"
 	_sources="$( exec -- readlink -e -- ./sources )"
 	
@@ -184,6 +219,10 @@
 
 
 
+
+
+
+
 << workbench / initialize
 	test "${#}" -eq 0
 	"${ZRUN}" ':: workbench / initialize / scratch'
@@ -193,6 +232,7 @@
 
 << workbench / initialize / rust
 	test "${#}" -eq 0
+	
 	_scratch="$( exec -- readlink -e -- ./.scratch )"
 	
 	_target_identifier="${UNAME_NODE}--${UNAME_FINGERPRINT}--${ZRUN_WORKSPACE_IDENTIFIER}"
@@ -211,7 +251,9 @@
 
 
 << workbench / initialize / scratch
+	
 	test "${#}" -eq 0
+	
 	if test ! -d ./.scratch ; then
 		_scratch_store="${TMPDIR:-/tmp}/rust--scratch--${UID}"
 		if test ! -e "${_scratch_store}" ; then
@@ -221,6 +263,10 @@
 		ln -s -f -T -r -- "${_scratch_store}" ./.scratch
 	fi
 !!
+
+
+
+
 
 
 
@@ -262,5 +308,10 @@
 
 
 
+
+
+
+
 &&?? ./.git/.local.z-run
+
 
