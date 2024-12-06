@@ -195,7 +195,7 @@ macro_rules! trace_code {
 macro_rules! trace_message {
 	
 	( $_format : literal ) => {
-		$crate::transcript::TraceMessage::new_with_format ($_code, ::std::format_args! ($_format))
+		$crate::transcript::TraceMessage::new_with_format (::std::format_args! ($_format))
 	};
 	
 	( $_format : literal, $( $_argument : expr ),* ) => {
