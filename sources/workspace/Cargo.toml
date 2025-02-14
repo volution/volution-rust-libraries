@@ -1,6 +1,13 @@
 
 
+################################################################################
+################################################################################
+
+
+
+
 [workspace]
+
 members = [
 	"../bytes",
 	"../cli-arguments",
@@ -10,21 +17,35 @@ members = [
 	"../preludes",
 	"../random",
 ]
+
 resolver = "2"
 
 
+
+
+################################################################################
+################################################################################
+
+
+
+
 [workspace.package]
+
 version = "0.1.0"
 publish = false
+
 edition = "2021"
 rust-version = "1.75"
+
 authors = [
 	"Ciprian Dorin Craciun <ciprian@volution.ro>",
 ]
 license = "GPL-3.0-or-later"
+
 description = "VRL -- Volution Rust Libraries"
 keywords = []
 categories = []
+
 homepage = "https://github.com/volution/volution-rust-libraries"
 repository = "https://github.com/volution/volution-rust-libraries"
 documentation = "https://github.com/volution/volution-rust-libraries"
@@ -32,6 +53,66 @@ documentation = "https://github.com/volution/volution-rust-libraries"
 
 
 
+################################################################################
+################################################################################
+
+
+
+
+[workspace.dependencies.vrl-bytes]
+version = "*"
+default-features = false
+path = "../bytes"
+
+[workspace.dependencies.vrl-cli-arguments]
+version = "*"
+default-features = false
+path = "../cli-arguments"
+
+[workspace.dependencies.vrl-errors]
+version = "*"
+default-features = false
+path = "../errors"
+
+[workspace.dependencies.vrl-experiments]
+version = "*"
+default-features = false
+path = "../experiments"
+
+[workspace.dependencies.vrl-preludes]
+version = "*"
+default-features = false
+path = "../preludes"
+
+[workspace.dependencies.vrl-random]
+version = "*"
+default-features = false
+path = "../random"
+
+
+[workspace.dependencies]
+anyhow = { version = "^1.0", default-features = false }
+brotli = { version = "^7.0", default-features = false }
+byteorder = { version = "^1.5", default-features = false }
+paste = { version = "^1.0", default-features = false }
+rand = { version = "^0.8", default-features = false }
+
+
+
+
+################################################################################
+################################################################################
+
+
+
+
+[patch.crates-io]
+
+
+
+
+################################################################################
+################################################################################
 
 
 
@@ -125,5 +206,12 @@ debug-assertions = false
 overflow-checks = true
 strip = "symbols"
 split-debuginfo = "packed"
+
+
+
+
+################################################################################
+################################################################################
+
 
 

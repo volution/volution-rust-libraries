@@ -50,8 +50,8 @@ proquint = []
 
 
 [dependencies]
-vrl-preludes = { path = "../preludes" }
-vrl-errors = { path = "../errors" }
-byteorder = "*"
+vrl-preludes = { workspace = true, features = [] }
+vrl-errors = { workspace = true, features = [] }
+byteorder = { workspace = true, features = [] }
 
 

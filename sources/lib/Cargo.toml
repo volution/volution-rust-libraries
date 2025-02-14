@@ -48,11 +48,11 @@ random = ["vrl-random"]
 
 
 [dependencies]
-vrl-bytes = { path = "../bytes", optional = true, default-features = false, features = ["all"] }
-vrl-cli-arguments = { path = "../cli-arguments", optional = true, default-features = false, features = ["all"] }
-vrl-errors = { path = "../errors", optional = true, default-features = false, features = ["all"] }
-vrl-experiments = { path = "../experiments", optional = true, default-features = false, features = ["all"] }
-vrl-preludes = { path = "../preludes", optional = true, default-features = false, features = ["all"] }
-vrl-random = { path = "../random", optional = true, default-features = false, features = ["all"] }
+vrl-bytes = { workspace = true, optional = true, features = ["all"] }
+vrl-cli-arguments = { workspace = true, optional = true, features = ["all"] }
+vrl-errors = { workspace = true, optional = true, features = ["all"] }
+vrl-experiments = { workspace = true, optional = true, features = ["all"] }
+vrl-preludes = { workspace = true, optional = true, features = ["all"] }
+vrl-random = { workspace = true, optional = true, features = ["all"] }
 
 

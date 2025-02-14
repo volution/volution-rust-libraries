@@ -35,8 +35,8 @@ all = []
 
 
 [dependencies]
-vrl-preludes = { path = "../preludes" }
-rand = { version = "*", default-features = false, features = ["std", "std_rng"], optional = false }
-paste = { version = "*", default-features = false, features = [] }
+vrl-preludes = { workspace = true, features = [] }
+rand = { workspace = true, features = ["std", "std_rng"] }
+paste = { workspace = true, features = [] }
 
 

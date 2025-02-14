@@ -37,12 +37,12 @@ all = [
 
 
 [dependencies]
-vrl-preludes = { path = "../preludes" }
-anyhow = { version = "*", default-features = false, features = ["std"], optional = true }
+vrl-preludes = { workspace = true, features = [] }
+anyhow = { workspace = true, optional = true, features = ["std"] }
 
 
 [dev-dependencies]
-anyhow = { version = "*", default-features = false, features = ["std"], optional = false }
+anyhow = { workspace = true, optional = false, features = ["std"] }
 
 
 [[test]]

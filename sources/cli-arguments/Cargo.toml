@@ -35,8 +35,8 @@ all = []
 
 
 [dependencies]
-vrl-preludes = { path = "../preludes" }
-vrl-errors = { path = "../errors" }
+vrl-preludes = { workspace = true, features = [] }
+vrl-errors = { workspace = true, features = [] }
 
 
 [[test]]
