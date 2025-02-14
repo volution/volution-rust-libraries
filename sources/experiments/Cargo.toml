@@ -33,12 +33,18 @@ doctest = false
 default = []
 all = [
 	"transcript",
+	"brotli",
 ]
 transcript = []
 
+brotli = [
+	"dep:brotli",
+]
 
 [dependencies]
 vrl-preludes = { path = "../preludes" }
 vrl-errors = { path = "../errors" }
+
+brotli = { version = "^7.0", optional = true, default-features = false, features = ["std"] }
 
 
