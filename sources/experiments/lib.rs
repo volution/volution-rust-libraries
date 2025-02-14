@@ -5,5 +5,6 @@
 
 
 
+#[ cfg (feature = "transcript") ]
 pub mod transcript;
 
