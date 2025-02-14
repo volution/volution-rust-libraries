@@ -235,7 +235,7 @@ mod splitter {
 	
 	#[ test ]
 	fn just_arguments_1 () -> () {
-		for _token_1 in &["", "-", "--", "-a", "--a", "-0", "--0", ":", "#"] {
+		for _token_1 in &["", "-", "-a", "--a", "-0", "--0", ":", "#"] {
 			let _arguments = Arguments::parse_slice_str (&[_token_1], false);
 			assert_eq! (_arguments.has_argument_0 (), false);
 			assert_eq! (_arguments.has_executable_0 (), false);
@@ -248,9 +248,24 @@ mod splitter {
 	
 	#[ test ]
 	fn just_arguments_2 () -> () {
-		for _token_1 in &["", "-", "--", "-a", "--a", "-0", "--0", ":", "#", "!"] {
+		for _token_1 in &["", "-", "-a", "--a", "-0", "--0", ":", "#", "!"] {
 			for _token_2 in &["a", "z", "A", "Z", "0", "9", "_", _token_1] {
 				let _arguments = Arguments::parse_slice_str (&[_token_1, _token_2], false);
+				assert_eq! (_arguments.has_argument_0 (), false);
+				assert_eq! (_arguments.has_executable_0 (), false);
+				assert_eq! (_arguments.has_command_0 (), false);
+				assert_eq! (_arguments.has_commands (), false);
+				assert_eq! (_arguments.has_arguments (), true);
+				assert_eq! (_arguments.arguments_deref_vec () .as_slice (), &[OsStr::new (_token_1), OsStr::new (_token_2)]);
+			}
+		}
+	}
+	
+	#[ test ]
+	fn just_arguments_3 () -> () {
+		for _token_1 in &["--", "", "-", "-a", "--a", "-0", "--0", ":", "#", "!"] {
+			for _token_2 in &["--", "a", "z", "A", "Z", "0", "9", "_", _token_1] {
+				let _arguments = Arguments::parse_slice_str (&["--", _token_1, _token_2], false);
 				assert_eq! (_arguments.has_argument_0 (), false);
 				assert_eq! (_arguments.has_executable_0 (), false);
 				assert_eq! (_arguments.has_command_0 (), false);
@@ -287,6 +302,18 @@ mod splitter {
 				assert_eq! (_arguments.has_arguments (), false);
 			}
 		}
+	}
+	
+	#[ test ]
+	fn command_with_argument () -> () {
+		let _arguments = Arguments::parse_slice_str (&["command", "--", "argument"], false);
+		assert_eq! (_arguments.has_argument_0 (), false);
+		assert_eq! (_arguments.has_executable_0 (), false);
+		assert_eq! (_arguments.has_command_0 (), false);
+		assert_eq! (_arguments.has_commands (), true);
+		assert_eq! (_arguments.commands_deref_vec () .as_slice (), &["command"]);
+		assert_eq! (_arguments.has_arguments (), true);
+		assert_eq! (_arguments.arguments_deref_vec () .as_slice (), &["argument"]);
 	}
 }
 

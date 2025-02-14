@@ -292,26 +292,34 @@ impl <'a> Arguments<'a> {
 		
 		let mut _commands = Vec::new ();
 		let mut _arguments = Vec::with_capacity (_arguments_raw.size_hint () .0);
+		let mut _arguments_with_dash_dash = false;
 		for _argument in _arguments_raw {
-			if ! _arguments.is_empty () {
+			if ! _arguments.is_empty () || _arguments_with_dash_dash {
 				_arguments.push (_argument);
 			} else {
-				let _is_command = if let Some (_argument) = _argument.to_str () {
-						match _argument.chars () .next () {
-							None =>
-								false,
-							Some (_character) =>
-								match _character {
-									'a' ..= 'z' | 'A' ..= 'Z' | '0' ..= '9' | '_' =>
-										true,
-									_ =>
-										false,
-								}
+				let (_is_command, _is_dash_dash) =
+					if let Some (_argument) = _argument.to_str () {
+						if (_argument == "--") && !_arguments_with_dash_dash {
+							(false, true)
+						} else {
+							match _argument.chars () .next () {
+								None =>
+									(false, false),
+								Some (_character) =>
+									match _character {
+										'a' ..= 'z' | 'A' ..= 'Z' | '0' ..= '9' | '_' =>
+											(true, false),
+										_ =>
+											(false, false),
+									}
+							}
 						}
 					} else {
-						false
+						(false, false)
 					};
-				if _is_command {
+				if _is_dash_dash {
+					_arguments_with_dash_dash = true;
+				} else if _is_command {
 					let _command = match _argument {
 						Cow::Borrowed (_argument) =>
 							Cow::Borrowed (_argument.to_str () .infallible (0x3701c6d6)),
