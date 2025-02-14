@@ -146,32 +146,47 @@ macro_rules! trace_critical {
 #[ macro_export ]
 macro_rules! trace {
 	
-	( debugging, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Debugging, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( debugging, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Debugging, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( internal, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Internal, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( internal, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Internal, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( information, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Information, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( information, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Information, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( notice, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Notice, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( notice, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Notice, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( warning, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Warning, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( warning, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Warning, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( error, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Error, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( error, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Error, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
 	};
 	
-	( critical, $_code : tt, $( $_token : tt )+ ) => {
-		$crate::transcript::trace_push ($crate::transcript::TraceLevel::Critical, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token )+ ))
+	( critical, $_code : tt, $( $_token : expr ),+ $( => $( if $_condition : expr )? )? ) => {
+		$crate::trace_push! ($crate::transcript::TraceLevel::Critical, $crate::trace_code! ($_code), $crate::trace_message! ( $( $_token ),+ ), $( $( $_condition )? )?, )
+	};
+}
+
+
+#[ doc (hidden) ]
+#[ macro_export ]
+macro_rules! trace_push {
+	
+	( $_level : expr, $_code : expr, $_message : expr, $( $_condition : expr )?, ) => {
+		{
+			let _push = true $( && $_condition )?;
+			if _push {
+				$crate::transcript::trace_push ($_level, $_code, $_message);
+			}
+		}
 	};
 }
 
