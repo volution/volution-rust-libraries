@@ -250,3 +250,16 @@ pub use ::std::num::{
 	};
 
 
+pub use ::std::ptr;
+pub use ::std::future;
+pub use ::std::task;
+
+
+pub use ::std::{
+		
+		assert,
+		assert_eq,
+		assert_ne,
+	};
+
+

@@ -65,6 +65,8 @@ pub mod std_only_extras;
 
 pub mod std_only_macros;
 
+pub mod std_only_futures;
+
 
 
 
@@ -78,6 +80,7 @@ pub mod std_plus_extras {
 	pub use crate::std_only_strings::*;
 	pub use crate::std_only_extras::*;
 	pub use crate::std_only_macros::*;
+	pub use crate::std_only_futures::*;
 }
 
 
