@@ -60,7 +60,7 @@ impl <'a> FlagChar<'a> {
 	pub fn push_into (&self, _buffer : &mut String) -> () {
 		match self {
 			Self::Char (_self) => _buffer.push (*_self),
-			Self::Constructed (ref _self) => _buffer.push (_self ()),
+			Self::Constructed (_self) => _buffer.push (_self ()),
 		}
 	}
 }
@@ -125,14 +125,14 @@ impl <'a> FlagCharOptional<'a> {
 	pub fn option <'b> (&'b self) -> Option<&'b FlagChar<'a>> {
 		match self {
 			Self::None => None,
-			Self::Some (ref _self) => Some (_self),
+			Self::Some (_self) => Some (_self),
 		}
 	}
 	
 	pub fn iter <'b> (&'b self) -> impl Iterator<Item = &'b FlagChar<'a>> {
 		match self {
 			Self::None => None.into_iter (),
-			Self::Some (ref _self) => Some (_self) .into_iter (),
+			Self::Some (_self) => Some (_self) .into_iter (),
 		}
 	}
 	
@@ -173,14 +173,14 @@ impl <'a> FlagStrOptional<'a> {
 	pub fn option <'b> (&'b self) -> Option<&'b FlagStr<'a>> {
 		match self {
 			Self::None => None,
-			Self::Some (ref _self) => Some (_self),
+			Self::Some (_self) => Some (_self),
 		}
 	}
 	
 	pub fn iter <'b> (&'b self) -> impl Iterator<Item = &'b FlagStr<'a>> {
 		match self {
 			Self::None => None.into_iter (),
-			Self::Some (ref _self) => Some (_self) .into_iter (),
+			Self::Some (_self) => Some (_self) .into_iter (),
 		}
 	}
 	

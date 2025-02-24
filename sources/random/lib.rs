@@ -40,7 +40,7 @@ macro_rules! random_fn {
 			}
 			
 			pub fn [< $_function _from >] (mut _rng : impl RngCore) -> $_type {
-				_rng.gen ()
+				_rng.r#gen ()
 			}
 		}
 	};
@@ -96,7 +96,7 @@ macro_rules! random_fn {
 			}
 			
 			pub fn [< $_function _from >] (mut _rng : impl RngCore) -> $_type {
-				let _value : $_type_cast = _rng.gen ();
+				let _value : $_type_cast = _rng.r#gen ();
 				unsafe { ::std::mem::transmute (_value) }
 			}
 		}
