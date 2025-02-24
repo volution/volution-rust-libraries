@@ -36,7 +36,7 @@ all = []
 
 [dependencies]
 vrl-preludes = { workspace = true, features = [] }
-rand = { workspace = true, features = ["std", "std_rng"] }
+rand = { workspace = true, features = ["thread_rng"] }
 paste = { workspace = true, features = [] }
 
 
