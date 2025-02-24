@@ -149,6 +149,7 @@
 
 
 :: dependencies / update / check :: exec -- "${ZRUN}" ':: cargo / tool' update --locked --verbose "${@}"
+:: dependencies / update / lock :: exec -- "${ZRUN}" ':: cargo / tool' update --workspace "${@}"
 :: dependencies / update / conservative :: exec -- "${ZRUN}" ':: cargo / tool' update "${@}"
 :: dependencies / update / aggressive :: exec -- "${ZRUN}" ':: cargo / tool' update --aggressive "${@}"
 
