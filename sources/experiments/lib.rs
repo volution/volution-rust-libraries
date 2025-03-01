@@ -9,6 +9,10 @@
 pub mod transcript;
 
 
+#[ cfg (feature = "globals") ]
+pub mod globals;
+
+
 #[ cfg (feature = "brotli") ]
 pub mod brotli;
 
