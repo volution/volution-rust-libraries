@@ -312,7 +312,8 @@ pub trait ResultExtUnexpected <V> : Sized {
 	fn else_unexpected_with_format (self, _code : impl Into<ErrorCode>, _format : fmt::Arguments) -> Result<V, UnexpectedError>;
 	
 	fn infallible_unexpected (self, _code : impl Into<ErrorCode>) -> V {
-		self.else_unexpected (_code) .infallible_0 ()
+		let _code = _code.into ();
+		self.else_unexpected (_code) .infallible (_code)
 	}
 }
 
