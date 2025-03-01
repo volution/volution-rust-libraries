@@ -28,6 +28,7 @@ pub use ::std::any;
 pub use ::std::any::{
 		
 		Any,
+		TypeId,
 	};
 
 
@@ -152,6 +153,10 @@ pub use ::std::cell::{
 		RefMut,
 		
 		UnsafeCell,
+		
+		OnceCell,
+		
+		LazyCell,
 	};
 
 
@@ -170,6 +175,9 @@ pub use ::std::sync::{
 		Weak as ArcWeak,
 		
 		Once,
+		OnceLock,
+		
+		LazyLock,
 		
 		Mutex,
 		MutexGuard,
