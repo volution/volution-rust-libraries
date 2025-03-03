@@ -9,8 +9,7 @@ use crate::prelude::*;
 pub trait Error
 	where
 		Self : Sized,
-		Self : Send + Sync + 'static,
-		Self : StdError,
+		Self : StdErrorStatic,
 {
 	
 	
@@ -70,7 +69,7 @@ pub trait Error
 	}
 	
 	#[ must_use ]
-	fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
+	fn cause_ref (&self) -> Option<&dyn StdErrorStatic> {
 		self.internals_ref () .payload_ref () .cause_ref ()
 	}
 	
@@ -113,15 +112,15 @@ pub trait ErrorNew : Error {
 	
 	#[ must_use ]
 	fn new_with_cause <E> (_error_code : impl Into<ErrorCode>, _cause : E) -> Self
-			where E : StdError + Sync + Send + 'static;
+			where E : StdErrorStatic;
 	
 	#[ must_use ]
 	fn new_with_message_and_cause <E> (_error_code : impl Into<ErrorCode>, _message : impl Into<Cow<'static, str>>, _cause : E) -> Self
-			where E : StdError + Sync + Send + 'static;
+			where E : StdErrorStatic;
 	
 	#[ must_use ]
 	fn new_with_format_and_cause <E> (_error_code : impl Into<ErrorCode>, _format : fmt::Arguments, _cause : E) -> Self
-			where E : StdError + Sync + Send + 'static;
+			where E : StdErrorStatic;
 }
 
 

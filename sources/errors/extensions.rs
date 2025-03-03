@@ -131,7 +131,7 @@ pub trait ErrorExtPanic : Sized {
 }
 
 
-impl <SE : StdError + Send + Sync + 'static> ErrorExtPanic for SE {
+impl <SE : StdErrorStatic> ErrorExtPanic for SE {
 	
 	fn panic (self, _code : impl Into<ErrorCode>) -> ! {
 		crate::panic! (enforcement, error : PanicError::new_with_cause (_code, self));
@@ -238,7 +238,7 @@ pub trait ErrorExtWrap <E : Error> : Sized {
 }
 
 
-impl <SE : StdError + Send + Sync + 'static, EN : ErrorNew> ErrorExtWrap<EN> for SE {
+impl <SE : StdErrorStatic, EN : ErrorNew> ErrorExtWrap<EN> for SE {
 	
 	fn else_wrap (self, _code : impl Into<ErrorCode>) -> EN {
 		EN::new_with_cause (_code, self)

@@ -167,7 +167,7 @@ pub struct ErrorNewWithCauseDescriptor <EN, C, W>
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	code : C,
 	cause : W,
@@ -179,7 +179,7 @@ impl <EN, C, W> ErrorNewWithCauseDescriptor<EN, C, W>
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	#[ must_use ]
 	pub const fn prepare_with_cause (_code : C, _cause : W) -> Self {
@@ -201,7 +201,7 @@ impl <EN, C, W> ErrorNewDescriptor<EN> for ErrorNewWithCauseDescriptor<EN, C, W>
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	fn prepare_build (self) -> EN {
 		EN::new_with_cause (self.code, self.cause)
@@ -218,7 +218,7 @@ pub struct ErrorNewWithMessageAndCauseDescriptor <EN, C, M, W>
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	code : C,
 	message : M,
@@ -232,7 +232,7 @@ impl <EN, C, M, W> ErrorNewWithMessageAndCauseDescriptor<EN, C, M, W>
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	#[ must_use ]
 	pub const fn prepare_with_message_and_cause (_code : C, _message : M, _cause : W) -> Self {
@@ -256,7 +256,7 @@ impl <EN, C, M, W> ErrorNewDescriptor<EN> for ErrorNewWithMessageAndCauseDescrip
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
 		M : Into<Cow<'static, str>>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	fn prepare_build (self) -> EN {
 		EN::new_with_message_and_cause (self.code, self.message, self.cause)
@@ -272,7 +272,7 @@ pub struct ErrorNewWithFormatAndCauseDescriptor <'a, EN, C, W>
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	code : C,
 	format : fmt::Arguments<'a>,
@@ -285,7 +285,7 @@ impl <'a, EN, C, W> ErrorNewWithFormatAndCauseDescriptor<'a, EN, C, W>
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	#[ must_use ]
 	pub const fn prepare_with_format_and_cause (_code : C, _format : fmt::Arguments<'a>, _cause : W) -> Self {
@@ -308,7 +308,7 @@ impl <'a, EN, C, W> ErrorNewDescriptor<EN> for ErrorNewWithFormatAndCauseDescrip
 	where
 		EN : ErrorNew,
 		C : Into<ErrorCode>,
-		W : StdError + Sync + Send + 'static,
+		W : StdErrorStatic,
 {
 	fn prepare_build (self) -> EN {
 		EN::new_with_format_and_cause (self.code, self.format, self.cause)
@@ -357,4 +357,23 @@ impl <END, EN> ErrorNewDescriptor<EN> for ErrorNewWithDetailsDescriptor<END, EN>
 	}
 }
 
+
+
+
+pub trait StdErrorStatic
+	where
+		Self : StdError,
+		Self : Send,
+		Self : Sync,
+		Self : 'static,
+{}
+
+
+impl <Error> StdErrorStatic for Error
+	where
+		Self : StdError,
+		Self : Send,
+		Self : Sync,
+		Self : 'static,
+{}
 

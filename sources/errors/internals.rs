@@ -35,7 +35,7 @@ pub(crate) enum ErrorMessage {
 #[ must_use ]
 pub(crate) enum ErrorCause {
 	None,
-	Boxed (Box<dyn StdError + Send + Sync + 'static>),
+	Boxed (Box<dyn StdErrorStatic>),
 }
 
 
@@ -73,7 +73,7 @@ impl <T : Error> ErrorInternals<T>
 	#[ doc (hidden) ]
 	#[ must_use ]
 	pub fn new_with_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _cause : E) -> Self
-			where E : StdError + Send + Sync + 'static
+			where E : StdErrorStatic
 	{
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _type_code, _error_code, None, Some (_cause))
 	}
@@ -81,7 +81,7 @@ impl <T : Error> ErrorInternals<T>
 	#[ doc (hidden) ]
 	#[ must_use ]
 	pub fn new_with_message_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Cow<'static, str>, _cause : E) -> Self
-			where E : StdError + Send + Sync + 'static
+			where E : StdErrorStatic
 	{
 		Self::new_with_message_and_cause_0 (_application_code, _module_code, _type_code, _error_code, Some (_message), Some (_cause))
 	}
@@ -89,7 +89,7 @@ impl <T : Error> ErrorInternals<T>
 	#[ doc (hidden) ]
 	#[ must_use ]
 	pub fn new_with_format_and_cause <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : E) -> Self
-			where E : StdError + Send + Sync + 'static
+			where E : StdErrorStatic
 	{
 		Self::new_with_format_and_cause_0 (_application_code, _module_code, _type_code, _error_code, _format, Some (_cause))
 	}
@@ -97,7 +97,7 @@ impl <T : Error> ErrorInternals<T>
 	
 	#[ must_use ]
 	pub(crate) fn new_with_message_and_cause_0 <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _message : Option<Cow<'static, str>>, _cause : Option<E>) -> Self
-			where E : StdError + Send + Sync + 'static
+			where E : StdErrorStatic
 	{
 		let _message = match _message {
 			Some (Cow::Borrowed (_message)) =>
@@ -119,7 +119,7 @@ impl <T : Error> ErrorInternals<T>
 	
 	#[ must_use ]
 	pub(crate) fn new_with_format_and_cause_0 <E> (_application_code : ErrorApplicationCode, _module_code : ErrorModuleCode, _type_code : ErrorTypeCode, _error_code : ErrorCode, _format : fmt::Arguments, _cause : Option<E>) -> Self
-			where E : StdError + Send + Sync + 'static
+			where E : StdErrorStatic
 	{
 		if let Some (_message) = _format.as_str () {
 			let _message = Cow::Borrowed (_message);
@@ -199,7 +199,7 @@ impl <T : Error> ErrorPayload<T> {
 impl <T : Error> ErrorPayload<T> {
 	
 	#[ must_use ]
-	pub(crate) fn cause_ref (&self) -> Option<&(dyn StdError + Send + Sync + 'static)> {
+	pub(crate) fn cause_ref (&self) -> Option<&dyn StdErrorStatic> {
 		match self.cause {
 			ErrorCause::None =>
 				None,
