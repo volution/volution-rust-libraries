@@ -197,10 +197,12 @@ pub use ::std::fmt::{
 		Formatter,
 		Arguments as FmtArguments,
 		Error as FmtError,
-		Result as FmtResult,
+	//	Result as FmtResult,
 		
 		Write as FmtWrite,
 	};
+
+pub type FmtResult<Value = ()> = ::std::result::Result<Value, ::std::fmt::Error>;
 
 
 pub use ::std::iter;
