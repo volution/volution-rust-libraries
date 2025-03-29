@@ -13,7 +13,3 @@ pub mod transcript;
 pub mod globals;
 
 
-#[ cfg (feature = "brotli") ]
-pub mod brotli;
-
-

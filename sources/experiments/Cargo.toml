@@ -36,21 +36,15 @@ default = []
 all = [
 	"transcript",
 	"globals",
-	"brotli",
 ]
 
 transcript = []
 
 globals = []
 
-brotli = [
-	"dep:brotli",
-]
-
 
 [dependencies]
 vrl-preludes = { workspace = true, features = [] }
 vrl-errors = { workspace = true, features = [] }
-brotli = { workspace = true, optional = true, features = ["std"] }
 
 
