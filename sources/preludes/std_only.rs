@@ -1,5 +1,5 @@
 
 
-pub use ::std::prelude::rust_2021::*;
+pub use ::std::prelude::rust_2024::*;
 
 
