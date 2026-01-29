@@ -181,7 +181,7 @@ impl <T : Error> ErrorInternals<T>
 impl <T : Error> ErrorPayload<T> {
 	
 	#[ must_use ]
-	pub(crate) fn message_string (&self) -> Option<Cow<str>> {
+	pub(crate) fn message_string (&self) -> Option<Cow<'_, str>> {
 		match self.message {
 			ErrorMessage::None =>
 				None,

@@ -64,7 +64,7 @@ pub trait Error
 	}
 	
 	#[ must_use ]
-	fn message_string (&self) -> Option<Cow<str>> {
+	fn message_string (&self) -> Option<Cow<'_, str>> {
 		self.internals_ref () .payload_ref () .message_string ()
 	}
 	

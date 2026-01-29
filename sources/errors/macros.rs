@@ -232,7 +232,7 @@ macro_rules! define_error_extensions {
 			
 			#[ allow (dead_code) ]
 			#[ must_use ]
-			pub fn message_string (&self) -> ::std::option::Option<::std::borrow::Cow<str>> {
+			pub fn message_string (&self) -> ::std::option::Option<::std::borrow::Cow<'_, str>> {
 				<Self as $crate::Error>::message_string (self)
 			}
 			
