@@ -52,7 +52,7 @@ pub use ::std::os::windows::ffi::{
 		OsStringExt,
 	};
 
-#[ cfg (target_os = "wasi") ]
+#[ cfg (all (target_os = "wasi", target_env = "p1")) ]
 pub use ::std::os::wasi::ffi::{
 		
 		OsStrExt,
