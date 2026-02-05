@@ -200,6 +200,9 @@ macro_rules! trace_code {
 	( $_code : literal ) => {
 		$crate::transcript::TraceCode::new ($_code)
 	};
+	( $_code : expr ) => {
+		$crate::transcript::TraceCode::new (u32::from ($_code))
+	};
 }
 
 
