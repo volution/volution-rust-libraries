@@ -40,7 +40,9 @@ pub fn panic_trigger <E : Error> (_error : E, _type : PanicType) -> ! {
 #[ doc (hidden) ]
 pub fn panic_trigger_unwind <E : Error> (_error : E) -> ! {
 	// FIXME:  Make the default panic handler properly print the error instead of `Box<Any>`!
-	let _message = format! ("[!!]  {}", _error);
+	let _message = format! ("[!!] [dc8e1d16]  unexpected unwind panic!\n{:#}", _error);
+	let _message = _message.trim ();
+	let _message = _message.replace ("\n", "\n[!!] [afb10175]  [>>]    ");
 	::std::panic::panic_any (_message);
 }
 
@@ -49,7 +51,9 @@ pub fn panic_trigger_unwind <E : Error> (_error : E) -> ! {
 pub fn panic_trigger_abort <E : Error> (_error : E) -> ! {
 	// FIXME:  Actually abort the process!
 	_ = ::std::panic::take_hook ();
-	let _message = format! ("[!!]  {}", _error);
+	let _message = format! ("[!!] [a98c39b1]  unexpected abort panic!\n{:#}", _error);
+	let _message = _message.trim ();
+	let _message = _message.replace ("\n", "\n[!!] [356dcf10]  [>>]    ");
 	::std::panic::panic_any (_message);
 }
 

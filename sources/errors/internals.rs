@@ -237,16 +237,28 @@ impl <T : Error> Display for ErrorPayload<T> {
 	fn fmt (&self, _formatter : &mut fmt::Formatter) -> fmt::Result {
 		
 		if let Some (_message) = self.message_string () {
-			write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  {}", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0, _message) ?
+			if _formatter.alternate () {
+				write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  {:#}", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0, _message) ?;
+			} else {
+				write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  {}", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0, _message) ?;
+			}
 		} else {
-			write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  (unexpected error)", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0) ?
+			if _formatter.alternate () {
+				write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  (unexpected error)", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0) ?;
+			} else {
+				write! (_formatter, "[{:032x}:{:08x}:{:08x}:{:08x}]  (unexpected error)", self.application_code.0, self.module_code.0, self.type_code.0, self.error_code.0) ?;
+			}
 		}
 		
 		match self.cause {
 			ErrorCause::None =>
 				(),
 			ErrorCause::Boxed (ref _cause) =>
-				write! (_formatter, "  //  {}", _cause) ?
+				if _formatter.alternate () {
+					write! (_formatter, "\n{:#}", _cause) ?
+				} else {
+					write! (_formatter, "  //  {}", _cause) ?
+				}
 		}
 		
 		Ok (())
