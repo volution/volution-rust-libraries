@@ -49,6 +49,7 @@ macro_rules! define_error {
 
 
 #[ macro_export ]
+#[ doc (hidden) ]
 macro_rules! define_error_type {
 	
 	
@@ -163,6 +164,7 @@ macro_rules! define_error_type {
 
 
 #[ macro_export ]
+#[ doc (hidden) ]
 macro_rules! define_error_extensions {
 	
 	
@@ -363,6 +365,7 @@ macro_rules! define_error_extensions {
 
 
 #[ macro_export ]
+#[ doc (hidden) ]
 macro_rules! define_error_conversions {
 	
 	
@@ -514,8 +517,8 @@ macro_rules! panic {
 
 
 
-#[ doc (hidden) ]
 #[ macro_export ]
+#[ doc (hidden) ]
 macro_rules! panic_error {
 	
 	( error : $_error : expr ) => {
