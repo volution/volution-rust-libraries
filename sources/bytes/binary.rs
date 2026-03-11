@@ -10,6 +10,7 @@ use ::vrl_preludes::std_plus_extras::*;
 use ::vrl_preludes::std_plus_io::*;
 
 use ::vrl_errors::*;
+use ::vrl_errors::panic;
 
 
 
