@@ -35,7 +35,7 @@ version = "0.1.0"
 publish = false
 
 edition = "2024"
-rust-version = "1.92"
+rust-version = "1.94"
 
 authors = [
 	"Ciprian Dorin Craciun <ciprian@volution.ro>",
