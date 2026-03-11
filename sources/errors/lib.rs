@@ -10,7 +10,7 @@ pub(crate) mod conversions;
 pub(crate) mod extensions;
 pub(crate) mod internals;
 pub(crate) mod codes;
-pub(crate) mod panic;
+pub(crate) mod panics;
 pub(crate) mod macros;
 pub(crate) mod prelude;
 
@@ -36,7 +36,7 @@ pub use crate::{
 		extensions::*,
 		internals::*,
 		codes::*,
-		panic::*,
+		panics::*,
 		prelude::*,
 	};
 
